@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { generateTopicsFromKeywords } from "@/utils/openai";
+import { toast } from "@/components/ui/use-toast";
 
 interface KeywordsAITabProps {
   keywordInput: string;
@@ -9,8 +12,18 @@ interface KeywordsAITabProps {
   keywords: string[];
   onAddKeyword: () => void;
   onDeleteKeyword: (keyword: string) => void;
-  onGenerateTopics: () => void;
+  onGenerateTopics: (topics: Array<{
+    title: string;
+    h2Headings: string[];
+    options: {
+      addH2: boolean;
+      faq: boolean;
+      tableOfContents: boolean;
+      generateImage: boolean;
+    };
+  }>) => void;
   isGenerating: boolean;
+  setIsGenerating: (value: boolean) => void;
 }
 
 export function KeywordsAITab({
@@ -21,13 +34,77 @@ export function KeywordsAITab({
   onDeleteKeyword,
   onGenerateTopics,
   isGenerating,
+  setIsGenerating,
 }: KeywordsAITabProps) {
+  const [apiKey, setApiKey] = useState("");
+
+  const handleGenerateTopics = async () => {
+    if (!apiKey.trim()) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your OpenAI API key to generate topics.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (keywords.length === 0) {
+      toast({
+        title: "Keywords Required",
+        description: "Please add at least one keyword to generate topics.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const generatedTopics = await generateTopicsFromKeywords(keywords, apiKey);
+      
+      const formattedTopics = generatedTopics.map(title => ({
+        title,
+        h2Headings: [],
+        options: {
+          addH2: false,
+          faq: true,
+          tableOfContents: true,
+          generateImage: false,
+        },
+      }));
+
+      onGenerateTopics(formattedTopics);
+      
+      toast({
+        title: "Success!",
+        description: `Generated ${generatedTopics.length} topics based on your keywords.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate topics. Please check your API key and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-gray-500 mb-4">
         Provide the keywords related to the article topics you're interested in. Based on them, Copymate will generate 10 topic suggestions.
       </p>
-      <p className="text-sm text-purple-600 mb-4">This option is free.</p>
+      
+      <div className="space-y-4 mb-6">
+        <label className="block text-sm font-medium text-gray-700">OpenAI API Key</label>
+        <Input
+          type="password"
+          placeholder="sk-..."
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          className="font-mono"
+        />
+      </div>
       
       <div className="flex gap-2">
         <Input 
@@ -72,7 +149,7 @@ export function KeywordsAITab({
           </div>
 
           <Button 
-            onClick={onGenerateTopics}
+            onClick={handleGenerateTopics}
             className="w-full bg-purple-600 text-white hover:bg-purple-700 mt-4"
             disabled={isGenerating}
           >

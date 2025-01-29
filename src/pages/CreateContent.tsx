@@ -101,53 +101,9 @@ export default function CreateContent() {
     setKeywords(keywords.filter(keyword => keyword !== keywordToDelete));
   };
 
-  const handleGenerateTopics = async () => {
-    if (keywords.length === 0) return;
-    
-    setIsGenerating(true);
-    try {
-      // Mock API call - replace with actual API integration
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const generatedTopics = [
-        {
-          title: "How to Improve Employee Productivity",
-          h2Headings: [],
-          options: {
-            addH2: true,
-            faq: false,
-            tableOfContents: true,
-            generateImage: false,
-          }
-        },
-        {
-          title: "5 Ways to Boost Workplace Efficiency",
-          h2Headings: [],
-          options: {
-            addH2: true,
-            faq: false,
-            tableOfContents: true,
-            generateImage: false,
-          }
-        }
-      ];
-
-      setTopics([...topics, ...generatedTopics]);
-      setKeywords([]);
-      setCurrentTab("manual");
-      toast({
-        title: "Topics generated successfully",
-        description: `${generatedTopics.length} topics have been added to your list.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error generating topics",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
+  const handleGenerateTopics = (generatedTopics: Topic[]) => {
+    setTopics([...topics, ...generatedTopics]);
+    setCurrentTab("manual");
   };
 
   const renderStepContent = () => {
@@ -207,6 +163,7 @@ export default function CreateContent() {
                   onDeleteKeyword={handleDeleteKeyword}
                   onGenerateTopics={handleGenerateTopics}
                   isGenerating={isGenerating}
+                  setIsGenerating={setIsGenerating}
                 />
               </TabsContent>
 
@@ -214,6 +171,50 @@ export default function CreateContent() {
                 <UploadCSVTab />
               </TabsContent>
             </Tabs>
+          </Card>
+        );
+      case 4:
+        return (
+          <Card className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-semibold">Review</h2>
+              <Button variant="outline" className="bg-purple-600 text-white hover:bg-purple-700">
+                Latest GPT
+              </Button>
+            </div>
+            <p className="text-gray-500 mb-6">
+              Select Model and check if everything is ok and create your content!
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-4">Topics</th>
+                    <th className="text-left py-2 px-4">H2s</th>
+                    <th className="text-center py-2 px-4">FAQ</th>
+                    <th className="text-center py-2 px-4">TOC</th>
+                    <th className="text-center py-2 px-4">Image</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topics.map((topic, index) => (
+                    <tr key={index} className="border-b">
+                      <td className="py-2 px-4 text-purple-600">{topic.title}</td>
+                      <td className="py-2 px-4">
+                        {topic.options.addH2 && topic.h2Headings.length > 0 ? "✓" : ""}
+                      </td>
+                      <td className="py-2 px-4 text-center">{topic.options.faq ? "✓" : ""}</td>
+                      <td className="py-2 px-4 text-center">
+                        {topic.options.tableOfContents ? "✓" : ""}
+                      </td>
+                      <td className="py-2 px-4 text-center">
+                        {topic.options.generateImage ? "✓" : ""}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
         );
       default:
