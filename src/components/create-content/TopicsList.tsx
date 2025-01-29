@@ -1,12 +1,6 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface Topic {
   title: string;
@@ -52,26 +46,11 @@ export function TopicsList({ topics, onRemoveTopic, onUpdateTopic }: TopicsListP
         <div key={index} className="grid grid-cols-5 gap-4 py-3 border-t items-center">
           <div className="text-purple-600">{topic.title}</div>
           <div>
-            {topic.h2Headings.length > 0 ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="text-sm text-gray-600">
-                      {topic.h2Headings.length} headings
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <ul className="list-disc pl-4">
-                      {topic.h2Headings.map((heading, i) => (
-                        <li key={i} className="text-sm">{heading}</li>
-                      ))}
-                    </ul>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : (
-              <span className="text-sm text-gray-400">No headings</span>
-            )}
+            <Checkbox
+              checked={topic.options.addH2 && topic.h2Headings.length > 0}
+              onCheckedChange={(checked) => handleOptionChange(index, 'addH2', checked as boolean)}
+              disabled={!onUpdateTopic}
+            />
           </div>
           <div>
             <Checkbox

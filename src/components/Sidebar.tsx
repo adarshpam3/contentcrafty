@@ -1,24 +1,18 @@
-import { Home, FileText, ShoppingBag, Plus } from "lucide-react";
+import { Home, FileText, ShoppingBag, Image, Database, Network } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import { SidebarHeader } from "./sidebar/SidebarHeader";
-import { SidebarMenuItem } from "./sidebar/SidebarMenuItem";
-import { SidebarToolsSection } from "./sidebar/SidebarToolsSection";
-import { SidebarToggle } from "./sidebar/SidebarToggle";
 
-const mainMenuItems = [
+const menuItems = [
   { icon: Home, label: "Home", href: "/" },
   { icon: FileText, label: "Articles", href: "/articles" },
   { icon: ShoppingBag, label: "Projects", href: "/projects" },
-  { icon: Plus, label: "Create Content", href: "/create-content" },
+  { icon: Image, label: "Image Generator", href: "/image-generator" },
+  { icon: Database, label: "Indexing API", href: "/indexing-api" },
+  { icon: Network, label: "PBN Management", href: "/pbn" },
 ];
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const location = useLocation();
-
-  const isActive = (href: string) => location.pathname === href;
 
   return (
     <div
@@ -28,30 +22,36 @@ export function Sidebar() {
       )}
     >
       <div className="flex flex-col h-full">
-        <SidebarHeader collapsed={collapsed} />
+        <div className="p-4 border-b border-gray-200">
+          <h1 className={cn("font-semibold", collapsed ? "text-center" : "text-xl")}>
+            {collapsed ? "C" : "Copymate"}
+          </h1>
+        </div>
         
         <nav className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-1">
-            {mainMenuItems.map((item) => (
-              <SidebarMenuItem
+          <div className="space-y-2">
+            {menuItems.map((item) => (
+              <a
                 key={item.label}
-                {...item}
-                isActive={isActive(item.href)}
-                collapsed={collapsed}
-              />
+                href={item.href}
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <item.icon className="w-5 h-5 text-gray-500" />
+                {!collapsed && <span className="text-gray-700">{item.label}</span>}
+              </a>
             ))}
-            
-            <SidebarToolsSection 
-              collapsed={collapsed}
-              isActive={isActive}
-            />
           </div>
         </nav>
 
-        <SidebarToggle
-          collapsed={collapsed}
-          onToggle={() => setCollapsed(!collapsed)}
-        />
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-4 border-t border-gray-200 hover:bg-gray-100 transition-colors"
+        >
+          <div className="flex items-center justify-center">
+            <span className="sr-only">Toggle sidebar</span>
+            {collapsed ? "→" : "←"}
+          </div>
+        </button>
       </div>
     </div>
   );
