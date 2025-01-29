@@ -8,12 +8,14 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
     const { keywords } = await req.json()
+    console.log('Received keywords:', keywords)
 
     // Create a Supabase client
     const supabaseClient = createClient(
@@ -26,11 +28,17 @@ serve(async (req) => {
     })
     const openai = new OpenAIApi(configuration)
 
+    if (!configuration.apiKey) {
+      console.error('OpenAI API key not configured')
+      throw new Error('OpenAI API key not configured')
+    }
+
     const prompt = `Generate 10 unique article topics related to these keywords: ${keywords.join(', ')}. 
     Format each topic as a simple string. Topics should be engaging and SEO-friendly.`
 
+    console.log('Sending request to OpenAI')
     const completion = await openai.createChatCompletion({
-      model: 'gpt-4',
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
@@ -48,6 +56,8 @@ serve(async (req) => {
       ?.split('\n')
       .filter(Boolean)
       .map(topic => topic.replace(/^\d+\.\s*/, '').trim()) || []
+
+    console.log('Generated topics:', topics)
 
     // Log the API usage
     const { error: logError } = await supabaseClient
@@ -72,7 +82,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: error.message || 'Internal server error' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
