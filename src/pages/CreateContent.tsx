@@ -67,6 +67,8 @@ export default function CreateContent() {
     tableOfContents: false,
     generateImage: false,
   });
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [keywordInput, setKeywordInput] = useState("");
 
   const handleNext = () => {
     if (currentStep < steps.length) {
@@ -105,6 +107,45 @@ export default function CreateContent() {
   const handleRemoveTopic = (index: number) => {
     const newTopics = topics.filter((_, i) => i !== index);
     setTopics(newTopics);
+  };
+
+  const handleAddKeyword = () => {
+    if (!keywordInput.trim()) return;
+    setKeywords([...keywords, keywordInput.trim()]);
+    setKeywordInput("");
+  };
+
+  const handleDeleteKeyword = (keywordToDelete: string) => {
+    setKeywords(keywords.filter(keyword => keyword !== keywordToDelete));
+  };
+
+  const handleGenerateTopics = async () => {
+    const generatedTopics = [
+      {
+        title: "How to Improve Employee Productivity",
+        h2Headings: [],
+        options: {
+          addH2: true,
+          faq: false,
+          tableOfContents: true,
+          generateImage: false,
+        }
+      },
+      {
+        title: "5 Ways to Boost Workplace Efficiency",
+        h2Headings: [],
+        options: {
+          addH2: true,
+          faq: false,
+          tableOfContents: true,
+          generateImage: false,
+        }
+      }
+    ];
+
+    setTopics([...topics, ...generatedTopics]);
+    setKeywords([]);
+    setCurrentTab("manual");
   };
 
   const renderStepContent = () => {
@@ -155,7 +196,7 @@ export default function CreateContent() {
         return (
           <Card className="p-6">
             <h2 className="text-2xl font-semibold mb-2">Add topics</h2>
-            <Tabs defaultValue="manual" className="w-full" onValueChange={setCurrentTab}>
+            <Tabs defaultValue="manual" className="w-full" value={currentTab} onValueChange={setCurrentTab}>
               <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="manual" className="flex items-center gap-2">
                   <Pencil className="w-4 h-4" />
@@ -291,14 +332,57 @@ export default function CreateContent() {
                     Provide the keywords related to the article topics you're interested in. Based on them, Copymate will generate 10 topic suggestions.
                   </p>
                   <p className="text-sm text-purple-600 mb-4">This option is free.</p>
-                  <Input 
-                    type="text" 
-                    placeholder="employee productivity"
-                    className="w-full"
-                  />
-                  <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
-                    Add
-                  </Button>
+                  
+                  <div className="flex gap-2">
+                    <Input 
+                      type="text" 
+                      placeholder="employee productivity"
+                      value={keywordInput}
+                      onChange={(e) => setKeywordInput(e.target.value)}
+                      className="flex-1"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleAddKeyword();
+                        }
+                      }}
+                    />
+                    <Button 
+                      onClick={handleAddKeyword}
+                      className="bg-purple-100 text-purple-600 hover:bg-purple-200"
+                    >
+                      Add
+                    </Button>
+                  </div>
+
+                  {keywords.length > 0 && (
+                    <>
+                      <div className="mt-6">
+                        <h3 className="text-sm font-medium mb-2">List of your keywords</h3>
+                        <div className="space-y-2">
+                          {keywords.map((keyword, index) => (
+                            <div key={index} className="flex items-center justify-between bg-purple-50 p-2 rounded">
+                              <span className="text-purple-600">{keyword}</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleDeleteKeyword(keyword)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <Button 
+                        onClick={handleGenerateTopics}
+                        className="w-full bg-purple-600 text-white hover:bg-purple-700 mt-4"
+                      >
+                        Generate
+                      </Button>
+                    </>
+                  )}
                 </div>
               </TabsContent>
 
