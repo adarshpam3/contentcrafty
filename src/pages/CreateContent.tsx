@@ -7,7 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Upload } from "lucide-react";
+import { Pencil, Upload, Check } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -17,7 +18,6 @@ const steps = [
   { number: 5, title: "Done", current: false },
 ];
 
-// List of languages
 const languages = [
   "English",
   "Spanish",
@@ -41,6 +41,17 @@ const languages = [
   "Indonesian"
 ];
 
+interface Topic {
+  title: string;
+  h2Headings: string[];
+  options: {
+    addH2: boolean;
+    faq: boolean;
+    tableOfContents: boolean;
+    generateImage: boolean;
+  };
+}
+
 export default function CreateContent() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
@@ -48,6 +59,8 @@ export default function CreateContent() {
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [topic, setTopic] = useState("");
   const [currentTab, setCurrentTab] = useState("manual");
+  const [h2Headings, setH2Headings] = useState("");
+  const [topics, setTopics] = useState<Topic[]>([]);
   const [options, setOptions] = useState({
     addH2: false,
     faq: false,
@@ -67,6 +80,31 @@ export default function CreateContent() {
     } else {
       navigate(-1);
     }
+  };
+
+  const handleAddTopic = () => {
+    if (!topic) return;
+
+    const newTopic: Topic = {
+      title: topic,
+      h2Headings: h2Headings.split('\n').filter(heading => heading.trim()),
+      options: { ...options },
+    };
+
+    setTopics([...topics, newTopic]);
+    setTopic("");
+    setH2Headings("");
+    setOptions({
+      addH2: false,
+      faq: false,
+      tableOfContents: false,
+      generateImage: false,
+    });
+  };
+
+  const handleRemoveTopic = (index: number) => {
+    const newTopics = topics.filter((_, i) => i !== index);
+    setTopics(newTopics);
   };
 
   const renderStepContent = () => {
@@ -193,10 +231,57 @@ export default function CreateContent() {
                       </div>
                     </div>
                   </div>
+
+                  {options.addH2 && (
+                    <div>
+                      <label className="block text-sm font-medium mb-1">H2 Headings:</label>
+                      <Textarea
+                        placeholder="Each H2 heading in new line"
+                        value={h2Headings}
+                        onChange={(e) => setH2Headings(e.target.value)}
+                        className="min-h-[100px]"
+                      />
+                    </div>
+                  )}
                   
-                  <Button className="w-full bg-purple-100 text-purple-600 hover:bg-purple-200">
+                  <Button 
+                    className="w-full bg-purple-100 text-purple-600 hover:bg-purple-200"
+                    onClick={handleAddTopic}
+                  >
                     Add
                   </Button>
+
+                  {topics.length > 0 && (
+                    <div className="mt-8">
+                      <div className="grid grid-cols-5 gap-4 py-2 font-medium text-sm text-gray-500">
+                        <div>Topics</div>
+                        <div>H2s</div>
+                        <div>FAQ</div>
+                        <div>TOC</div>
+                        <div>Image</div>
+                      </div>
+                      {topics.map((t, index) => (
+                        <div key={index} className="grid grid-cols-5 gap-4 py-3 border-t">
+                          <div className="text-purple-600">{t.title}</div>
+                          <div>{t.options.addH2 && t.h2Headings.length > 0 ? <Check className="w-4 h-4" /> : null}</div>
+                          <div>{t.options.faq ? <Check className="w-4 h-4" /> : null}</div>
+                          <div>{t.options.tableOfContents ? <Check className="w-4 h-4" /> : null}</div>
+                          <div className="flex items-center justify-between">
+                            {t.options.generateImage ? (
+                              <span className="text-xs text-gray-500">prompt</span>
+                            ) : null}
+                            <Button
+                              variant="ghost"
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 h-auto text-xs"
+                              onClick={() => handleRemoveTopic(index)}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </TabsContent>
 
@@ -238,7 +323,6 @@ export default function CreateContent() {
                       accept=".csv"
                       className="hidden"
                       onChange={(e) => {
-                        // Handle file upload here
                         console.log(e.target.files?.[0]);
                       }}
                     />
@@ -316,11 +400,11 @@ export default function CreateContent() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Articles to write:</span>
-                  <span className="text-gray-900">0</span>
+                  <span className="text-gray-900">{topics.length}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Image cost:</span>
-                  <span className="text-gray-900">0 Tokens</span>
+                  <span className="text-gray-900">{topics.filter(t => t.options.generateImage).length} Tokens</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Language:</span>
