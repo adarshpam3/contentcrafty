@@ -5,19 +5,19 @@ export function NavigationButtons() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex justify-between mt-6">
+    <div className="flex justify-end gap-3 mt-6">
       <Button 
         variant="outline" 
         onClick={() => navigate(-1)}
-        className="px-6"
+        className="px-8 border-purple-200 text-purple-600 hover:bg-purple-50"
       >
         Back
       </Button>
       <Button 
-        className="bg-purple-600 hover:bg-purple-700 text-white px-6"
-        onClick={() => {/* Handle create content */}}
+        onClick={() => {/* Handle next step */}}
+        className="px-8 bg-purple-600 hover:bg-purple-700 text-white"
       >
-        Create Content
+        Next
       </Button>
     </div>
   );
