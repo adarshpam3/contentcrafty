@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.1.0'
+import OpenAI from 'https://esm.sh/openai@4.20.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,12 +23,11 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     )
 
-    const configuration = new Configuration({
+    const openai = new OpenAI({
       apiKey: Deno.env.get('OPENAI_API_KEY'),
     })
-    const openai = new OpenAIApi(configuration)
 
-    if (!configuration.apiKey) {
+    if (!openai.apiKey) {
       console.error('OpenAI API key not configured')
       throw new Error('OpenAI API key not configured')
     }
@@ -37,7 +36,7 @@ serve(async (req) => {
     Format each topic as a simple string. Topics should be engaging and SEO-friendly.`
 
     console.log('Sending request to OpenAI')
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         {
@@ -52,7 +51,7 @@ serve(async (req) => {
       temperature: 0.7,
     })
 
-    const topics = completion.data.choices[0].message?.content
+    const topics = completion.choices[0].message.content
       ?.split('\n')
       .filter(Boolean)
       .map(topic => topic.replace(/^\d+\.\s*/, '').trim()) || []
@@ -65,7 +64,7 @@ serve(async (req) => {
       .insert({
         feature: 'topic_generation',
         api_name: 'openai',
-        tokens_used: completion.data.usage?.total_tokens || 0,
+        tokens_used: completion.usage?.total_tokens || 0,
       })
 
     if (logError) {
