@@ -89,7 +89,7 @@ export function KeywordsAITab({
       )}
 
       <Dialog open={isGenerating} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md" showClose={false}>
+        <DialogContent className="sm:max-w-md">
           <div className="flex flex-col items-center justify-center py-8 space-y-4">
             <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
             <h2 className="text-lg font-semibold">Please wait, topics generation in progress...</h2>
