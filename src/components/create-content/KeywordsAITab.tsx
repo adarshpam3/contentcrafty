@@ -49,11 +49,11 @@ export function KeywordsAITab({
     try {
       const generatedTopics = await generateTopicsFromKeywords(keywords);
       
-      const formattedTopics = generatedTopics.map(title => ({
+      const formattedTopics = generatedTopics.map(({ title, h2Headings = [] }) => ({
         title,
-        h2Headings: [],
+        h2Headings,
         options: {
-          addH2: false,
+          addH2: h2Headings.length > 0,
           faq: true,
           tableOfContents: true,
           generateImage: false,
@@ -80,7 +80,7 @@ export function KeywordsAITab({
   return (
     <div className="space-y-4">
       <p className="text-gray-500 mb-4">
-        Provide the keywords related to the article topics you're interested in. Based on them, Copymate will generate 10 topic suggestions.
+        Provide the keywords related to the article topics you're interested in. Based on them, Copymate will generate 10 topic suggestions with H2 headings.
       </p>
       
       <div className="flex gap-2">

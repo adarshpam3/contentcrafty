@@ -8,7 +8,6 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -17,7 +16,6 @@ serve(async (req) => {
     const { keywords } = await req.json()
     console.log('Received keywords:', keywords)
 
-    // Create a Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
@@ -33,7 +31,9 @@ serve(async (req) => {
     }
 
     const prompt = `Generate 10 unique article topics related to these keywords: ${keywords.join(', ')}. 
-    Format each topic as a simple string. Topics should be engaging and SEO-friendly.`
+    For each topic, also generate 3-5 H2 subheadings that would structure the article well.
+    Format the response as a JSON array where each object has a "title" string and an "h2Headings" array of strings.
+    Make the topics and headings engaging and SEO-friendly.`
 
     console.log('Sending request to OpenAI')
     const completion = await openai.chat.completions.create({
@@ -41,7 +41,7 @@ serve(async (req) => {
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful assistant that generates article topics based on keywords.'
+          content: 'You are a helpful assistant that generates article topics and their subheadings in JSON format.'
         },
         {
           role: 'user',
@@ -49,16 +49,15 @@ serve(async (req) => {
         }
       ],
       temperature: 0.7,
+      response_format: { type: "json_object" }
     })
 
-    const topics = completion.choices[0].message.content
-      ?.split('\n')
-      .filter(Boolean)
-      .map(topic => topic.replace(/^\d+\.\s*/, '').trim()) || []
+    const content = completion.choices[0].message.content;
+    const parsedContent = JSON.parse(content);
+    const topics = parsedContent.topics || [];
 
     console.log('Generated topics:', topics)
 
-    // Log the API usage
     const { error: logError } = await supabaseClient
       .from('api_logs')
       .insert({
