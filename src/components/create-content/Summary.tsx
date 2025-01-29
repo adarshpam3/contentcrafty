@@ -51,23 +51,6 @@ export function Summary({ selectedProject, selectedLanguage, topicsCount, imageC
             <span className="text-gray-600">Language:</span>
             <span className="text-gray-900">{selectedLanguage || "not selected"}</span>
           </div>
-
-          {/* Navigation Buttons */}
-          <div className="flex flex-col gap-3 pt-4 mt-4 border-t">
-            <Button
-              onClick={() => navigate(-1)}
-              variant="outline"
-              className="w-full"
-            >
-              Back
-            </Button>
-            <Button
-              onClick={() => navigate('/create')}
-              className="w-full bg-purple-600 hover:bg-purple-700"
-            >
-              Create Content
-            </Button>
-          </div>
         </div>
       </Card>
     </div>
