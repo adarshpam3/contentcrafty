@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
 interface KeywordsAITabProps {
   keywordInput: string;
@@ -8,6 +10,7 @@ interface KeywordsAITabProps {
   onAddKeyword: () => void;
   onDeleteKeyword: (keyword: string) => void;
   onGenerateTopics: () => void;
+  isGenerating: boolean;
 }
 
 export function KeywordsAITab({
@@ -17,6 +20,7 @@ export function KeywordsAITab({
   onAddKeyword,
   onDeleteKeyword,
   onGenerateTopics,
+  isGenerating,
 }: KeywordsAITabProps) {
   return (
     <div className="space-y-4">
@@ -70,11 +74,29 @@ export function KeywordsAITab({
           <Button 
             onClick={onGenerateTopics}
             className="w-full bg-purple-600 text-white hover:bg-purple-700 mt-4"
+            disabled={isGenerating}
           >
-            Generate
+            {isGenerating ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Generating...
+              </span>
+            ) : (
+              'Generate'
+            )}
           </Button>
         </>
       )}
+
+      <Dialog open={isGenerating} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md" showClose={false}>
+          <div className="flex flex-col items-center justify-center py-8 space-y-4">
+            <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+            <h2 className="text-lg font-semibold">Please wait, topics generation in progress...</h2>
+            <p className="text-gray-500">Do not leave this screen while generating articles!</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

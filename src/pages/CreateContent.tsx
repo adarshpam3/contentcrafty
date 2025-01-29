@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Upload } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 import { StepIndicator } from "@/components/create-content/StepIndicator";
 import { ProjectSelection } from "@/components/create-content/ProjectSelection";
@@ -49,6 +50,7 @@ export default function CreateContent() {
   });
   const [keywords, setKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleNext = () => {
     if (currentStep < steps.length) {
@@ -100,32 +102,52 @@ export default function CreateContent() {
   };
 
   const handleGenerateTopics = async () => {
-    const generatedTopics = [
-      {
-        title: "How to Improve Employee Productivity",
-        h2Headings: [],
-        options: {
-          addH2: true,
-          faq: false,
-          tableOfContents: true,
-          generateImage: false,
+    if (keywords.length === 0) return;
+    
+    setIsGenerating(true);
+    try {
+      // Mock API call - replace with actual API integration
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const generatedTopics = [
+        {
+          title: "How to Improve Employee Productivity",
+          h2Headings: [],
+          options: {
+            addH2: true,
+            faq: false,
+            tableOfContents: true,
+            generateImage: false,
+          }
+        },
+        {
+          title: "5 Ways to Boost Workplace Efficiency",
+          h2Headings: [],
+          options: {
+            addH2: true,
+            faq: false,
+            tableOfContents: true,
+            generateImage: false,
+          }
         }
-      },
-      {
-        title: "5 Ways to Boost Workplace Efficiency",
-        h2Headings: [],
-        options: {
-          addH2: true,
-          faq: false,
-          tableOfContents: true,
-          generateImage: false,
-        }
-      }
-    ];
+      ];
 
-    setTopics([...topics, ...generatedTopics]);
-    setKeywords([]);
-    setCurrentTab("manual");
+      setTopics([...topics, ...generatedTopics]);
+      setKeywords([]);
+      setCurrentTab("manual");
+      toast({
+        title: "Topics generated successfully",
+        description: `${generatedTopics.length} topics have been added to your list.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error generating topics",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const renderStepContent = () => {
@@ -184,6 +206,7 @@ export default function CreateContent() {
                   onAddKeyword={handleAddKeyword}
                   onDeleteKeyword={handleDeleteKeyword}
                   onGenerateTopics={handleGenerateTopics}
+                  isGenerating={isGenerating}
                 />
               </TabsContent>
 
