@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Topic {
   title: string;
@@ -15,10 +16,22 @@ interface Topic {
 interface TopicsListProps {
   topics: Topic[];
   onRemoveTopic: (index: number) => void;
+  onUpdateTopic?: (index: number, updatedTopic: Topic) => void;
 }
 
-export function TopicsList({ topics, onRemoveTopic }: TopicsListProps) {
+export function TopicsList({ topics, onRemoveTopic, onUpdateTopic }: TopicsListProps) {
   if (topics.length === 0) return null;
+
+  const handleOptionChange = (index: number, optionKey: keyof Topic['options'], checked: boolean) => {
+    if (!onUpdateTopic) return;
+    
+    const updatedTopic = { ...topics[index] };
+    updatedTopic.options = {
+      ...updatedTopic.options,
+      [optionKey]: checked
+    };
+    onUpdateTopic(index, updatedTopic);
+  };
 
   return (
     <div className="mt-8">
@@ -30,15 +43,35 @@ export function TopicsList({ topics, onRemoveTopic }: TopicsListProps) {
         <div>Image</div>
       </div>
       {topics.map((topic, index) => (
-        <div key={index} className="grid grid-cols-5 gap-4 py-3 border-t">
+        <div key={index} className="grid grid-cols-5 gap-4 py-3 border-t items-center">
           <div className="text-purple-600">{topic.title}</div>
-          <div>{topic.options.addH2 && topic.h2Headings.length > 0 ? <Check className="w-4 h-4" /> : null}</div>
-          <div>{topic.options.faq ? <Check className="w-4 h-4" /> : null}</div>
-          <div>{topic.options.tableOfContents ? <Check className="w-4 h-4" /> : null}</div>
+          <div>
+            <Checkbox
+              checked={topic.options.addH2 && topic.h2Headings.length > 0}
+              onCheckedChange={(checked) => handleOptionChange(index, 'addH2', checked as boolean)}
+              disabled={!onUpdateTopic}
+            />
+          </div>
+          <div>
+            <Checkbox
+              checked={topic.options.faq}
+              onCheckedChange={(checked) => handleOptionChange(index, 'faq', checked as boolean)}
+              disabled={!onUpdateTopic}
+            />
+          </div>
+          <div>
+            <Checkbox
+              checked={topic.options.tableOfContents}
+              onCheckedChange={(checked) => handleOptionChange(index, 'tableOfContents', checked as boolean)}
+              disabled={!onUpdateTopic}
+            />
+          </div>
           <div className="flex items-center justify-between">
-            {topic.options.generateImage ? (
-              <span className="text-xs text-gray-500">prompt</span>
-            ) : null}
+            <Checkbox
+              checked={topic.options.generateImage}
+              onCheckedChange={(checked) => handleOptionChange(index, 'generateImage', checked as boolean)}
+              disabled={!onUpdateTopic}
+            />
             <Button
               variant="ghost"
               className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 h-auto text-xs"

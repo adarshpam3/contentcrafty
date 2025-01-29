@@ -107,6 +107,12 @@ export default function CreateContent() {
     setCurrentTab("manual");
   };
 
+  const handleUpdateTopic = (index: number, updatedTopic: Topic) => {
+    const newTopics = [...topics];
+    newTopics[index] = updatedTopic;
+    setTopics(newTopics);
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -152,7 +158,11 @@ export default function CreateContent() {
                   setH2Headings={setH2Headings}
                   onAddTopic={handleAddTopic}
                 />
-                <TopicsList topics={topics} onRemoveTopic={handleRemoveTopic} />
+                <TopicsList 
+                  topics={topics} 
+                  onRemoveTopic={handleRemoveTopic}
+                  onUpdateTopic={handleUpdateTopic}
+                />
               </TabsContent>
 
               <TabsContent value="keywords">
