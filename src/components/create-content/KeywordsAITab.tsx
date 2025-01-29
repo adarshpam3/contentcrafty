@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
 import { generateTopicsFromKeywords } from "@/utils/openai";
 import { toast } from "@/components/ui/use-toast";
 
@@ -36,18 +35,7 @@ export function KeywordsAITab({
   isGenerating,
   setIsGenerating,
 }: KeywordsAITabProps) {
-  const [apiKey, setApiKey] = useState("");
-
   const handleGenerateTopics = async () => {
-    if (!apiKey.trim()) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your OpenAI API key to generate topics.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (keywords.length === 0) {
       toast({
         title: "Keywords Required",
@@ -59,7 +47,7 @@ export function KeywordsAITab({
 
     setIsGenerating(true);
     try {
-      const generatedTopics = await generateTopicsFromKeywords(keywords, apiKey);
+      const generatedTopics = await generateTopicsFromKeywords(keywords);
       
       const formattedTopics = generatedTopics.map(title => ({
         title,
@@ -81,7 +69,7 @@ export function KeywordsAITab({
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to generate topics. Please check your API key and try again.",
+        description: "Failed to generate topics. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -94,17 +82,6 @@ export function KeywordsAITab({
       <p className="text-gray-500 mb-4">
         Provide the keywords related to the article topics you're interested in. Based on them, Copymate will generate 10 topic suggestions.
       </p>
-      
-      <div className="space-y-4 mb-6">
-        <label className="block text-sm font-medium text-gray-700">OpenAI API Key</label>
-        <Input
-          type="password"
-          placeholder="sk-..."
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          className="font-mono"
-        />
-      </div>
       
       <div className="flex gap-2">
         <Input 
