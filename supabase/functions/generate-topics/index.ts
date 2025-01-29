@@ -32,8 +32,15 @@ serve(async (req) => {
 
     const prompt = `Generate 10 unique article topics related to these keywords: ${keywords.join(', ')}. 
     For each topic, also generate 3-5 H2 subheadings that would structure the article well.
-    Format the response as a JSON array where each object has a "title" string and an "h2Headings" array of strings.
-    Make the topics and headings engaging and SEO-friendly.`
+    Make the topics and headings engaging and SEO-friendly.
+    
+    Return the response in this exact format:
+    [
+      {
+        "title": "Topic Title",
+        "h2Headings": ["H2 Heading 1", "H2 Heading 2", "H2 Heading 3"]
+      }
+    ]`
 
     console.log('Sending request to OpenAI')
     const completion = await openai.chat.completions.create({
@@ -41,42 +48,46 @@ serve(async (req) => {
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful assistant that generates article topics and their subheadings in JSON format.'
+          content: 'You are a helpful assistant that generates article topics and their subheadings in a specific JSON format.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      temperature: 0.7,
-      response_format: { type: "json_object" }
+      temperature: 0.7
     })
 
     const content = completion.choices[0].message.content;
-    const parsedContent = JSON.parse(content);
-    const topics = parsedContent.topics || [];
+    console.log('Raw OpenAI response:', content);
+    
+    try {
+      const topics = JSON.parse(content);
+      console.log('Parsed topics:', topics);
 
-    console.log('Generated topics:', topics)
+      const { error: logError } = await supabaseClient
+        .from('api_logs')
+        .insert({
+          feature: 'topic_generation',
+          api_name: 'openai',
+          tokens_used: completion.usage?.total_tokens || 0,
+        })
 
-    const { error: logError } = await supabaseClient
-      .from('api_logs')
-      .insert({
-        feature: 'topic_generation',
-        api_name: 'openai',
-        tokens_used: completion.usage?.total_tokens || 0,
-      })
+      if (logError) {
+        console.error('Error logging API usage:', logError)
+      }
 
-    if (logError) {
-      console.error('Error logging API usage:', logError)
+      return new Response(
+        JSON.stringify({ topics }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        },
+      )
+    } catch (parseError) {
+      console.error('Error parsing OpenAI response:', parseError)
+      throw new Error('Invalid response format from OpenAI')
     }
-
-    return new Response(
-      JSON.stringify({ topics }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      },
-    )
   } catch (error) {
     console.error('Error:', error)
     return new Response(
