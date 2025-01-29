@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { ContentHeader } from "@/components/create-content/ContentHeader";
 import { ContentTabs } from "@/components/create-content/ContentTabs";
 import { StepIndicator } from "@/components/create-content/StepIndicator";
@@ -7,7 +6,6 @@ import { ProjectSelection } from "@/components/create-content/ProjectSelection";
 import { LanguageSelection } from "@/components/create-content/LanguageSelection";
 import { ReviewSection } from "@/components/create-content/ReviewSection";
 import { Summary } from "@/components/create-content/Summary";
-import { NavigationButtons } from "@/components/create-content/NavigationButtons";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -29,7 +27,6 @@ interface Topic {
 }
 
 export default function CreateContent() {
-  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
@@ -46,20 +43,6 @@ export default function CreateContent() {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-
-  const handleNext = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    } else {
-      navigate(-1);
-    }
-  };
 
   const handleAddTopic = () => {
     if (!topic) return;
@@ -175,15 +158,6 @@ export default function CreateContent() {
             />
           </div>
         </div>
-
-        <NavigationButtons
-          onBack={handleBack}
-          onNext={handleNext}
-          disableNext={
-            (currentStep === 1 && !selectedProject) ||
-            (currentStep === 2 && !selectedLanguage)
-          }
-        />
       </div>
     </div>
   );
