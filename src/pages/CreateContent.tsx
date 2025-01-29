@@ -15,6 +15,30 @@ const steps = [
   { number: 5, title: "Done", current: false },
 ];
 
+// List of languages
+const languages = [
+  "English",
+  "Spanish",
+  "French",
+  "German",
+  "Italian",
+  "Portuguese",
+  "Russian",
+  "Chinese",
+  "Japanese",
+  "Korean",
+  "Arabic",
+  "Hindi",
+  "Bengali",
+  "Dutch",
+  "Greek",
+  "Polish",
+  "Turkish",
+  "Vietnamese",
+  "Thai",
+  "Indonesian"
+];
+
 export default function CreateContent() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
@@ -72,13 +96,18 @@ export default function CreateContent() {
               Choose the language in which you want to write your content.
             </p>
             
-            <Input 
-              type="text" 
-              placeholder="Type in the language..."
-              value={selectedLanguage}
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="w-full"
-            />
+            <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a language..." />
+              </SelectTrigger>
+              <SelectContent>
+                {languages.map((language) => (
+                  <SelectItem key={language} value={language.toLowerCase()}>
+                    {language}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Card>
         );
       case 3:
@@ -162,6 +191,8 @@ export default function CreateContent() {
         return null;
     }
   };
+
+  // ... keep existing code (render method with navigation, progress steps, and summary sidebar)
 
   return (
     <div className="min-h-screen bg-gray-50">
