@@ -77,7 +77,6 @@ export default function Index() {
                 <ContentCard
                   key={index}
                   {...content}
-                  onClick={() => console.log(`Selected ${content.title}`)}
                 />
               ))}
             </div>
