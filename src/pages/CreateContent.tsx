@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Upload } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
 
 import { StepIndicator } from "@/components/create-content/StepIndicator";
 import { ProjectSelection } from "@/components/create-content/ProjectSelection";
@@ -13,6 +11,9 @@ import { ManualTopicForm } from "@/components/create-content/ManualTopicForm";
 import { TopicsList } from "@/components/create-content/TopicsList";
 import { KeywordsAITab } from "@/components/create-content/KeywordsAITab";
 import { UploadCSVTab } from "@/components/create-content/UploadCSVTab";
+import { ReviewSection } from "@/components/create-content/ReviewSection";
+import { Summary } from "@/components/create-content/Summary";
+import { NavigationButtons } from "@/components/create-content/NavigationButtons";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -174,49 +175,7 @@ export default function CreateContent() {
           </Card>
         );
       case 4:
-        return (
-          <Card className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold">Review</h2>
-              <Button variant="outline" className="bg-purple-600 text-white hover:bg-purple-700">
-                Latest GPT
-              </Button>
-            </div>
-            <p className="text-gray-500 mb-6">
-              Select Model and check if everything is ok and create your content!
-            </p>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2 px-4">Topics</th>
-                    <th className="text-left py-2 px-4">H2s</th>
-                    <th className="text-center py-2 px-4">FAQ</th>
-                    <th className="text-center py-2 px-4">TOC</th>
-                    <th className="text-center py-2 px-4">Image</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topics.map((topic, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="py-2 px-4 text-purple-600">{topic.title}</td>
-                      <td className="py-2 px-4">
-                        {topic.options.addH2 && topic.h2Headings.length > 0 ? "✓" : ""}
-                      </td>
-                      <td className="py-2 px-4 text-center">{topic.options.faq ? "✓" : ""}</td>
-                      <td className="py-2 px-4 text-center">
-                        {topic.options.tableOfContents ? "✓" : ""}
-                      </td>
-                      <td className="py-2 px-4 text-center">
-                        {topic.options.generateImage ? "✓" : ""}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        );
+        return <ReviewSection topics={topics} />;
       default:
         return null;
     }
@@ -225,7 +184,6 @@ export default function CreateContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumb */}
         <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
           <a href="/" className="hover:text-gray-900">Home</a>
           <span>/</span>
@@ -237,57 +195,28 @@ export default function CreateContent() {
         <StepIndicator steps={steps} currentStep={currentStep} />
 
         <div className="grid grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="col-span-2">
             {renderStepContent()}
           </div>
 
-          {/* Summary Sidebar */}
           <div className="col-span-1">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Summary</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Project:</span>
-                  <span className="text-gray-900">{selectedProject || "not selected"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Articles to write:</span>
-                  <span className="text-gray-900">{topics.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Image cost:</span>
-                  <span className="text-gray-900">{topics.filter(t => t.options.generateImage).length} Tokens</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Language:</span>
-                  <span className="text-gray-900">{selectedLanguage || "not selected"}</span>
-                </div>
-              </div>
-            </Card>
+            <Summary
+              selectedProject={selectedProject}
+              selectedLanguage={selectedLanguage}
+              topicsCount={topics.length}
+              imageCount={topics.filter(t => t.options.generateImage).length}
+            />
           </div>
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-end space-x-4 mt-8">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            className="px-6"
-          >
-            Back
-          </Button>
-          <Button
-            onClick={handleNext}
-            className="px-6 bg-purple-600 hover:bg-purple-700"
-            disabled={
-              (currentStep === 1 && !selectedProject) ||
-              (currentStep === 2 && !selectedLanguage)
-            }
-          >
-            Next
-          </Button>
-        </div>
+        <NavigationButtons
+          onBack={handleBack}
+          onNext={handleNext}
+          disableNext={
+            (currentStep === 1 && !selectedProject) ||
+            (currentStep === 2 && !selectedLanguage)
+          }
+        />
       </div>
     </div>
   );
