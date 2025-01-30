@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,11 +7,23 @@ import { MoreVertical, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Projects() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
@@ -33,6 +45,35 @@ export default function Projects() {
       return data || [];
     },
   });
+
+  const handleDelete = async () => {
+    if (!projectToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", projectToDelete);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Project deleted successfully",
+      });
+
+      // Refresh projects list
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    } catch (error: any) {
+      toast({
+        title: "Error deleting project",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setProjectToDelete(null);
+    }
+  };
 
   const filteredProjects = projects?.filter(project =>
     project.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -98,6 +139,7 @@ export default function Projects() {
                     <Button 
                       variant="ghost" 
                       className="text-red-500 hover:text-red-600 hover:bg-red-50 px-3"
+                      onClick={() => setProjectToDelete(project.id)}
                     >
                       Delete
                     </Button>
@@ -113,6 +155,23 @@ export default function Projects() {
           </Table>
         </div>
       )}
+
+      <AlertDialog open={!!projectToDelete} onOpenChange={() => setProjectToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the project and all its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

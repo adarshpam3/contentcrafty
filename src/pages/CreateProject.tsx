@@ -25,10 +25,9 @@ export default function CreateProject() {
     setIsLoading(true);
     
     try {
-      // Get the current user's session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (sessionError || !session) {
+      if (!session) {
         toast({
           title: "Authentication Error",
           description: "Please sign in to create a project",
@@ -38,32 +37,6 @@ export default function CreateProject() {
         return;
       }
 
-      // Check if profile exists using maybeSingle() instead of single()
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', session.user.id)
-        .maybeSingle();
-
-      if (profileError) {
-        throw new Error('Failed to check user profile');
-      }
-
-      // If no profile exists, create one
-      if (!profile) {
-        const { error: createProfileError } = await supabase
-          .from('profiles')
-          .insert([{ 
-            id: session.user.id,
-            full_name: session.user.email
-          }]);
-
-        if (createProfileError) {
-          throw new Error('Failed to create user profile');
-        }
-      }
-
-      // Create the project
       const { error: projectError } = await supabase
         .from("projects")
         .insert([{ 
