@@ -16,8 +16,12 @@ export default function Projects() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('seo_content')
-        .select('*')
-        .select('page_url, count(*) OVER (PARTITION BY page_url)');
+        .select('page_url, count')
+        .select(`
+          page_url,
+          count:id(count)
+        `)
+        .groupBy('page_url');
 
       if (error) throw error;
       return data;
