@@ -1,17 +1,8 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Upload } from "lucide-react";
-
+import { Breadcrumb } from "@/components/create-content/Breadcrumb";
 import { StepIndicator } from "@/components/create-content/StepIndicator";
-import { ProjectSelection } from "@/components/create-content/ProjectSelection";
-import { LanguageSelection } from "@/components/create-content/LanguageSelection";
-import { ManualTopicForm } from "@/components/create-content/ManualTopicForm";
-import { TopicsList } from "@/components/create-content/TopicsList";
-import { KeywordsAITab } from "@/components/create-content/KeywordsAITab";
-import { UploadCSVTab } from "@/components/create-content/UploadCSVTab";
-import { ReviewSection } from "@/components/create-content/ReviewSection";
+import { MainContent } from "@/components/create-content/MainContent";
 import { Summary } from "@/components/create-content/Summary";
 import { NavigationButtons } from "@/components/create-content/NavigationButtons";
 
@@ -113,101 +104,39 @@ export default function CreateContent() {
     setTopics(newTopics);
   };
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <ProjectSelection 
-            selectedProject={selectedProject}
-            setSelectedProject={setSelectedProject}
-          />
-        );
-      case 2:
-        return (
-          <LanguageSelection
-            selectedLanguage={selectedLanguage}
-            setSelectedLanguage={setSelectedLanguage}
-          />
-        );
-      case 3:
-        return (
-          <Card className="p-6">
-            <h2 className="text-2xl font-semibold mb-2">Add topics</h2>
-            <Tabs defaultValue="manual" className="w-full" value={currentTab} onValueChange={setCurrentTab}>
-              <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="manual" className="flex items-center gap-2">
-                  <Pencil className="w-4 h-4" />
-                  Add manually
-                </TabsTrigger>
-                <TabsTrigger value="keywords" className="flex items-center gap-2">
-                  Keywords AI
-                </TabsTrigger>
-                <TabsTrigger value="upload" className="flex items-center gap-2">
-                  <Upload className="w-4 h-4" />
-                  Upload CSV
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="manual">
-                <ManualTopicForm
-                  topic={topic}
-                  setTopic={setTopic}
-                  options={options}
-                  setOptions={setOptions}
-                  h2Headings={h2Headings}
-                  setH2Headings={setH2Headings}
-                  onAddTopic={handleAddTopic}
-                />
-                <TopicsList 
-                  topics={topics} 
-                  onRemoveTopic={handleRemoveTopic}
-                  onUpdateTopic={handleUpdateTopic}
-                />
-              </TabsContent>
-
-              <TabsContent value="keywords">
-                <KeywordsAITab
-                  keywordInput={keywordInput}
-                  setKeywordInput={setKeywordInput}
-                  keywords={keywords}
-                  onAddKeyword={handleAddKeyword}
-                  onDeleteKeyword={handleDeleteKeyword}
-                  onGenerateTopics={handleGenerateTopics}
-                  isGenerating={isGenerating}
-                  setIsGenerating={setIsGenerating}
-                  selectedLanguage={selectedLanguage}
-                />
-              </TabsContent>
-
-              <TabsContent value="upload">
-                <UploadCSVTab />
-              </TabsContent>
-            </Tabs>
-          </Card>
-        );
-      case 4:
-        return <ReviewSection topics={topics} />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
-          <a href="/" className="hover:text-gray-900">Home</a>
-          <span>/</span>
-          <a href="/models" className="hover:text-gray-900">Models</a>
-          <span>/</span>
-          <span className="text-gray-900">Copy-mate-003</span>
-        </nav>
-
+        <Breadcrumb />
         <StepIndicator steps={steps} currentStep={currentStep} />
 
         <div className="grid grid-cols-3 gap-8">
           <div className="col-span-2">
-            {renderStepContent()}
+            <MainContent
+              currentStep={currentStep}
+              topic={topic}
+              setTopic={setTopic}
+              options={options}
+              setOptions={setOptions}
+              h2Headings={h2Headings}
+              setH2Headings={setH2Headings}
+              handleAddTopic={handleAddTopic}
+              topics={topics}
+              handleRemoveTopic={handleRemoveTopic}
+              handleUpdateTopic={handleUpdateTopic}
+              currentTab={currentTab}
+              setCurrentTab={setCurrentTab}
+              keywordInput={keywordInput}
+              setKeywordInput={setKeywordInput}
+              keywords={keywords}
+              handleAddKeyword={handleAddKeyword}
+              handleDeleteKeyword={handleDeleteKeyword}
+              handleGenerateTopics={handleGenerateTopics}
+              isGenerating={isGenerating}
+              setIsGenerating={setIsGenerating}
+              selectedLanguage={selectedLanguage}
+              selectedProject={selectedProject}
+            />
           </div>
 
           <div className="col-span-1">
