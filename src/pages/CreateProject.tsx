@@ -24,40 +24,68 @@ export default function CreateProject() {
 
     setIsLoading(true);
     
-    // Get the current user's session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      toast({
-        title: "Authentication Error",
-        description: "Please sign in to create a project",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
+    try {
+      // Get the current user's session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        toast({
+          title: "Authentication Error",
+          description: "Please sign in to create a project",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
+      }
 
-    const { error } = await supabase
-      .from("projects")
-      .insert([{ 
-        name: projectName,
-        user_id: session.user.id // Set the user_id from the session
-      }]);
+      // First, check if the user has a profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', session.user.id)
+        .single();
 
-    if (error) {
-      toast({
-        title: "Error creating project",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
+      if (profileError || !profile) {
+        // Create profile if it doesn't exist
+        const { error: createProfileError } = await supabase
+          .from('profiles')
+          .insert([{ 
+            id: session.user.id,
+            full_name: session.user.email // Using email as fallback for full_name
+          }]);
+
+        if (createProfileError) {
+          throw new Error('Failed to create user profile');
+        }
+      }
+
+      // Now create the project
+      const { error: projectError } = await supabase
+        .from("projects")
+        .insert([{ 
+          name: projectName,
+          user_id: session.user.id
+        }]);
+
+      if (projectError) {
+        throw projectError;
+      }
+
       toast({
         title: "Success",
         description: "Project created successfully",
       });
       navigate("/projects");
+      
+    } catch (error: any) {
+      toast({
+        title: "Error creating project",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
