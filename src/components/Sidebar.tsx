@@ -1,6 +1,7 @@
 import { Home, FileText, ShoppingBag, Image, Database, Network } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const menuItems = [
   { icon: Home, label: "Home", href: "/" },
@@ -13,6 +14,7 @@ const menuItems = [
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
 
   return (
     <div
@@ -34,7 +36,10 @@ export function Sidebar() {
               <a
                 key={item.label}
                 href={item.href}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                className={cn(
+                  "flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors",
+                  location.pathname === item.href && "bg-gray-100"
+                )}
               >
                 <item.icon className="w-5 h-5 text-gray-500" />
                 {!collapsed && <span className="text-gray-700">{item.label}</span>}

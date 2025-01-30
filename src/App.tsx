@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Sidebar } from "@/components/Sidebar";
 import Index from "@/pages/Index";
 import Articles from "@/pages/Articles";
+import Projects from "@/pages/Projects";
+import CreateProject from "@/pages/CreateProject";
 import CreateContent from "@/pages/CreateContent";
 import NotFound from "@/pages/NotFound";
 import "./App.css";
@@ -27,6 +29,8 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/articles" element={<Articles />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/create-project" element={<CreateProject />} />
               <Route path="/create-content" element={<CreateContent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
