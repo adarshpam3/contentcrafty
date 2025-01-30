@@ -136,6 +136,8 @@ export default function CreateContent() {
               setIsGenerating={setIsGenerating}
               selectedLanguage={selectedLanguage}
               selectedProject={selectedProject}
+              setSelectedProject={setSelectedProject}
+              setSelectedLanguage={setSelectedLanguage}
             />
           </div>
 
