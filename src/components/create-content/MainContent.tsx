@@ -49,6 +49,8 @@ interface MainContentProps {
   setIsGenerating: (value: boolean) => void;
   selectedLanguage: string;
   selectedProject: string;
+  setSelectedProject: (value: string) => void;
+  setSelectedLanguage: (value: string) => void;
 }
 
 export function MainContent({
@@ -75,6 +77,8 @@ export function MainContent({
   setIsGenerating,
   selectedLanguage,
   selectedProject,
+  setSelectedProject,
+  setSelectedLanguage,
 }: MainContentProps) {
   const renderStepContent = () => {
     switch (currentStep) {
@@ -82,14 +86,14 @@ export function MainContent({
         return (
           <ProjectSelection 
             selectedProject={selectedProject}
-            setSelectedProject={() => {}}
+            setSelectedProject={setSelectedProject}
           />
         );
       case 2:
         return (
           <LanguageSelection
             selectedLanguage={selectedLanguage}
-            setSelectedLanguage={() => {}}
+            setSelectedLanguage={setSelectedLanguage}
           />
         );
       case 3:
