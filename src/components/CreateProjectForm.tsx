@@ -44,7 +44,10 @@ export function CreateProjectForm() {
           { 
             page_url: projectName,
             title: projectName,
-            user_id: user.id
+            user_id: user.id,
+            description: null,
+            keywords: [],
+            meta_tags: {}
           }
         ]);
 
