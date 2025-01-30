@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import Index from "@/pages/Index";
 import Articles from "@/pages/Articles";
 import Projects from "@/pages/Projects";
+import CreateProject from "@/pages/CreateProject";
 import ProjectView from "@/pages/ProjectView";
 import CreateContent from "@/pages/CreateContent";
 import NotFound from "@/pages/NotFound";
@@ -30,6 +31,7 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/articles" element={<Articles />} />
               <Route path="/projects" element={<Projects />} />
+              <Route path="/projects/new" element={<CreateProject />} />
               <Route path="/projects/:projectId" element={<ProjectView />} />
               <Route path="/create-content" element={<CreateContent />} />
               <Route path="*" element={<NotFound />} />

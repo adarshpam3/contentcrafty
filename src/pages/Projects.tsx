@@ -16,12 +16,8 @@ export default function Projects() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('seo_content')
-        .select('page_url, count')
-        .select(`
-          page_url,
-          count:id(count)
-        `)
-        .groupBy('page_url');
+        .select('*')
+        .select('page_url, count(*) OVER (PARTITION BY page_url)');
 
       if (error) throw error;
       return data;
@@ -48,7 +44,7 @@ export default function Projects() {
         </div>
         <Button 
           className="bg-purple-600 hover:bg-purple-700 text-white"
-          onClick={() => navigate("/create-content")}
+          onClick={() => navigate("/projects/new")}
         >
           Create new
         </Button>
