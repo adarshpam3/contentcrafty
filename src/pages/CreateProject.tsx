@@ -38,20 +38,24 @@ export default function CreateProject() {
         return;
       }
 
-      // First, check if the user has a profile
+      // Check if profile exists using maybeSingle() instead of single()
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError || !profile) {
-        // Create profile if it doesn't exist
+      if (profileError) {
+        throw new Error('Failed to check user profile');
+      }
+
+      // If no profile exists, create one
+      if (!profile) {
         const { error: createProfileError } = await supabase
           .from('profiles')
           .insert([{ 
             id: session.user.id,
-            full_name: session.user.email // Using email as fallback for full_name
+            full_name: session.user.email
           }]);
 
         if (createProfileError) {
@@ -59,7 +63,7 @@ export default function CreateProject() {
         }
       }
 
-      // Now create the project
+      // Create the project
       const { error: projectError } = await supabase
         .from("projects")
         .insert([{ 
