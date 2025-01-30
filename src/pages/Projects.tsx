@@ -14,17 +14,31 @@ export default function Projects() {
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("Not authenticated");
+      }
+
       const { data, error } = await supabase
         .from('seo_content')
-        .select('page_url, count')
-        .select(`
-          page_url,
-          count:id(count)
-        `)
-        .groupBy('page_url');
+        .select('*')
+        .eq('user_id', user.id);
 
       if (error) throw error;
-      return data;
+      
+      // Group and count projects
+      const groupedProjects = data.reduce((acc: any[], curr: any) => {
+        const existingProject = acc.find(p => p.page_url === curr.page_url);
+        if (existingProject) {
+          existingProject.count++;
+        } else {
+          acc.push({ page_url: curr.page_url, count: 1 });
+        }
+        return acc;
+      }, []);
+
+      return groupedProjects;
     },
   });
 

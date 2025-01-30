@@ -23,13 +23,24 @@ export default function CreateProject() {
     }
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create a project",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('seo_content')
         .insert([
           { 
             page_url: projectName,
-            title: projectName, // Required field
-            user_id: (await supabase.auth.getUser()).data.user?.id
+            title: projectName,
+            user_id: user.id
           }
         ]);
 
@@ -42,6 +53,7 @@ export default function CreateProject() {
 
       navigate("/projects");
     } catch (error) {
+      console.error('Error creating project:', error);
       toast({
         title: "Error",
         description: "Failed to create project",
