@@ -175,6 +175,7 @@ export default function CreateContent() {
                   onGenerateTopics={handleGenerateTopics}
                   isGenerating={isGenerating}
                   setIsGenerating={setIsGenerating}
+                  selectedLanguage={selectedLanguage}
                 />
               </TabsContent>
 

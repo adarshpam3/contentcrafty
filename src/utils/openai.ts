@@ -1,16 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export async function generateTopicsFromKeywords(keywords: string[]) {
+export async function generateTopicsFromKeywords(keywords: string[], language: string = 'english') {
   try {
     const { data, error } = await supabase.functions.invoke('generate-topics', {
-      body: { keywords },
+      body: { keywords, language },
     });
 
-    if (error) {
-      console.error('Error generating topics:', error);
-      throw new Error('Failed to generate topics');
-    }
-
+    if (error) throw error;
     return data.topics;
   } catch (error) {
     console.error('Error generating topics:', error);

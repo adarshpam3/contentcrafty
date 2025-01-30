@@ -13,8 +13,8 @@ serve(async (req) => {
   }
 
   try {
-    const { keywords } = await req.json()
-    console.log('Received keywords:', keywords)
+    const { keywords, language } = await req.json()
+    console.log('Received keywords:', keywords, 'language:', language)
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -31,14 +31,15 @@ serve(async (req) => {
     }
 
     const prompt = `Generate 10 unique article topics related to these keywords: ${keywords.join(', ')}. 
+    The topics and headings should be in ${language} language.
     For each topic, also generate 3-5 H2 subheadings that would structure the article well.
     Make the topics and headings engaging and SEO-friendly.
     
     Return the response in this exact format:
     [
       {
-        "title": "Topic Title",
-        "h2Headings": ["H2 Heading 1", "H2 Heading 2", "H2 Heading 3"]
+        "title": "Topic Title in ${language}",
+        "h2Headings": ["H2 Heading 1 in ${language}", "H2 Heading 2 in ${language}", "H2 Heading 3 in ${language}"]
       }
     ]`
 
@@ -48,7 +49,7 @@ serve(async (req) => {
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful assistant that generates article topics and their subheadings in a specific JSON format.'
+          content: `You are a helpful assistant that generates article topics and their subheadings in ${language} language in a specific JSON format.`
         },
         {
           role: 'user',

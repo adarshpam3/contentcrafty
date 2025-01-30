@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import { generateTopicsFromKeywords } from "@/utils/openai";
 import { toast } from "@/components/ui/use-toast";
@@ -23,6 +23,7 @@ interface KeywordsAITabProps {
   }>) => void;
   isGenerating: boolean;
   setIsGenerating: (value: boolean) => void;
+  selectedLanguage: string;
 }
 
 export function KeywordsAITab({
@@ -34,6 +35,7 @@ export function KeywordsAITab({
   onGenerateTopics,
   isGenerating,
   setIsGenerating,
+  selectedLanguage,
 }: KeywordsAITabProps) {
   const handleGenerateTopics = async () => {
     if (keywords.length === 0) {
@@ -47,7 +49,7 @@ export function KeywordsAITab({
 
     setIsGenerating(true);
     try {
-      const generatedTopics = await generateTopicsFromKeywords(keywords);
+      const generatedTopics = await generateTopicsFromKeywords(keywords, selectedLanguage);
       
       const formattedTopics = generatedTopics.map(({ title, h2Headings = [] }) => ({
         title,
@@ -80,7 +82,7 @@ export function KeywordsAITab({
   return (
     <div className="space-y-4">
       <p className="text-gray-500 mb-4">
-        Provide the keywords related to the article topics you're interested in. Based on them, Copymate will generate 10 topic suggestions with H2 headings.
+        Provide the keywords related to the article topics you're interested in. Based on them, Copymate will generate 10 topic suggestions with H2 headings in {selectedLanguage}.
       </p>
       
       <div className="flex gap-2">
@@ -143,7 +145,8 @@ export function KeywordsAITab({
       )}
 
       <Dialog open={isGenerating} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
+          <DialogTitle>Generating Topics</DialogTitle>
           <div className="flex flex-col items-center justify-center py-8 space-y-4">
             <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
             <h2 className="text-lg font-semibold">Please wait, topics generation in progress...</h2>
