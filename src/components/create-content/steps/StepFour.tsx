@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface Topic {
   title: string;
@@ -12,11 +12,11 @@ interface Topic {
   };
 }
 
-interface ReviewSectionProps {
+interface StepFourProps {
   topics: Topic[];
 }
 
-export function ReviewSection({ topics }: ReviewSectionProps) {
+export function StepFour({ topics }: StepFourProps) {
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-6">

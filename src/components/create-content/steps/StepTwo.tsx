@@ -7,12 +7,12 @@ const languages = [
   "Greek", "Polish", "Turkish", "Vietnamese", "Thai", "Indonesian"
 ];
 
-interface LanguageSelectionProps {
+interface StepTwoProps {
   selectedLanguage: string;
   setSelectedLanguage: (value: string) => void;
 }
 
-export function LanguageSelection({ selectedLanguage, setSelectedLanguage }: LanguageSelectionProps) {
+export function StepTwo({ selectedLanguage, setSelectedLanguage }: StepTwoProps) {
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-semibold mb-2">Select language</h2>

@@ -1,13 +1,7 @@
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Pencil, Upload } from "lucide-react";
-import { ManualTopicForm } from "./ManualTopicForm";
-import { TopicsList } from "./TopicsList";
-import { KeywordsAITab } from "./KeywordsAITab";
-import { UploadCSVTab } from "./UploadCSVTab";
-import { ProjectSelection } from "./ProjectSelection";
-import { LanguageSelection } from "./LanguageSelection";
-import { ReviewSection } from "./ReviewSection";
+import { StepOne } from "./steps/StepOne";
+import { StepTwo } from "./steps/StepTwo";
+import { StepThree } from "./steps/StepThree";
+import { StepFour } from "./steps/StepFour";
 
 interface Topic {
   title: string;
@@ -84,76 +78,46 @@ export function MainContent({
     switch (currentStep) {
       case 1:
         return (
-          <ProjectSelection 
+          <StepOne 
             selectedProject={selectedProject}
             setSelectedProject={setSelectedProject}
           />
         );
       case 2:
         return (
-          <LanguageSelection
+          <StepTwo
             selectedLanguage={selectedLanguage}
             setSelectedLanguage={setSelectedLanguage}
           />
         );
       case 3:
         return (
-          <Card className="p-6">
-            <h2 className="text-2xl font-semibold mb-2">Add topics</h2>
-            <Tabs defaultValue="manual" className="w-full" value={currentTab} onValueChange={setCurrentTab}>
-              <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="manual" className="flex items-center gap-2">
-                  <Pencil className="w-4 h-4" />
-                  Add manually
-                </TabsTrigger>
-                <TabsTrigger value="keywords" className="flex items-center gap-2">
-                  Keywords AI
-                </TabsTrigger>
-                <TabsTrigger value="upload" className="flex items-center gap-2">
-                  <Upload className="w-4 h-4" />
-                  Upload CSV
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="manual">
-                <ManualTopicForm
-                  topic={topic}
-                  setTopic={setTopic}
-                  options={options}
-                  setOptions={setOptions}
-                  h2Headings={h2Headings}
-                  setH2Headings={setH2Headings}
-                  onAddTopic={handleAddTopic}
-                />
-                <TopicsList 
-                  topics={topics} 
-                  onRemoveTopic={handleRemoveTopic}
-                  onUpdateTopic={handleUpdateTopic}
-                />
-              </TabsContent>
-
-              <TabsContent value="keywords">
-                <KeywordsAITab
-                  keywordInput={keywordInput}
-                  setKeywordInput={setKeywordInput}
-                  keywords={keywords}
-                  onAddKeyword={handleAddKeyword}
-                  onDeleteKeyword={handleDeleteKeyword}
-                  onGenerateTopics={handleGenerateTopics}
-                  isGenerating={isGenerating}
-                  setIsGenerating={setIsGenerating}
-                  selectedLanguage={selectedLanguage}
-                />
-              </TabsContent>
-
-              <TabsContent value="upload">
-                <UploadCSVTab />
-              </TabsContent>
-            </Tabs>
-          </Card>
+          <StepThree
+            topic={topic}
+            setTopic={setTopic}
+            options={options}
+            setOptions={setOptions}
+            h2Headings={h2Headings}
+            setH2Headings={setH2Headings}
+            handleAddTopic={handleAddTopic}
+            topics={topics}
+            handleRemoveTopic={handleRemoveTopic}
+            handleUpdateTopic={handleUpdateTopic}
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            keywordInput={keywordInput}
+            setKeywordInput={setKeywordInput}
+            keywords={keywords}
+            handleAddKeyword={handleAddKeyword}
+            handleDeleteKeyword={handleDeleteKeyword}
+            handleGenerateTopics={handleGenerateTopics}
+            isGenerating={isGenerating}
+            setIsGenerating={setIsGenerating}
+            selectedLanguage={selectedLanguage}
+          />
         );
       case 4:
-        return <ReviewSection topics={topics} />;
+        return <StepFour topics={topics} />;
       default:
         return null;
     }

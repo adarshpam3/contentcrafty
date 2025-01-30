@@ -1,12 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface ProjectSelectionProps {
+interface StepOneProps {
   selectedProject: string;
   setSelectedProject: (value: string) => void;
 }
 
-export function ProjectSelection({ selectedProject, setSelectedProject }: ProjectSelectionProps) {
+export function StepOne({ selectedProject, setSelectedProject }: StepOneProps) {
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-semibold mb-2">Select project</h2>
