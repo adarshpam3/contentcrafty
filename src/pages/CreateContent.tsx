@@ -5,6 +5,7 @@ import { StepIndicator } from "@/components/create-content/StepIndicator";
 import { MainContent } from "@/components/create-content/MainContent";
 import { Summary } from "@/components/create-content/Summary";
 import { NavigationButtons } from "@/components/create-content/NavigationButtons";
+import { useToast } from "@/components/ui/use-toast";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -27,6 +28,7 @@ interface Topic {
 
 export default function CreateContent() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
@@ -44,8 +46,17 @@ export default function CreateContent() {
   const [keywordInput, setKeywordInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleNext = () => {
-    if (currentStep < steps.length) {
+  const handleNext = async () => {
+    if (currentStep === 4) {
+      // Simulate content creation
+      toast({
+        title: "Creating content",
+        description: "Your content is being generated. Please wait...",
+      });
+      // Here you would typically make an API call to create the content
+      // For now, we'll just move to the next step
+      setCurrentStep(5);
+    } else if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -151,14 +162,16 @@ export default function CreateContent() {
           </div>
         </div>
 
-        <NavigationButtons
-          onBack={handleBack}
-          onNext={handleNext}
-          disableNext={
-            (currentStep === 1 && !selectedProject) ||
-            (currentStep === 2 && !selectedLanguage)
-          }
-        />
+        {currentStep < 5 && (
+          <NavigationButtons
+            onBack={handleBack}
+            onNext={handleNext}
+            disableNext={
+              (currentStep === 1 && !selectedProject) ||
+              (currentStep === 2 && !selectedLanguage)
+            }
+          />
+        )}
       </div>
     </div>
   );

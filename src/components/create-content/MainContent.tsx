@@ -2,6 +2,7 @@ import { StepOne } from "./steps/StepOne";
 import { StepTwo } from "./steps/StepTwo";
 import { StepThree } from "./steps/StepThree";
 import { StepFour } from "./steps/StepFour";
+import { StepFive } from "./steps/StepFive";
 
 interface Topic {
   title: string;
@@ -118,6 +119,8 @@ export function MainContent({
         );
       case 4:
         return <StepFour topics={topics} />;
+      case 5:
+        return <StepFive />;
       default:
         return null;
     }
