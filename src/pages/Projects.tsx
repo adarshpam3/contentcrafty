@@ -15,9 +15,13 @@ export default function Projects() {
     queryKey: ["projects"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("seo_content")
-        .select("page_url, count(*)")
-        .group("page_url");
+        .from('seo_content')
+        .select('page_url, count')
+        .select(`
+          page_url,
+          count:id(count)
+        `)
+        .groupBy('page_url');
 
       if (error) throw error;
       return data;
