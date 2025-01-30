@@ -23,9 +23,26 @@ export default function CreateProject() {
     }
 
     setIsLoading(true);
+    
+    // Get the current user's session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      toast({
+        title: "Authentication Error",
+        description: "Please sign in to create a project",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("projects")
-      .insert([{ name: projectName }]);
+      .insert([{ 
+        name: projectName,
+        user_id: session.user.id // Set the user_id from the session
+      }]);
 
     if (error) {
       toast({
