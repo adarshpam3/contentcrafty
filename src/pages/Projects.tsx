@@ -1,13 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { MoreVertical, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function Projects() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
@@ -30,31 +34,83 @@ export default function Projects() {
     },
   });
 
+  const filteredProjects = projects?.filter(project =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="container py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Projects</h1>
-        <Button onClick={() => navigate("/create-project")}>
-          <Plus className="w-4 h-4 mr-2" />
-          Create New
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold">Projects</h1>
+          <p className="text-sm text-gray-500">
+            You have {projects?.length || 0} projects.
+          </p>
+        </div>
+        <Button 
+          onClick={() => navigate("/create-project")}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
+          Create new
         </Button>
+      </div>
+
+      <div className="flex justify-between items-center mb-6">
+        <Input
+          placeholder="Search projects..."
+          className="max-w-sm"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
       {isLoading ? (
         <div>Loading projects...</div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects?.map((project) => (
-            <div
-              key={project.id}
-              className="p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
-            >
-              <h3 className="text-lg font-semibold">{project.name}</h3>
-              <p className="text-sm text-gray-500 mt-2">
-                Created {new Date(project.created_at).toLocaleDateString()}
-              </p>
-            </div>
-          ))}
+        <div className="bg-white rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Project Name</TableHead>
+                <TableHead>Unpublished Articles</TableHead>
+                <TableHead>Wordpress</TableHead>
+                <TableHead>PBN</TableHead>
+                <TableHead className="w-[100px]">Delete</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredProjects?.map((project) => (
+                <TableRow key={project.id}>
+                  <TableCell className="font-medium">
+                    <span className="text-purple-600 hover:underline cursor-pointer">
+                      {project.name}
+                    </span>
+                  </TableCell>
+                  <TableCell>0</TableCell>
+                  <TableCell>
+                    <X className="text-red-500 h-5 w-5" />
+                  </TableCell>
+                  <TableCell>
+                    <X className="text-red-500 h-5 w-5" />
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="ghost" 
+                      className="text-red-500 hover:text-red-600 hover:bg-red-50 px-3"
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>
