@@ -5,6 +5,9 @@ import { ManualTopicForm } from "./ManualTopicForm";
 import { TopicsList } from "./TopicsList";
 import { KeywordsAITab } from "./KeywordsAITab";
 import { UploadCSVTab } from "./UploadCSVTab";
+import { ProjectSelection } from "./ProjectSelection";
+import { LanguageSelection } from "./LanguageSelection";
+import { ReviewSection } from "./ReviewSection";
 
 interface Topic {
   title: string;
