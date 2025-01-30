@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CreateProject() {
   const [projectName, setProjectName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -21,6 +22,8 @@ export default function CreateProject() {
       });
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -44,14 +47,21 @@ export default function CreateProject() {
           }
         ]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating project:', error);
+        throw error;
+      }
 
       toast({
         title: "Success",
         description: "Project created successfully",
       });
 
-      navigate("/projects");
+      // Wait a brief moment for the toast to be visible before navigating
+      setTimeout(() => {
+        navigate("/projects");
+      }, 500);
+
     } catch (error) {
       console.error('Error creating project:', error);
       toast({
@@ -59,6 +69,8 @@ export default function CreateProject() {
         description: "Failed to create project",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -90,14 +102,16 @@ export default function CreateProject() {
                 placeholder="www.copymate.app"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
             <Button 
               type="submit"
               className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+              disabled={isLoading}
             >
-              Create project
+              {isLoading ? "Creating..." : "Create project"}
             </Button>
           </form>
         </div>
