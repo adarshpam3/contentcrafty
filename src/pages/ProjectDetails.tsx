@@ -65,7 +65,7 @@ export default function ProjectDetails() {
             <div className="flex gap-2">
               <Button variant="outline">Upgrade Plan</Button>
               <Button 
-                onClick={() => navigate("/create-content", { state: { projectId } })}
+                onClick={() => navigate("/")}
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 Create Content
@@ -86,7 +86,7 @@ export default function ProjectDetails() {
                 You don't have any articles assigned to this project yet. Use one of our models and start creating outstanding content!
               </p>
               <Button 
-                onClick={() => navigate("/create-content", { state: { projectId } })}
+                onClick={() => navigate("/")}
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 Create Content
