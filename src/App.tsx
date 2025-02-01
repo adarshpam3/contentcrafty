@@ -7,6 +7,7 @@ import Projects from "@/pages/Projects";
 import ProjectDetails from "@/pages/ProjectDetails";
 import CreateProject from "@/pages/CreateProject";
 import CreateContent from "@/pages/CreateContent";
+import CreatePage from "@/pages/CreatePage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
