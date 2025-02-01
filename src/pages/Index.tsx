@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentCard } from "@/components/ContentCard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Globe, Pencil, Eye, FileEdit } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const contentTypes = [
@@ -53,19 +56,117 @@ export default function Index() {
       
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto space-y-8">
+          {/* Welcome Section */}
           <div className="space-y-2">
-            <nav className="flex items-center space-x-2 text-sm text-gray-500">
-              <a href="/" className="hover:text-gray-900">Home</a>
-              <span>/</span>
-              <span className="text-gray-900">Models</span>
-            </nav>
-            
-            <h1 className="text-3xl font-semibold">Let's write some content</h1>
-            <p className="text-gray-500">
-              Choose one of our models and create outstanding content.
-            </p>
+            <h1 className="text-3xl font-semibold">Home</h1>
+            <p className="text-gray-600">Hello Mate! What will we write today?</p>
           </div>
 
+          {/* SEO Boost Card */}
+          <Card className="p-6 bg-purple-50 border-purple-100">
+            <div className="flex justify-between items-center">
+              <div className="space-y-2">
+                <h2 className="text-lg font-semibold text-purple-700">
+                  🤖🔥 Boost Your SEO with AI Internal Linking 🔥🤖
+                </h2>
+                <p className="text-purple-600">
+                  An AI-powered tool designed to automatically plan and insert internal links on your website.
+                </p>
+              </div>
+              <Button 
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+                onClick={() => console.log("Go to Linkrobot")}
+              >
+                Go to Linkrobot 🤖
+              </Button>
+            </div>
+          </Card>
+
+          {/* Articles Section */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold">Your articles</h2>
+            <p className="text-gray-600">You haven't written any articles this month yet.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Total Articles Card */}
+              <Card className="p-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-gray-600">Total</p>
+                    <p className="text-3xl font-semibold">0</p>
+                  </div>
+                  <div className="p-3 bg-gray-100 rounded-full">
+                    <Pencil className="w-5 h-5 text-gray-600" />
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  className="w-full mt-4 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                >
+                  Go to articles
+                </Button>
+              </Card>
+
+              {/* Unpublished Articles Card */}
+              <Card className="p-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-gray-600">Unpublished</p>
+                    <p className="text-3xl font-semibold">0</p>
+                  </div>
+                  <div className="p-3 bg-gray-100 rounded-full">
+                    <Eye className="w-5 h-5 text-gray-600" />
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  className="w-full mt-4 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                >
+                  Publish articles
+                </Button>
+              </Card>
+
+              {/* In Progress Card */}
+              <Card className="p-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-gray-600">In progress</p>
+                    <p className="text-3xl font-semibold">0</p>
+                  </div>
+                  <div className="p-3 bg-gray-100 rounded-full">
+                    <FileEdit className="w-5 h-5 text-gray-600" />
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  className="w-full mt-4 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                >
+                  View status
+                </Button>
+              </Card>
+
+              {/* Projects Card */}
+              <Card className="p-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-gray-600">Projects</p>
+                    <p className="text-3xl font-semibold">2</p>
+                  </div>
+                  <div className="p-3 bg-gray-100 rounded-full">
+                    <Globe className="w-5 h-5 text-gray-600" />
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  className="w-full mt-4 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                >
+                  Go to projects
+                </Button>
+              </Card>
+            </div>
+          </div>
+
+          {/* Content Types Section */}
           <Tabs defaultValue="blog" className="space-y-8">
             <TabsList>
               <TabsTrigger value="blog">Blog Articles</TabsTrigger>
