@@ -7,7 +7,7 @@ const menuItems = [
   { icon: Home, label: "Home", href: "/" },
   { icon: FileText, label: "Articles", href: "/articles" },
   { icon: ShoppingBag, label: "Projects", href: "/projects" },
-  { icon: PenTool, label: "Create Content", href: "/" },
+  { icon: PenTool, label: "Create Content", href: "/create-page" },
   { icon: Image, label: "Image Generator", href: "/image-generator" },
   { icon: Database, label: "Indexing API", href: "/indexing-api" },
   { icon: Network, label: "PBN Management", href: "/pbn" },
