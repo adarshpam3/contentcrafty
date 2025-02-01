@@ -62,7 +62,6 @@ export default function Projects() {
         description: "Project deleted successfully",
       });
 
-      // Refresh projects list
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     } catch (error: any) {
       toast({
@@ -122,9 +121,13 @@ export default function Projects() {
             </TableHeader>
             <TableBody>
               {filteredProjects?.map((project) => (
-                <TableRow key={project.id}>
+                <TableRow 
+                  key={project.id} 
+                  className="cursor-pointer"
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                >
                   <TableCell className="font-medium">
-                    <span className="text-purple-600 hover:underline cursor-pointer">
+                    <span className="text-purple-600 hover:underline">
                       {project.name}
                     </span>
                   </TableCell>
@@ -139,7 +142,10 @@ export default function Projects() {
                     <Button 
                       variant="ghost" 
                       className="text-red-500 hover:text-red-600 hover:bg-red-50 px-3"
-                      onClick={() => setProjectToDelete(project.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setProjectToDelete(project.id);
+                      }}
                     >
                       Delete
                     </Button>
