@@ -7,6 +7,7 @@ import Projects from "@/pages/Projects";
 import ProjectDetails from "@/pages/ProjectDetails";
 import CreateProject from "@/pages/CreateProject";
 import CreateContent from "@/pages/CreateContent";
+import CreateContentSection from "@/pages/CreateContentSection";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ function App() {
           <Route path="/projects/:projectId" element={<ProjectDetails />} />
           <Route path="/create-project" element={<CreateProject />} />
           <Route path="/create-content" element={<CreateContent />} />
+          <Route path="/create-content-section" element={<CreateContentSection />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
