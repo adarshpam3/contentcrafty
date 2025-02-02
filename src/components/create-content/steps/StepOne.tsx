@@ -1,5 +1,8 @@
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StepOneProps {
   selectedProject: string;
@@ -7,6 +10,22 @@ interface StepOneProps {
 }
 
 export function StepOne({ selectedProject, setSelectedProject }: StepOneProps) {
+  const { data: projects, isLoading } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      return data || [];
+    },
+  });
+
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-semibold mb-2">Select project</h2>
@@ -19,9 +38,17 @@ export function StepOne({ selectedProject, setSelectedProject }: StepOneProps) {
           <SelectValue placeholder="Select..." />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="project1">Project 1</SelectItem>
-          <SelectItem value="project2">Project 2</SelectItem>
-          <SelectItem value="project3">Project 3</SelectItem>
+          {isLoading ? (
+            <SelectItem value="loading" disabled>Loading projects...</SelectItem>
+          ) : projects && projects.length > 0 ? (
+            projects.map((project) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.name}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="no-projects" disabled>No projects found</SelectItem>
+          )}
         </SelectContent>
       </Select>
     </Card>
