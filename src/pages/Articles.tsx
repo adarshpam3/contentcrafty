@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowUpDown, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Articles() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
@@ -52,7 +54,12 @@ export default function Articles() {
             {articles?.length || 0} Articles left (3 tokens)
           </div>
           <Button variant="outline">Upgrade Plan</Button>
-          <Button className="bg-purple-600 hover:bg-purple-700">Create Content</Button>
+          <Button 
+            className="bg-purple-600 hover:bg-purple-700"
+            onClick={() => navigate('/create-page')}
+          >
+            Create Content
+          </Button>
         </div>
       </div>
 

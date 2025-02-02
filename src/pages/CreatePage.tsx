@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentCard } from "@/components/ContentCard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 
 const contentTypes = [
   {
@@ -44,7 +43,7 @@ const contentTypes = [
   },
 ];
 
-export default function Index() {
+export default function CreatePage() {
   const [activeTab, setActiveTab] = useState("blog");
 
   return (
