@@ -2,14 +2,10 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowUpDown, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Database } from "@/integrations/supabase/types";
-import { SearchBar } from "@/components/articles/SearchBar";
-import { ArticlesTable } from "@/components/articles/ArticlesTable";
-import { TableHeader } from "@/components/articles/TableHeader";
-
-type Article = Database["public"]["Tables"]["articles"]["Row"];
 
 export default function Articles() {
   const navigate = useNavigate();
@@ -20,24 +16,21 @@ export default function Articles() {
     queryKey: ["articles"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("articles")
+        .from("seo_content")
         .select("*")
         .order("created_at", { ascending: sortDirection === "asc" });
 
       if (error) throw error;
-      return data as Article[];
+      return data;
     },
   });
 
   const filteredArticles = articles?.filter((article) =>
-    article.topic.toLowerCase().includes(searchQuery.toLowerCase())
+    article.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from("articles")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("seo_content").delete().eq("id", id);
     if (error) {
       console.error("Error deleting article:", error);
     }
@@ -63,7 +56,7 @@ export default function Articles() {
           <Button variant="outline">Upgrade Plan</Button>
           <Button 
             className="bg-purple-600 hover:bg-purple-700"
-            onClick={() => navigate('/create-content')}
+            onClick={() => navigate('/create-page')}
           >
             Create Content
           </Button>
@@ -77,22 +70,76 @@ export default function Articles() {
         </TabsList>
 
         <TabsContent value="articles" className="mt-6">
-          <SearchBar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            sortDirection={sortDirection}
-            onSortToggle={toggleSort}
-          />
+          <div className="flex justify-between mb-4">
+            <Input
+              placeholder="Search by project or title..."
+              className="max-w-md"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Button variant="outline" onClick={toggleSort}>
+              Order By <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
 
           <div className="bg-white rounded-lg shadow">
             <table className="w-full">
-              <TableHeader />
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-4">Project</th>
+                  <th className="text-left p-4">Title</th>
+                  <th className="text-left p-4">Words</th>
+                  <th className="text-left p-4">Characters</th>
+                  <th className="text-left p-4">Status</th>
+                  <th className="text-left p-4">Delete</th>
+                </tr>
+              </thead>
               <tbody>
-                <ArticlesTable
-                  articles={filteredArticles || []}
-                  isLoading={isLoading}
-                  onDelete={handleDelete}
-                />
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="text-center p-4">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : filteredArticles?.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center p-4">
+                      No articles found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredArticles?.map((article) => (
+                    <tr key={article.id} className="border-b">
+                      <td className="p-4">
+                        <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
+                          {article.page_url}
+                        </span>
+                      </td>
+                      <td className="p-4">{article.title}</td>
+                      <td className="p-4">
+                        {article.description?.split(" ").length || 0}
+                      </td>
+                      <td className="p-4">
+                        {article.description?.length || 0}
+                      </td>
+                      <td className="p-4">
+                        <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full">
+                          completed
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <Button
+                          variant="ghost"
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => handleDelete(article.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="ml-2">Delete</span>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

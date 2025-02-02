@@ -47,69 +47,6 @@ export type Database = {
           },
         ]
       }
-      articles: {
-        Row: {
-          content: string | null
-          created_at: string | null
-          h2_headings: string[] | null
-          has_faq: boolean | null
-          has_image: boolean | null
-          has_toc: boolean | null
-          id: string
-          language: string
-          project_id: string | null
-          status: string | null
-          topic: string
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          content?: string | null
-          created_at?: string | null
-          h2_headings?: string[] | null
-          has_faq?: boolean | null
-          has_image?: boolean | null
-          has_toc?: boolean | null
-          id?: string
-          language: string
-          project_id?: string | null
-          status?: string | null
-          topic: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          content?: string | null
-          created_at?: string | null
-          h2_headings?: string[] | null
-          has_faq?: boolean | null
-          has_image?: boolean | null
-          has_toc?: boolean | null
-          id?: string
-          language?: string
-          project_id?: string | null
-          status?: string | null
-          topic?: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "articles_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "articles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       crm_integrations: {
         Row: {
           created_at: string | null
