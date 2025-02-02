@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Topic {
   title: string;
@@ -70,11 +71,44 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
 
   const handleNext = async () => {
     if (currentStep === 4) {
+      setIsGenerating(true);
       toast({
         title: "Creating content",
         description: "Your content is being generated. Please wait...",
       });
-      setCurrentStep(5);
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error("No session found");
+
+        const response = await fetch('/functions/v1/generate-articles', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            topics,
+            projectId: selectedProject,
+            language: selectedLanguage,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to generate articles');
+        }
+
+        setCurrentStep(5);
+      } catch (error) {
+        console.error('Error generating articles:', error);
+        toast({
+          title: "Error",
+          description: "Failed to generate articles. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsGenerating(false);
+      }
     } else if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }

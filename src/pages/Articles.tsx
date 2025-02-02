@@ -16,7 +16,7 @@ export default function Articles() {
     queryKey: ["articles"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("seo_content")
+        .from("articles")
         .select("*")
         .order("created_at", { ascending: sortDirection === "asc" });
 
@@ -26,11 +26,11 @@ export default function Articles() {
   });
 
   const filteredArticles = articles?.filter((article) =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase())
+    article.topic.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("seo_content").delete().eq("id", id);
+    const { error } = await supabase.from("articles").delete().eq("id", id);
     if (error) {
       console.error("Error deleting article:", error);
     }
@@ -56,7 +56,7 @@ export default function Articles() {
           <Button variant="outline">Upgrade Plan</Button>
           <Button 
             className="bg-purple-600 hover:bg-purple-700"
-            onClick={() => navigate('/create-page')}
+            onClick={() => navigate('/create-content')}
           >
             Create Content
           </Button>
@@ -112,19 +112,23 @@ export default function Articles() {
                     <tr key={article.id} className="border-b">
                       <td className="p-4">
                         <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-                          {article.page_url}
+                          {article.project_id}
                         </span>
                       </td>
-                      <td className="p-4">{article.title}</td>
+                      <td className="p-4">{article.topic}</td>
                       <td className="p-4">
-                        {article.description?.split(" ").length || 0}
+                        {article.content?.split(" ").length || 0}
                       </td>
                       <td className="p-4">
-                        {article.description?.length || 0}
+                        {article.content?.length || 0}
                       </td>
                       <td className="p-4">
-                        <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full">
-                          completed
+                        <span className={`px-3 py-1 rounded-full ${
+                          article.status === 'completed' 
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-yellow-100 text-yellow-600'
+                        }`}>
+                          {article.status}
                         </span>
                       </td>
                       <td className="p-4">
