@@ -1,7 +1,9 @@
-import { createContext, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { createContext, useContext } from "react";
 import { useAuthCheck } from "@/hooks/use-auth-check";
 import { useArticleGeneration } from "@/hooks/use-article-generation";
+import { useTopics } from "@/hooks/use-topics";
+import { useKeywords } from "@/hooks/use-keywords";
+import { useNavigation } from "@/hooks/use-navigation";
 
 interface Topic {
   title: string;
@@ -50,89 +52,52 @@ interface ContentCreationContextType {
 const ContentCreationContext = createContext<ContentCreationContextType | undefined>(undefined);
 
 export function ContentCreationProvider({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedProject, setSelectedProject] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("");
-  const [topic, setTopic] = useState("");
-  const [currentTab, setCurrentTab] = useState("manual");
-  const [h2Headings, setH2Headings] = useState("");
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [options, setOptions] = useState({
-    addH2: false,
-    faq: false,
-    tableOfContents: false,
-    generateImage: false,
-  });
-  const [keywords, setKeywords] = useState<string[]>([]);
-  const [keywordInput, setKeywordInput] = useState("");
-
   // Use our hooks
   useAuthCheck();
-  const { isGenerating, setIsGenerating, generateArticles } = useArticleGeneration();
+  const { isGenerating, setIsGenerating } = useArticleGeneration();
+  const {
+    topic,
+    setTopic,
+    h2Headings,
+    setH2Headings,
+    topics,
+    setTopics,
+    options,
+    setOptions,
+    handleAddTopic,
+    handleRemoveTopic,
+    handleUpdateTopic,
+  } = useTopics();
 
-  const handleNext = async () => {
-    if (currentStep === 4) {
-      await generateArticles(topics, selectedProject, selectedLanguage, () => {
-        setCurrentStep(5);
-      });
-    } else if (currentStep < 5) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
+  const {
+    keywords,
+    setKeywords,
+    keywordInput,
+    setKeywordInput,
+    handleAddKeyword,
+    handleDeleteKeyword,
+  } = useKeywords();
 
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    } else {
-      navigate(-1);
-    }
-  };
-
-  const handleAddTopic = () => {
-    if (!topic) return;
-
-    const newTopic: Topic = {
-      title: topic,
-      h2Headings: h2Headings.split('\n').filter(heading => heading.trim()),
-      options: { ...options },
-    };
-
-    setTopics([...topics, newTopic]);
-    setTopic("");
-    setH2Headings("");
-    setOptions({
-      addH2: false,
-      faq: false,
-      tableOfContents: false,
-      generateImage: false,
-    });
-  };
-
-  const handleRemoveTopic = (index: number) => {
-    const newTopics = topics.filter((_, i) => i !== index);
-    setTopics(newTopics);
-  };
-
-  const handleAddKeyword = () => {
-    if (!keywordInput.trim()) return;
-    setKeywords([...keywords, keywordInput.trim()]);
-    setKeywordInput("");
-  };
-
-  const handleDeleteKeyword = (keywordToDelete: string) => {
-    setKeywords(keywords.filter(keyword => keyword !== keywordToDelete));
-  };
+  const {
+    currentStep,
+    setCurrentStep,
+    selectedProject,
+    setSelectedProject,
+    selectedLanguage,
+    setSelectedLanguage,
+    currentTab,
+    setCurrentTab,
+    handleNext: baseHandleNext,
+    handleBack,
+  } = useNavigation();
 
   const handleGenerateTopics = (generatedTopics: Topic[]) => {
     setTopics([...topics, ...generatedTopics]);
     setCurrentTab("manual");
   };
 
-  const handleUpdateTopic = (index: number, updatedTopic: Topic) => {
-    const newTopics = [...topics];
-    newTopics[index] = updatedTopic;
-    setTopics(newTopics);
+  const handleNext = () => {
+    baseHandleNext(topics);
   };
 
   const value = {
