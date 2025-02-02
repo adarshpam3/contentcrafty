@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowUpDown, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Database } from "@/integrations/supabase/types";
+import { SearchBar } from "@/components/articles/SearchBar";
+import { ArticlesTable } from "@/components/articles/ArticlesTable";
+import { TableHeader } from "@/components/articles/TableHeader";
 
 type Article = Database["public"]["Tables"]["articles"]["Row"];
 
@@ -76,80 +77,22 @@ export default function Articles() {
         </TabsList>
 
         <TabsContent value="articles" className="mt-6">
-          <div className="flex justify-between mb-4">
-            <Input
-              placeholder="Search by project or title..."
-              className="max-w-md"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Button variant="outline" onClick={toggleSort}>
-              Order By <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            sortDirection={sortDirection}
+            onSortToggle={toggleSort}
+          />
 
           <div className="bg-white rounded-lg shadow">
             <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-4">Project</th>
-                  <th className="text-left p-4">Title</th>
-                  <th className="text-left p-4">Words</th>
-                  <th className="text-left p-4">Characters</th>
-                  <th className="text-left p-4">Status</th>
-                  <th className="text-left p-4">Delete</th>
-                </tr>
-              </thead>
+              <TableHeader />
               <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="text-center p-4">
-                      Loading...
-                    </td>
-                  </tr>
-                ) : filteredArticles?.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center p-4">
-                      No articles found
-                    </td>
-                  </tr>
-                ) : (
-                  filteredArticles?.map((article) => (
-                    <tr key={article.id} className="border-b">
-                      <td className="p-4">
-                        <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-                          {article.project_id}
-                        </span>
-                      </td>
-                      <td className="p-4">{article.topic}</td>
-                      <td className="p-4">
-                        {article.content?.split(" ").length || 0}
-                      </td>
-                      <td className="p-4">
-                        {article.content?.length || 0}
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full ${
-                          article.status === 'completed' 
-                            ? 'bg-green-100 text-green-600'
-                            : 'bg-yellow-100 text-yellow-600'
-                        }`}>
-                          {article.status}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <Button
-                          variant="ghost"
-                          className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDelete(article.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="ml-2">Delete</span>
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                <ArticlesTable
+                  articles={filteredArticles || []}
+                  isLoading={isLoading}
+                  onDelete={handleDelete}
+                />
               </tbody>
             </table>
           </div>
