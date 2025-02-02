@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowUpDown, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Database } from "@/integrations/supabase/types";
+
+type Article = Database["public"]["Tables"]["articles"]["Row"];
 
 export default function Articles() {
   const navigate = useNavigate();
@@ -21,7 +24,7 @@ export default function Articles() {
         .order("created_at", { ascending: sortDirection === "asc" });
 
       if (error) throw error;
-      return data;
+      return data as Article[];
     },
   });
 
@@ -30,7 +33,10 @@ export default function Articles() {
   );
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("articles").delete().eq("id", id);
+    const { error } = await supabase
+      .from("articles")
+      .delete()
+      .eq("id", id);
     if (error) {
       console.error("Error deleting article:", error);
     }
