@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { ContentCreationProvider } from "./components/create-content/ContentCreationProvider";
 import { MainContent } from "./components/create-content/MainContent";
-import { CreateContent } from "./pages/CreateContent";
+import CreateContent from "./pages/CreateContent";
 
 const queryClient = new QueryClient();
 
@@ -24,9 +24,7 @@ function App() {
                 path="/create-content"
                 element={
                   <ContentCreationProvider>
-                    <CreateContent>
-                      <MainContent />
-                    </CreateContent>
+                    <CreateContent />
                   </ContentCreationProvider>
                 }
               />

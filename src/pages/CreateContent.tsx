@@ -3,7 +3,7 @@ import { CreateContentSteps } from "@/components/create-content/CreateContentSte
 import { MainContent } from "@/components/create-content/MainContent";
 import { Summary } from "@/components/create-content/Summary";
 import { NavigationButtons } from "@/components/create-content/NavigationButtons";
-import { ContentCreationProvider, useContentCreation } from "@/components/create-content/ContentCreationProvider";
+import { useContentCreation } from "@/components/create-content/ContentCreationProvider";
 
 function CreateContentInner() {
   const {
@@ -51,10 +51,4 @@ function CreateContentInner() {
   );
 }
 
-export default function CreateContent() {
-  return (
-    <ContentCreationProvider>
-      <CreateContentInner />
-    </ContentCreationProvider>
-  );
-}
+export default CreateContentInner;
