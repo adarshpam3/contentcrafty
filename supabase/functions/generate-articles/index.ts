@@ -33,6 +33,9 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
+    console.log('Generating articles for user:', user.id);
+    console.log('Topics:', topics);
+
     // Process each topic and create articles
     const articles = await Promise.all(topics.map(async (topic: any) => {
       const article = {
@@ -53,23 +56,33 @@ serve(async (req) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error inserting article:', error);
+        throw error;
+      }
+      
+      console.log('Created article:', data.id);
       return data;
     }));
 
     // Here you would typically trigger your AI content generation
     // For now, we'll just update the status to 'completed'
-    await Promise.all(articles.map(article => 
-      supabase
+    await Promise.all(articles.map(article => {
+      console.log('Updating article status:', article.id);
+      return supabase
         .from('articles')
-        .update({ status: 'completed', content: `Generated content for ${article.topic}` })
-        .eq('id', article.id)
-    ));
+        .update({ 
+          status: 'completed', 
+          content: `Generated content for ${article.topic}` 
+        })
+        .eq('id', article.id);
+    }));
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    console.error('Error:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

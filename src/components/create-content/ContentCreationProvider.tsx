@@ -1,7 +1,7 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuthCheck } from "@/hooks/use-auth-check";
+import { useArticleGeneration } from "@/hooks/use-article-generation";
 
 interface Topic {
   title: string;
@@ -51,7 +51,6 @@ const ContentCreationContext = createContext<ContentCreationContextType | undefi
 
 export function ContentCreationProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
@@ -67,82 +66,16 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
   });
   const [keywords, setKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
 
-  // Add session check
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to generate articles.",
-          variant: "destructive",
-        });
-        navigate("/auth");
-      }
-    };
-    checkSession();
-  }, [navigate, toast]);
+  // Use our new hooks
+  useAuthCheck();
+  const { isGenerating, generateArticles } = useArticleGeneration();
 
   const handleNext = async () => {
     if (currentStep === 4) {
-      try {
-        setIsGenerating(true);
-        toast({
-          title: "Creating content",
-          description: "Your content is being generated. Please wait...",
-        });
-
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          toast({
-            title: "Authentication required",
-            description: "Please sign in to generate articles.",
-            variant: "destructive",
-          });
-          navigate("/auth");
-          return;
-        }
-
-        const response = await fetch('/functions/v1/generate-articles', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            topics,
-            projectId: selectedProject,
-            language: selectedLanguage,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to generate articles');
-        }
-
-        const result = await response.json();
-        
-        if (result.error) {
-          throw new Error(result.error);
-        }
-
+      await generateArticles(topics, selectedProject, selectedLanguage, () => {
         setCurrentStep(5);
-        toast({
-          title: "Success",
-          description: "Articles have been generated successfully!",
-        });
-      } catch (error) {
-        console.error('Error generating articles:', error);
-        toast({
-          title: "Error",
-          description: error instanceof Error ? error.message : "Failed to generate articles. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsGenerating(false);
-      }
+      });
     } else if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
@@ -224,7 +157,6 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
     keywordInput,
     setKeywordInput,
     isGenerating,
-    setIsGenerating,
     handleAddTopic,
     handleRemoveTopic,
     handleAddKeyword,
