@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowUpDown, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 
 export default function Articles() {
   const navigate = useNavigate();
@@ -17,8 +16,8 @@ export default function Articles() {
     queryKey: ["articles"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("articles")
-        .select("*, projects(name)")
+        .from("seo_content")
+        .select("*")
         .order("created_at", { ascending: sortDirection === "asc" });
 
       if (error) throw error;
@@ -27,11 +26,11 @@ export default function Articles() {
   });
 
   const filteredArticles = articles?.filter((article) =>
-    article.topic.toLowerCase().includes(searchQuery.toLowerCase())
+    article.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("articles").delete().eq("id", id);
+    const { error } = await supabase.from("seo_content").delete().eq("id", id);
     if (error) {
       console.error("Error deleting article:", error);
     }
@@ -57,7 +56,7 @@ export default function Articles() {
           <Button variant="outline">Upgrade Plan</Button>
           <Button 
             className="bg-purple-600 hover:bg-purple-700"
-            onClick={() => navigate('/create-content')}
+            onClick={() => navigate('/create-page')}
           >
             Create Content
           </Button>
@@ -92,7 +91,7 @@ export default function Articles() {
                   <th className="text-left p-4">Words</th>
                   <th className="text-left p-4">Characters</th>
                   <th className="text-left p-4">Status</th>
-                  <th className="text-left p-4">Actions</th>
+                  <th className="text-left p-4">Delete</th>
                 </tr>
               </thead>
               <tbody>
@@ -113,26 +112,19 @@ export default function Articles() {
                     <tr key={article.id} className="border-b">
                       <td className="p-4">
                         <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-                          {article.projects?.name || 'No Project'}
+                          {article.page_url}
                         </span>
                       </td>
+                      <td className="p-4">{article.title}</td>
                       <td className="p-4">
-                        <Link 
-                          to={`/articles/${article.id}`}
-                          className="text-purple-600 hover:text-purple-800"
-                        >
-                          {article.topic}
-                        </Link>
+                        {article.description?.split(" ").length || 0}
                       </td>
                       <td className="p-4">
-                        {article.content?.split(" ").length || 0}
-                      </td>
-                      <td className="p-4">
-                        {article.content?.length || 0}
+                        {article.description?.length || 0}
                       </td>
                       <td className="p-4">
                         <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full">
-                          {article.status || 'pending'}
+                          completed
                         </span>
                       </td>
                       <td className="p-4">
