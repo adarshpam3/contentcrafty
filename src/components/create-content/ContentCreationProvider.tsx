@@ -67,9 +67,9 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
   const [keywords, setKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState("");
 
-  // Use our new hooks
+  // Use our hooks
   useAuthCheck();
-  const { isGenerating, generateArticles } = useArticleGeneration();
+  const { isGenerating, setIsGenerating, generateArticles } = useArticleGeneration();
 
   const handleNext = async () => {
     if (currentStep === 4) {
@@ -157,6 +157,7 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
     keywordInput,
     setKeywordInput,
     isGenerating,
+    setIsGenerating,
     handleAddTopic,
     handleRemoveTopic,
     handleAddKeyword,

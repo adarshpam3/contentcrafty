@@ -74,6 +74,7 @@ export const useArticleGeneration = () => {
 
   return {
     isGenerating,
+    setIsGenerating,
     generateArticles,
   };
 };
