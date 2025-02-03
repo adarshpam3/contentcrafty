@@ -33,13 +33,25 @@ serve(async (req) => {
     "messages": [
         {
             "role": "system",
-            "content": "You are a professional content writer. Write a detailed, well-structured article in markdown format about the given topic. The article should: \n - Be at least 1000 words long\n - Be well-researched and engaging\n - Include a main title using '# ' prefix\n - Use '## ' prefix for section headings\n - Use '**text**' for bold text\n - Include relevant examples\n - Maintain a professional tone\n - Use proper paragraph spacing\n - Include a table if relevant using markdown table syntax\n - Do not use any HTML tags. Format the content in markdown style with proper spacing between sections."
+            "content": `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. The article should:
+            - Be at least 1000 words long
+            - Be well-researched and engaging
+            - Include a main title using "# " prefix
+            - Use "## " prefix for section headings
+            - Use "<h2>" and "<h3>" for sub-headings where applicable
+            - Use "<p>" for paragraphs
+            - Use "<strong>" for bold text
+            - Include relevant examples
+            - Maintain a professional tone
+            - Use proper paragraph spacing
+            - Include a table if relevant using HTML table tags (e.g., <table>, <tr>, <td>)
+            - Format the content using proper HTML structure, including paragraphs and tables as required.`
         },
         {
-          "role": "user",
-          "content": "Write a comprehensive article about: Nutrition and Fitness for Football Performance"
+            "role": "user",
+            "content": `Write a comprehensive article about: ${topic}`
         }
-        ],
+    ],
         temperature: 0.7,
         max_tokens: 2000,
       }),
