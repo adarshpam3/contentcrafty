@@ -22,6 +22,11 @@ export function StepFive() {
       if (!topics[currentTopicIndex]) return;
 
       try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData.user) {
+          throw new Error('User not authenticated');
+        }
+
         const { data, error } = await supabase.functions.invoke('generate-article', {
           body: {
             topic: topics[currentTopicIndex].title,
@@ -46,6 +51,7 @@ export function StepFive() {
             content: data.content,
             language: selectedLanguage,
             project_id: selectedProject,
+            user_id: userData.user.id,
             word_count: data.wordCount,
             character_count: data.characterCount,
             status: "completed",
@@ -64,9 +70,14 @@ export function StepFive() {
           description: "Your article has been generated successfully.",
         });
 
-        // Navigate to the article view
+        // Navigate back to the project view after article creation
         if (articleData) {
-          navigate(`/articles/${articleData.id}`);
+          if (currentTopicIndex < topics.length - 1) {
+            setCurrentTopicIndex(prev => prev + 1);
+            setIsGenerating(true);
+          } else {
+            navigate(`/projects/${selectedProject}`);
+          }
         }
       } catch (error: any) {
         console.error("Error generating article:", error);
@@ -111,6 +122,8 @@ export function StepFive() {
           if (currentTopicIndex < topics.length - 1) {
             setCurrentTopicIndex((prev) => prev + 1);
             setIsGenerating(true);
+          } else {
+            navigate(`/projects/${selectedProject}`);
           }
         }}
       />

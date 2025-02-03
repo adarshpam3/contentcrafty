@@ -70,6 +70,14 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
 
   const handleNext = async () => {
     if (currentStep === 4) {
+      if (!selectedProject) {
+        toast({
+          title: "Error",
+          description: "Please select a project first",
+          variant: "destructive",
+        });
+        return;
+      }
       toast({
         title: "Creating content",
         description: "Your content is being generated. Please wait...",
