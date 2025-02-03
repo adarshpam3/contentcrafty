@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowUpDown, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
+import { ArticleSearch } from "@/components/articles/ArticleSearch";
+import { ArticleList } from "@/components/articles/ArticleList";
 
 export default function Articles() {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export default function Articles() {
   );
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation(); // Prevent row click when deleting
+    e.stopPropagation();
     const { error } = await supabase.from("articles").delete().eq("id", id);
     if (error) {
       console.error("Error deleting article:", error);
@@ -75,81 +75,17 @@ export default function Articles() {
             </TabsList>
 
             <TabsContent value="articles" className="mt-6">
-              <div className="flex justify-between mb-4">
-                <Input
-                  placeholder="Search by project or title..."
-                  className="max-w-md"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Button variant="outline" onClick={toggleSort}>
-                  Order By <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
+              <ArticleSearch 
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSortToggle={toggleSort}
+              />
 
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-4 font-medium">Project</th>
-                      <th className="text-left p-4 font-medium">Title</th>
-                      <th className="text-left p-4 font-medium">Words</th>
-                      <th className="text-left p-4 font-medium">Characters</th>
-                      <th className="text-left p-4 font-medium">Status</th>
-                      <th className="text-left p-4 font-medium">Delete</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {isLoading ? (
-                      <tr>
-                        <td colSpan={6} className="text-center p-4">
-                          Loading...
-                        </td>
-                      </tr>
-                    ) : filteredArticles?.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="text-center p-4">
-                          No articles found
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredArticles?.map((article) => (
-                        <tr 
-                          key={article.id} 
-                          className="border-b hover:bg-gray-50 cursor-pointer transition-colors"
-                          onClick={() => navigate(`/articles/${article.id}`)}
-                        >
-                          <td className="p-4">
-                            <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm">
-                              {article.projects?.name || 'No Project'}
-                            </span>
-                          </td>
-                          <td className="p-4 text-gray-900">
-                            {article.topic}
-                          </td>
-                          <td className="p-4 text-gray-600">{article.word_count || 0}</td>
-                          <td className="p-4 text-gray-600">{article.character_count || 0}</td>
-                          <td className="p-4">
-                            <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm">
-                              {article.status || 'pending'}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <Button
-                              variant="ghost"
-                              className="text-red-500 hover:text-red-700"
-                              onClick={(e) => handleDelete(e, article.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              <span className="sr-only">Delete</span>
-                            </Button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              <ArticleList 
+                articles={filteredArticles || []}
+                isLoading={isLoading}
+                onDelete={handleDelete}
+              />
             </TabsContent>
 
             <TabsContent value="categories">
