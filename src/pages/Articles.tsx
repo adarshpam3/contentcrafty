@@ -112,15 +112,13 @@ export default function Articles() {
                         </td>
                       </tr>
                     ) : (
-                      filteredArticles?.map((article) => (
-                        <TableRow 
+                      filteredArticles?.map((article) => ( 
                         <tr key={article.id} className="border-b">
                           <td className="p-4">
                             <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
                               {article.projects?.name || 'No Project'}
                             </span>
                           </td>
-                          >
                           <td className="p-4 cursor-pointer hover:text-purple-600" 
                               onClick={() => navigate(`/articles/${article.id}`)}>
                             {article.topic}
@@ -143,7 +141,6 @@ export default function Articles() {
                             </Button>
                           </td>
                         </tr>
-                      </TableRow>
                       ))
                     )}
                   </tbody>
