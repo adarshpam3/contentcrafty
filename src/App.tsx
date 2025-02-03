@@ -9,6 +9,7 @@ import CreateProject from "@/pages/CreateProject";
 import CreateContent from "@/pages/CreateContent";
 import CreatePage from "@/pages/CreatePage";
 import NotFound from "@/pages/NotFound";
+import ArticleView from "@/pages/ArticleView";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/create-page" element={<CreatePage />} />
           <Route path="/articles" element={<Articles />} />
+          <Route path="/articles/:articleId" element={<ArticleView />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:projectId" element={<ProjectDetails />} />
           <Route path="/create-project" element={<CreateProject />} />

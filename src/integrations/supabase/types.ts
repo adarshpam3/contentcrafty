@@ -49,6 +49,7 @@ export type Database = {
       }
       articles: {
         Row: {
+          character_count: number | null
           content: string | null
           created_at: string | null
           h2_headings: string[] | null
@@ -62,8 +63,10 @@ export type Database = {
           topic: string
           updated_at: string | null
           user_id: string | null
+          word_count: number | null
         }
         Insert: {
+          character_count?: number | null
           content?: string | null
           created_at?: string | null
           h2_headings?: string[] | null
@@ -77,8 +80,10 @@ export type Database = {
           topic: string
           updated_at?: string | null
           user_id?: string | null
+          word_count?: number | null
         }
         Update: {
+          character_count?: number | null
           content?: string | null
           created_at?: string | null
           h2_headings?: string[] | null
@@ -92,6 +97,7 @@ export type Database = {
           topic?: string
           updated_at?: string | null
           user_id?: string | null
+          word_count?: number | null
         }
         Relationships: [
           {

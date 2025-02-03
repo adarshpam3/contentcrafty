@@ -5,8 +5,10 @@ import { Loader2 } from "lucide-react";
 import { useContentCreation } from "../ContentCreationProvider";
 import { ArticleEditor } from "../ArticleEditor";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export function StepFive() {
+  const navigate = useNavigate();
   const { topics, selectedProject, selectedLanguage } = useContentCreation();
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [generatedContent, setGeneratedContent] = useState("");
@@ -20,25 +22,24 @@ export function StepFive() {
       if (!topics[currentTopicIndex]) return;
 
       try {
-        const response = await fetch('/api/generate-article', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/generate-article", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             topic: topics[currentTopicIndex].title,
             language: selectedLanguage,
           }),
         });
 
-        if (!response.ok) throw new Error('Failed to generate article');
+        if (!response.ok) throw new Error("Failed to generate article");
 
         const data = await response.json();
         setGeneratedContent(data.content);
         setWordCount(data.wordCount);
         setCharacterCount(data.characterCount);
 
-        // Save to Supabase
-        const { error } = await supabase
-          .from('articles')
+        const { data: articleData, error } = await supabase
+          .from("articles")
           .insert({
             topic: topics[currentTopicIndex].title,
             content: data.content,
@@ -46,8 +47,10 @@ export function StepFive() {
             project_id: selectedProject,
             word_count: data.wordCount,
             character_count: data.characterCount,
-            status: 'completed',
-          });
+            status: "completed",
+          })
+          .select()
+          .single();
 
         if (error) throw error;
 
@@ -55,8 +58,11 @@ export function StepFive() {
           title: "Article generated",
           description: "Your article has been generated successfully.",
         });
+
+        // Navigate to the article view
+        navigate(`/articles/${articleData.id}`);
       } catch (error) {
-        console.error('Error generating article:', error);
+        console.error("Error generating article:", error);
         toast({
           title: "Error",
           description: "Failed to generate article. Please try again.",
@@ -70,7 +76,7 @@ export function StepFive() {
     if (isGenerating) {
       generateArticle();
     }
-  }, [currentTopicIndex, topics, selectedLanguage, selectedProject]);
+  }, [currentTopicIndex, topics, selectedLanguage, selectedProject, navigate, toast]);
 
   if (isGenerating) {
     return (
@@ -86,9 +92,7 @@ export function StepFive() {
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">
-        {topics[currentTopicIndex]?.title}
-      </h2>
+      <h2 className="text-2xl font-semibold mb-6">{topics[currentTopicIndex]?.title}</h2>
       <ArticleEditor
         content={generatedContent}
         wordCount={wordCount}
@@ -99,7 +103,7 @@ export function StepFive() {
             description: "Your article has been saved successfully.",
           });
           if (currentTopicIndex < topics.length - 1) {
-            setCurrentTopicIndex(prev => prev + 1);
+            setCurrentTopicIndex((prev) => prev + 1);
             setIsGenerating(true);
           }
         }}
