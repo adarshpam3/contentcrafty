@@ -22,21 +22,14 @@ export function StepFive() {
       if (!topics[currentTopicIndex]) return;
 
       try {
-        const response = await fetch("/api/generate-article", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        const { data, error } = await supabase.functions.invoke('generate-article', {
+          body: {
             topic: topics[currentTopicIndex].title,
             language: selectedLanguage,
-          }),
+          },
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to generate article');
-        }
-
-        const data = await response.json();
+        if (error) throw error;
         
         if (!data.content) {
           throw new Error('No content generated');
@@ -46,7 +39,7 @@ export function StepFive() {
         setWordCount(data.wordCount);
         setCharacterCount(data.characterCount);
 
-        const { data: articleData, error } = await supabase
+        const { data: articleData, error: dbError } = await supabase
           .from("articles")
           .insert({
             topic: topics[currentTopicIndex].title,
@@ -64,7 +57,7 @@ export function StepFive() {
           .select()
           .single();
 
-        if (error) throw error;
+        if (dbError) throw dbError;
 
         toast({
           title: "Article generated",
@@ -75,7 +68,7 @@ export function StepFive() {
         if (articleData) {
           navigate(`/articles/${articleData.id}`);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error generating article:", error);
         toast({
           title: "Error",
