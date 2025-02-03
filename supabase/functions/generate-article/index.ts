@@ -19,7 +19,7 @@ serve(async (req) => {
       throw new Error('Missing OpenAI API key');
     }
 
-    console.log('Generating article for topic:', topic);
+    console.log('Starting article generation for topic:', topic, 'in language:', language);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -32,7 +32,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. Include relevant details, examples, and maintain a professional tone. The article should be at least 500 words long.`
+            content: `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. The article should be at least 1000 words long, well-researched, and engaging. Include relevant examples and maintain a professional tone. Format the content in HTML with proper paragraph tags (<p>) and headings (<h2>).`
           },
           {
             role: 'user',
@@ -40,6 +40,7 @@ serve(async (req) => {
           }
         ],
         temperature: 0.7,
+        max_tokens: 2000,
       }),
     });
 
@@ -50,7 +51,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('OpenAI response received');
+    console.log('Received response from OpenAI');
     
     if (!data.choices?.[0]?.message?.content) {
       console.error('Invalid response format:', data);
