@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger,TableRow } from "@/components/ui/tabs";
 import { ArrowUpDown, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
@@ -113,12 +113,14 @@ export default function Articles() {
                       </tr>
                     ) : (
                       filteredArticles?.map((article) => (
+                        <TableRow 
                         <tr key={article.id} className="border-b">
                           <td className="p-4">
                             <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
                               {article.projects?.name || 'No Project'}
                             </span>
                           </td>
+                          >
                           <td className="p-4 cursor-pointer hover:text-purple-600" 
                               onClick={() => navigate(`/articles/${article.id}`)}>
                             {article.topic}
@@ -141,6 +143,7 @@ export default function Articles() {
                             </Button>
                           </td>
                         </tr>
+                      </TableRow>
                       ))
                     )}
                   </tbody>
