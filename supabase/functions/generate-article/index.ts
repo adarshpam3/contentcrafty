@@ -19,6 +19,8 @@ serve(async (req) => {
       throw new Error('Missing OpenAI API key');
     }
 
+    console.log('Generating article for topic:', topic);
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -30,7 +32,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. Include relevant details, examples, and maintain a professional tone.`
+            content: `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. Include relevant details, examples, and maintain a professional tone. The article should be at least 500 words long.`
           },
           {
             role: 'user',
@@ -42,13 +44,27 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
     }
 
     const data = await response.json();
+    console.log('OpenAI response received');
+    
+    if (!data.choices?.[0]?.message?.content) {
+      console.error('Invalid response format:', data);
+      throw new Error('Invalid response format from OpenAI');
+    }
+
     const generatedContent = data.choices[0].message.content;
     const wordCount = generatedContent.split(/\s+/).length;
     const characterCount = generatedContent.length;
+
+    console.log('Article generated successfully:', {
+      wordCount,
+      characterCount,
+    });
 
     return new Response(
       JSON.stringify({
