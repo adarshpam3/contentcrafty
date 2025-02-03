@@ -1,12 +1,12 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MoreVertical, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,21 +28,21 @@ export default function Projects() {
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: projectsData, error: projectsError } = await supabase
         .from("projects")
-        .select("*")
+        .select("*, articles(count)")
         .order("created_at", { ascending: false });
 
-      if (error) {
+      if (projectsError) {
         toast({
           title: "Error loading projects",
-          description: error.message,
+          description: projectsError.message,
           variant: "destructive",
         });
         return [];
       }
 
-      return data || [];
+      return projectsData || [];
     },
   });
 
@@ -126,12 +126,12 @@ export default function Projects() {
                   className="cursor-pointer"
                   onClick={() => navigate(`/projects/${project.id}`)}
                 >
-                  <TableCell className="font-medium">
+                  <TableCell>
                     <span className="text-purple-600 hover:underline">
                       {project.name}
                     </span>
                   </TableCell>
-                  <TableCell>0</TableCell>
+                  <TableCell>{project.articles?.[0]?.count || 0}</TableCell>
                   <TableCell>
                     <X className="text-red-500 h-5 w-5" />
                   </TableCell>

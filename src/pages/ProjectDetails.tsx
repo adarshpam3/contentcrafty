@@ -6,10 +6,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MoreVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProjectDetails() {
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const { data: project } = useQuery({
     queryKey: ["project", projectId],
@@ -25,18 +27,25 @@ export default function ProjectDetails() {
     },
   });
 
-  const { data: content = [], isLoading } = useQuery({
-    queryKey: ["project-content", projectId],
+  const { data: articles = [], isLoading } = useQuery({
+    queryKey: ["project-articles", projectId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("seo_content")
+        .from("articles")
         .select("*")
-        .eq("page_url", project?.name);
+        .eq("project_id", projectId);
 
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Error loading articles",
+          description: error.message,
+          variant: "destructive",
+        });
+        return [];
+      }
       return data || [];
     },
-    enabled: !!project?.name,
+    enabled: !!projectId,
   });
 
   if (isLoading) {
@@ -65,7 +74,7 @@ export default function ProjectDetails() {
             <div className="flex gap-2">
               <Button variant="outline">Upgrade Plan</Button>
               <Button 
-                onClick={() => navigate("/create-page")}
+                onClick={() => navigate("/create-content")}
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 Create Content
@@ -80,13 +89,13 @@ export default function ProjectDetails() {
             </TabsList>
           </Tabs>
 
-          {content.length === 0 ? (
+          {articles.length === 0 ? (
             <div className="bg-purple-50 rounded-lg p-6 text-center">
               <p className="text-purple-700 mb-4">
                 You don't have any articles assigned to this project yet. Use one of our models and start creating outstanding content!
               </p>
               <Button 
-                onClick={() => navigate("/create-page")}
+                onClick={() => navigate("/create-content")}
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 Create Content
@@ -122,24 +131,28 @@ export default function ProjectDetails() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {content.map((article) => (
-                      <TableRow key={article.id}>
-                        <TableCell>
+                    {articles.map((article) => (
+                      <TableRow 
+                        key={article.id}
+                        className="cursor-pointer"
+                        onClick={() => navigate(`/articles/${article.id}`)}
+                      >
+                        <TableCell onClick={(e) => e.stopPropagation()}>
                           <input type="checkbox" className="rounded border-gray-300" />
                         </TableCell>
-                        <TableCell className="font-medium">{article.title}</TableCell>
-                        <TableCell>{article.description?.split(" ").length || 0}</TableCell>
-                        <TableCell>{article.description?.length || 0}</TableCell>
+                        <TableCell className="font-medium">{article.topic}</TableCell>
+                        <TableCell>{article.word_count || 0}</TableCell>
+                        <TableCell>{article.character_count || 0}</TableCell>
                         <TableCell>
                           <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
-                            completed
+                            {article.status || 'completed'}
                           </span>
                         </TableCell>
                         <TableCell>
                           <span className="text-red-500">×</span>
                         </TableCell>
                         <TableCell>-</TableCell>
-                        <TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
                           <Button variant="ghost" size="icon">
                             <MoreVertical className="h-4 w-4" />
                           </Button>
