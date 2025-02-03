@@ -10,6 +10,7 @@ import CreateContent from "@/pages/CreateContent";
 import CreatePage from "@/pages/CreatePage";
 import NotFound from "@/pages/NotFound";
 import ArticleView from "@/pages/ArticleView";
+import Auth from "@/pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/create-page" element={<CreatePage />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/articles/:articleId" element={<ArticleView />} />
