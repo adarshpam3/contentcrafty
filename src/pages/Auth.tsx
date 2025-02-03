@@ -14,31 +14,74 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validateForm = () => {
+    if (!email || !password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+    
     setLoading(true);
 
     try {
-      const { error } = isLogin
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: password.trim(),
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (!isLogin) {
+        navigate("/");
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password: password.trim(),
+        });
+
+        if (error) throw error;
+
         toast({
           title: "Success!",
           description: "Please check your email to verify your account",
         });
-      } else {
-        navigate("/");
       }
     } catch (error: any) {
+      let errorMessage = "An error occurred";
+      
+      if (error.message === "Invalid login credentials") {
+        errorMessage = "Invalid email or password";
+      } else if (error.message.includes("Email not confirmed")) {
+        errorMessage = "Please verify your email address";
+      } else if (error.message.includes("already registered")) {
+        errorMessage = "This email is already registered";
+      }
+      
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      console.error("Auth error:", error);
     } finally {
       setLoading(false);
     }
@@ -66,6 +109,7 @@ export default function Auth() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
+                disabled={loading}
               />
             </div>
             <div>
@@ -80,6 +124,7 @@ export default function Auth() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
+                disabled={loading}
               />
             </div>
           </div>
@@ -99,6 +144,7 @@ export default function Auth() {
               type="button"
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-indigo-600 hover:text-indigo-500"
+              disabled={loading}
             >
               {isLogin
                 ? "Don't have an account? Sign up"
