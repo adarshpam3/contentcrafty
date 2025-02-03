@@ -32,7 +32,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. The article should be at least 1000 words long, well-researched, and engaging. Include relevant examples and maintain a professional tone. Format the content in HTML with proper paragraph tags (<p>) and headings (<h2>).`
+            content: `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. The article should be at least 1000 words long, well-researched, and engaging. Include relevant examples and maintain a professional tone. Format the content in clean paragraphs with proper spacing. Do not include any HTML tags.`
           },
           {
             role: 'user',
