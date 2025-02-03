@@ -32,7 +32,18 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. The article should be at least 1000 words long, well-researched, and engaging. Include relevant examples and maintain a professional tone. Format the content in clean paragraphs with proper spacing. Do not include any HTML tags.`
+            content: `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. The article should:
+            - Be at least 1000 words long
+            - Be well-researched and engaging
+            - Include a main title using "# " prefix
+            - Use "## " prefix for section headings
+            - Use "**text**" for bold text
+            - Include relevant examples
+            - Maintain a professional tone
+            - Use proper paragraph spacing
+            - Include a table if relevant using markdown table syntax
+            - Do not use any HTML tags
+            Format the content in markdown style with proper spacing between sections.`
           },
           {
             role: 'user',
