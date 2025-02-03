@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger,TableRow } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowUpDown, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
@@ -30,7 +30,8 @@ export default function Articles() {
     article.topic.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // Prevent row click when deleting
     const { error } = await supabase.from("articles").delete().eq("id", id);
     if (error) {
       console.error("Error deleting article:", error);
@@ -69,7 +70,7 @@ export default function Articles() {
 
           <Tabs defaultValue="articles">
             <TabsList>
-              <TabsTrigger value="articles" className="text-purple-600">Articles</TabsTrigger>
+              <TabsTrigger value="articles">Articles</TabsTrigger>
               <TabsTrigger value="categories">Categories</TabsTrigger>
             </TabsList>
 
@@ -86,16 +87,16 @@ export default function Articles() {
                 </Button>
               </div>
 
-              <div className="bg-white rounded-lg shadow">
+              <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left p-4">Project</th>
-                      <th className="text-left p-4">Title</th>
-                      <th className="text-left p-4">Words</th>
-                      <th className="text-left p-4">Characters</th>
-                      <th className="text-left p-4">Status</th>
-                      <th className="text-left p-4">Delete</th>
+                      <th className="text-left p-4 font-medium">Project</th>
+                      <th className="text-left p-4 font-medium">Title</th>
+                      <th className="text-left p-4 font-medium">Words</th>
+                      <th className="text-left p-4 font-medium">Characters</th>
+                      <th className="text-left p-4 font-medium">Status</th>
+                      <th className="text-left p-4 font-medium">Delete</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -112,21 +113,24 @@ export default function Articles() {
                         </td>
                       </tr>
                     ) : (
-                      filteredArticles?.map((article) => ( 
-                        <tr key={article.id} className="border-b">
+                      filteredArticles?.map((article) => (
+                        <tr 
+                          key={article.id} 
+                          className="border-b hover:bg-gray-50 cursor-pointer transition-colors"
+                          onClick={() => navigate(`/articles/${article.id}`)}
+                        >
                           <td className="p-4">
-                            <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
+                            <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm">
                               {article.projects?.name || 'No Project'}
                             </span>
                           </td>
-                          <td className="p-4 cursor-pointer hover:text-purple-600" 
-                              onClick={() => navigate(`/articles/${article.id}`)}>
+                          <td className="p-4 text-gray-900">
                             {article.topic}
                           </td>
-                          <td className="p-4">{article.word_count || 0}</td>
-                          <td className="p-4">{article.character_count || 0}</td>
+                          <td className="p-4 text-gray-600">{article.word_count || 0}</td>
+                          <td className="p-4 text-gray-600">{article.character_count || 0}</td>
                           <td className="p-4">
-                            <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full">
+                            <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm">
                               {article.status || 'pending'}
                             </span>
                           </td>
@@ -134,10 +138,10 @@ export default function Articles() {
                             <Button
                               variant="ghost"
                               className="text-red-500 hover:text-red-700"
-                              onClick={() => handleDelete(article.id)}
+                              onClick={(e) => handleDelete(e, article.id)}
                             >
                               <Trash2 className="h-4 w-4" />
-                              <span className="ml-2">Delete</span>
+                              <span className="sr-only">Delete</span>
                             </Button>
                           </td>
                         </tr>
