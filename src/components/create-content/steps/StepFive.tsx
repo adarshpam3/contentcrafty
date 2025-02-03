@@ -31,9 +31,17 @@ export function StepFive() {
           }),
         });
 
-        if (!response.ok) throw new Error("Failed to generate article");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to generate article');
+        }
 
         const data = await response.json();
+        
+        if (!data.content) {
+          throw new Error('No content generated');
+        }
+
         setGeneratedContent(data.content);
         setWordCount(data.wordCount);
         setCharacterCount(data.characterCount);
@@ -48,6 +56,10 @@ export function StepFive() {
             word_count: data.wordCount,
             character_count: data.characterCount,
             status: "completed",
+            h2_headings: topics[currentTopicIndex].h2Headings,
+            has_faq: topics[currentTopicIndex].options.faq,
+            has_toc: topics[currentTopicIndex].options.tableOfContents,
+            has_image: topics[currentTopicIndex].options.generateImage,
           })
           .select()
           .single();
@@ -60,15 +72,16 @@ export function StepFive() {
         });
 
         // Navigate to the article view
-        navigate(`/articles/${articleData.id}`);
+        if (articleData) {
+          navigate(`/articles/${articleData.id}`);
+        }
       } catch (error) {
         console.error("Error generating article:", error);
         toast({
           title: "Error",
-          description: "Failed to generate article. Please try again.",
+          description: error.message || "Failed to generate article. Please try again.",
           variant: "destructive",
         });
-      } finally {
         setIsGenerating(false);
       }
     };

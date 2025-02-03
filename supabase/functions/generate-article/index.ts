@@ -1,6 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,16 +30,20 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional content writer. Write an informative article in ${language} about the given topic. Include relevant details and maintain a professional tone.`
+            content: `You are a professional content writer. Write a detailed, well-structured article in ${language} about the given topic. Include relevant details, examples, and maintain a professional tone.`
           },
           {
             role: 'user',
-            content: topic
+            content: `Write a comprehensive article about: ${topic}`
           }
         ],
         temperature: 0.7,
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.statusText}`);
+    }
 
     const data = await response.json();
     const generatedContent = data.choices[0].message.content;
@@ -58,6 +61,7 @@ serve(async (req) => {
       },
     );
   } catch (error) {
+    console.error('Error in generate-article function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
