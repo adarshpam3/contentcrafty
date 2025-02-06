@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -12,11 +13,18 @@ interface Topic {
   };
 }
 
-interface StepFourProps {
-  topics: Topic[];
+interface Category {
+  storeName: string;
+  categoryName: string;
+  keywords: string;
+  keyFeatures: string;
 }
 
-export function StepFour({ topics }: StepFourProps) {
+interface StepFourProps {
+  categories: Category[];
+}
+
+export function StepFour({ categories }: StepFourProps) {
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -26,33 +34,25 @@ export function StepFour({ topics }: StepFourProps) {
         </Button>
       </div>
       <p className="text-gray-500 mb-6">
-        Select Model and check if everything is ok and create your content!
+        Check if everything is ok before describing your categories!
       </p>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b">
-              <th className="text-left py-2 px-4">Topics</th>
-              <th className="text-left py-2 px-4">H2s</th>
-              <th className="text-center py-2 px-4">FAQ</th>
-              <th className="text-center py-2 px-4">TOC</th>
-              <th className="text-center py-2 px-4">Image</th>
+              <th className="text-left py-2 px-4">Category</th>
+              <th className="text-left py-2 px-4">Store</th>
+              <th className="text-left py-2 px-4">Keywords</th>
+              <th className="text-left py-2 px-4">Key Features</th>
             </tr>
           </thead>
           <tbody>
-            {topics.map((topic, index) => (
+            {categories.map((category, index) => (
               <tr key={index} className="border-b">
-                <td className="py-2 px-4 text-purple-600">{topic.title}</td>
-                <td className="py-2 px-4">
-                  {topic.options.addH2 && topic.h2Headings.length > 0 ? "✓" : ""}
-                </td>
-                <td className="py-2 px-4 text-center">{topic.options.faq ? "✓" : ""}</td>
-                <td className="py-2 px-4 text-center">
-                  {topic.options.tableOfContents ? "✓" : ""}
-                </td>
-                <td className="py-2 px-4 text-center">
-                  {topic.options.generateImage ? "✓" : ""}
-                </td>
+                <td className="py-2 px-4 text-purple-600">{category.categoryName}</td>
+                <td className="py-2 px-4">{category.storeName}</td>
+                <td className="py-2 px-4">{category.keywords}</td>
+                <td className="py-2 px-4">{category.keyFeatures.substring(0, 50)}...</td>
               </tr>
             ))}
           </tbody>
