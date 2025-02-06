@@ -1,4 +1,3 @@
-
 import { StepOne } from "./steps/StepOne";
 import { StepTwo } from "./steps/StepTwo";
 import { StepThree } from "./steps/StepThree";
@@ -9,71 +8,31 @@ import { useContentCreation } from "./ContentCreationProvider";
 export function MainContent() {
   const {
     currentStep,
-    selectedProject,
-    setSelectedProject,
-    selectedLanguage,
-    setSelectedLanguage,
-    categories,
     topic,
     setTopic,
     options,
     setOptions,
     h2Headings,
     setH2Headings,
+    handleAddTopic,
     topics,
-    setTopics,
+    handleRemoveTopic,
+    handleUpdateTopic,
+    currentTab,
+    setCurrentTab,
     keywordInput,
     setKeywordInput,
     keywords,
-    setKeywords,
-    currentTab,
-    setCurrentTab,
+    handleAddKeyword,
+    handleDeleteKeyword,
+    handleGenerateTopics,
     isGenerating,
     setIsGenerating,
+    selectedLanguage,
+    selectedProject,
+    setSelectedProject,
+    setSelectedLanguage,
   } = useContentCreation();
-
-  const handleAddTopic = () => {
-    const newTopic = {
-      title: topic,
-      h2Headings: h2Headings.split('\n').filter(h => h.trim() !== ''),
-      options: { ...options },
-    };
-    setTopics([...topics, newTopic]);
-    setTopic('');
-    setH2Headings('');
-    setOptions({
-      addH2: false,
-      faq: false,
-      tableOfContents: false,
-      generateImage: false,
-    });
-  };
-
-  const handleRemoveTopic = (index: number) => {
-    const newTopics = topics.filter((_, i) => i !== index);
-    setTopics(newTopics);
-  };
-
-  const handleUpdateTopic = (index: number, updatedTopic: any) => {
-    const newTopics = [...topics];
-    newTopics[index] = updatedTopic;
-    setTopics(newTopics);
-  };
-
-  const handleAddKeyword = () => {
-    if (keywordInput.trim() && !keywords.includes(keywordInput.trim())) {
-      setKeywords([...keywords, keywordInput.trim()]);
-      setKeywordInput('');
-    }
-  };
-
-  const handleDeleteKeyword = (keyword: string) => {
-    setKeywords(keywords.filter(k => k !== keyword));
-  };
-
-  const handleGenerateTopics = async (generatedTopics: any[]) => {
-    setTopics([...topics, ...generatedTopics]);
-  };
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -118,12 +77,7 @@ export function MainContent() {
           />
         );
       case 4:
-        return (
-          <StepFour 
-            categories={categories} 
-            selectedLanguage={selectedLanguage}
-          />
-        );
+        return <StepFour topics={topics} />;
       case 5:
         return <StepFive />;
       default:

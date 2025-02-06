@@ -1,14 +1,6 @@
-
 import { createContext, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Category {
-  storeName: string;
-  categoryName: string;
-  keywords: string;
-  keyFeatures: string;
-}
 
 interface Topic {
   title: string;
@@ -28,29 +20,28 @@ interface ContentCreationContextType {
   setSelectedProject: (project: string) => void;
   selectedLanguage: string;
   setSelectedLanguage: (language: string) => void;
-  categories: Category[];
-  setCategories: (categories: Category[]) => void;
   topic: string;
   setTopic: (topic: string) => void;
-  options: {
-    addH2: boolean;
-    faq: boolean;
-    tableOfContents: boolean;
-    generateImage: boolean;
-  };
-  setOptions: (options: any) => void;
+  options: Topic["options"];
+  setOptions: (options: Topic["options"]) => void;
   h2Headings: string;
   setH2Headings: (headings: string) => void;
   topics: Topic[];
   setTopics: (topics: Topic[]) => void;
-  keywordInput: string;
-  setKeywordInput: (input: string) => void;
-  keywords: string[];
-  setKeywords: (keywords: string[]) => void;
   currentTab: string;
   setCurrentTab: (tab: string) => void;
+  keywords: string[];
+  setKeywords: (keywords: string[]) => void;
+  keywordInput: string;
+  setKeywordInput: (input: string) => void;
   isGenerating: boolean;
   setIsGenerating: (isGenerating: boolean) => void;
+  handleAddTopic: () => void;
+  handleRemoveTopic: (index: number) => void;
+  handleAddKeyword: () => void;
+  handleDeleteKeyword: (keyword: string) => void;
+  handleGenerateTopics: (topics: Topic[]) => void;
+  handleUpdateTopic: (index: number, topic: Topic) => void;
   handleNext: () => void;
   handleBack: () => void;
 }
@@ -63,39 +54,38 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
-  const [categories, setCategories] = useState<Category[]>([]);
   const [topic, setTopic] = useState("");
+  const [currentTab, setCurrentTab] = useState("manual");
+  const [h2Headings, setH2Headings] = useState("");
+  const [topics, setTopics] = useState<Topic[]>([]);
   const [options, setOptions] = useState({
     addH2: false,
     faq: false,
     tableOfContents: false,
     generateImage: false,
   });
-  const [h2Headings, setH2Headings] = useState("");
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [keywordInput, setKeywordInput] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [currentTab, setCurrentTab] = useState("manual");
+  const [keywordInput, setKeywordInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleNext = () => {
-    if (currentStep === 1 && !selectedProject) {
+  const handleNext = async () => {
+    if (currentStep === 4) {
+      if (!selectedProject) {
+        toast({
+          title: "Error",
+          description: "Please select a project first",
+          variant: "destructive",
+        });
+        return;
+      }
       toast({
-        title: "Please select a project",
-        description: "You need to select a project before proceeding.",
-        variant: "destructive",
+        title: "Creating content",
+        description: "Your content is being generated. Please wait...",
       });
-      return;
+      setCurrentStep(5);
+    } else if (currentStep < 5) {
+      setCurrentStep(currentStep + 1);
     }
-    if (currentStep === 2 && !selectedLanguage) {
-      toast({
-        title: "Please select a language",
-        description: "You need to select a language before proceeding.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setCurrentStep(prev => Math.min(prev + 1, 5));
   };
 
   const handleBack = () => {
@@ -106,6 +96,52 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
     }
   };
 
+  const handleAddTopic = () => {
+    if (!topic) return;
+
+    const newTopic: Topic = {
+      title: topic,
+      h2Headings: h2Headings.split('\n').filter(heading => heading.trim()),
+      options: { ...options },
+    };
+
+    setTopics([...topics, newTopic]);
+    setTopic("");
+    setH2Headings("");
+    setOptions({
+      addH2: false,
+      faq: false,
+      tableOfContents: false,
+      generateImage: false,
+    });
+  };
+
+  const handleRemoveTopic = (index: number) => {
+    const newTopics = topics.filter((_, i) => i !== index);
+    setTopics(newTopics);
+  };
+
+  const handleAddKeyword = () => {
+    if (!keywordInput.trim()) return;
+    setKeywords([...keywords, keywordInput.trim()]);
+    setKeywordInput("");
+  };
+
+  const handleDeleteKeyword = (keywordToDelete: string) => {
+    setKeywords(keywords.filter(keyword => keyword !== keywordToDelete));
+  };
+
+  const handleGenerateTopics = (generatedTopics: Topic[]) => {
+    setTopics([...topics, ...generatedTopics]);
+    setCurrentTab("manual");
+  };
+
+  const handleUpdateTopic = (index: number, updatedTopic: Topic) => {
+    const newTopics = [...topics];
+    newTopics[index] = updatedTopic;
+    setTopics(newTopics);
+  };
+
   const value = {
     currentStep,
     setCurrentStep,
@@ -113,8 +149,6 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
     setSelectedProject,
     selectedLanguage,
     setSelectedLanguage,
-    categories,
-    setCategories,
     topic,
     setTopic,
     options,
@@ -123,14 +157,20 @@ export function ContentCreationProvider({ children }: { children: React.ReactNod
     setH2Headings,
     topics,
     setTopics,
-    keywordInput,
-    setKeywordInput,
-    keywords,
-    setKeywords,
     currentTab,
     setCurrentTab,
+    keywords,
+    setKeywords,
+    keywordInput,
+    setKeywordInput,
     isGenerating,
     setIsGenerating,
+    handleAddTopic,
+    handleRemoveTopic,
+    handleAddKeyword,
+    handleDeleteKeyword,
+    handleGenerateTopics,
+    handleUpdateTopic,
     handleNext,
     handleBack,
   };
