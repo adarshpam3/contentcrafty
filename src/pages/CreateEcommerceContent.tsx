@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
@@ -11,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { CategoryList } from "@/components/create-content/CategoryList";
+import { Summary } from "@/components/create-content/Summary";
+import { StepFour } from "@/components/create-content/steps/StepFour";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -221,165 +222,172 @@ export default function CreateEcommerceContent() {
           </div>
 
           {/* Main Content and Summary */}
-          <div className="grid grid-cols-3 gap-8">
-            {/* Main Form */}
-            <div className="col-span-2">
-              <Card className="p-6">
-                {currentStep === 1 ? (
-                  <>
-                    <h2 className="text-2xl font-semibold mb-4">Select project</h2>
-                    <p className="text-gray-500 mb-6">
-                      Select project where you want to write content.
-                    </p>
-                    
-                    <Select value={selectedProject} onValueChange={setSelectedProject}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {isLoading ? (
-                          <SelectItem value="loading" disabled>Loading projects...</SelectItem>
-                        ) : projects && projects.length > 0 ? (
-                          projects.map((project) => (
-                            <SelectItem key={project.id} value={project.id}>
-                              {project.name}
+          {currentStep === 4 ? (
+            <StepFour 
+              categories={categories} 
+              selectedLanguage={selectedLanguage}
+            />
+          ) : (
+            <div className="grid grid-cols-3 gap-8">
+              {/* Main Form */}
+              <div className="col-span-2">
+                <Card className="p-6">
+                  {currentStep === 1 ? (
+                    <>
+                      <h2 className="text-2xl font-semibold mb-4">Select project</h2>
+                      <p className="text-gray-500 mb-6">
+                        Select project where you want to write content.
+                      </p>
+                      
+                      <Select value={selectedProject} onValueChange={setSelectedProject}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isLoading ? (
+                            <SelectItem value="loading" disabled>Loading projects...</SelectItem>
+                          ) : projects && projects.length > 0 ? (
+                            projects.map((project) => (
+                              <SelectItem key={project.id} value={project.id}>
+                                {project.name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="no-projects" disabled>No projects found</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  ) : currentStep === 2 ? (
+                    <>
+                      <h2 className="text-2xl font-semibold mb-4">Select language</h2>
+                      <p className="text-gray-500 mb-6">
+                        Choose the language in which you want to write your content.
+                      </p>
+                      
+                      <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select language..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {languages.map((language) => (
+                            <SelectItem key={language} value={language.toLowerCase()}>
+                              {language}
                             </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="no-projects" disabled>No projects found</SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </>
-                ) : currentStep === 2 ? (
-                  <>
-                    <h2 className="text-2xl font-semibold mb-4">Select language</h2>
-                    <p className="text-gray-500 mb-6">
-                      Choose the language in which you want to write your content.
-                    </p>
-                    
-                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select language..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {languages.map((language) => (
-                          <SelectItem key={language} value={language.toLowerCase()}>
-                            {language}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </>
-                ) : currentStep === 3 ? (
-                  <>
-                    <h2 className="text-2xl font-semibold mb-4">Add Categories</h2>
-                    <p className="text-gray-500 mb-6">
-                      Add your category here. Each category will have own description.
-                    </p>
-                    
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Store Name:
-                        </label>
-                        <Input
-                          placeholder="e.g., Zalando"
-                          value={storeName}
-                          onChange={(e) => setStoreName(e.target.value)}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Category Name:
-                        </label>
-                        <Input
-                          placeholder="e.g., Women's dresses"
-                          value={categoryName}
-                          onChange={(e) => setCategoryName(e.target.value)}
-                        />
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <label className="block text-sm font-medium text-gray-700">
-                            Keywords:
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  ) : currentStep === 3 ? (
+                    <>
+                      <h2 className="text-2xl font-semibold mb-4">Add Categories</h2>
+                      <p className="text-gray-500 mb-6">
+                        Add your category here. Each category will have own description.
+                      </p>
+                      
+                      <div className="space-y-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Store Name:
                           </label>
-                          <Button
-                            variant="link"
-                            className="text-purple-600 hover:text-purple-700"
-                            onClick={() => handleGenerateWithAI('keywords')}
-                            disabled={isGeneratingKeywords}
-                          >
-                            {isGeneratingKeywords ? 'Generating...' : 'Generate by AI'}
-                          </Button>
+                          <Input
+                            placeholder="e.g., Zalando"
+                            value={storeName}
+                            onChange={(e) => setStoreName(e.target.value)}
+                          />
                         </div>
-                        <Input
-                          placeholder="Enter keywords separated by commas"
-                          value={keywords}
-                          onChange={(e) => setKeywords(e.target.value)}
-                        />
-                      </div>
 
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <label className="block text-sm font-medium text-gray-700">
-                            Key Features:
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Category Name:
                           </label>
-                          <Button
-                            variant="link"
-                            className="text-purple-600 hover:text-purple-700"
-                            onClick={() => handleGenerateWithAI('keyFeatures')}
-                            disabled={isGeneratingFeatures}
-                          >
-                            {isGeneratingFeatures ? 'Generating...' : 'Generate by AI'}
-                          </Button>
+                          <Input
+                            placeholder="e.g., Women's dresses"
+                            value={categoryName}
+                            onChange={(e) => setCategoryName(e.target.value)}
+                          />
                         </div>
-                        <Textarea
-                          placeholder="Enter key features and description"
-                          value={keyFeatures}
-                          onChange={(e) => setKeyFeatures(e.target.value)}
-                          className="min-h-[200px]"
+
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                              Keywords:
+                            </label>
+                            <Button
+                              variant="link"
+                              className="text-purple-600 hover:text-purple-700"
+                              onClick={() => handleGenerateWithAI('keywords')}
+                              disabled={isGeneratingKeywords}
+                            >
+                              {isGeneratingKeywords ? 'Generating...' : 'Generate by AI'}
+                            </Button>
+                          </div>
+                          <Input
+                            placeholder="Enter keywords separated by commas"
+                            value={keywords}
+                            onChange={(e) => setKeywords(e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                              Key Features:
+                            </label>
+                            <Button
+                              variant="link"
+                              className="text-purple-600 hover:text-purple-700"
+                              onClick={() => handleGenerateWithAI('keyFeatures')}
+                              disabled={isGeneratingFeatures}
+                            >
+                              {isGeneratingFeatures ? 'Generating...' : 'Generate by AI'}
+                            </Button>
+                          </div>
+                          <Textarea
+                            placeholder="Enter key features and description"
+                            value={keyFeatures}
+                            onChange={(e) => setKeyFeatures(e.target.value)}
+                            className="min-h-[200px]"
+                          />
+                        </div>
+
+                        <Button
+                          onClick={handleAddCategory}
+                          className="w-full bg-purple-100 text-purple-600 hover:bg-purple-200"
+                        >
+                          Add
+                        </Button>
+
+                        <CategoryList 
+                          categories={categories}
+                          onDeleteCategory={handleDeleteCategory}
                         />
                       </div>
+                    </>
+                  ) : null}
+                </Card>
+              </div>
 
-                      <Button
-                        onClick={handleAddCategory}
-                        className="w-full bg-purple-100 text-purple-600 hover:bg-purple-200"
-                      >
-                        Add
-                      </Button>
-
-                      <CategoryList 
-                        categories={categories}
-                        onDeleteCategory={handleDeleteCategory}
-                      />
+              {/* Summary Card */}
+              <div className="col-span-1">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Summary</h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Categories:</span>
+                      <span className="text-gray-900">{categories.length}</span>
                     </div>
-                  </>
-                ) : null}
-              </Card>
-            </div>
-
-            {/* Summary Card */}
-            <div className="col-span-1">
-              <Card className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Summary</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Categories:</span>
-                    <span className="text-gray-900">{categories.length}</span>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Language:</span>
+                      <span className="text-gray-900">
+                        {selectedLanguage || "not selected"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Language:</span>
-                    <span className="text-gray-900">
-                      {selectedLanguage || "not selected"}
-                    </span>
-                  </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Navigation Buttons */}
           <div className="flex justify-end space-x-4 mt-8">
@@ -395,7 +403,7 @@ export default function CreateEcommerceContent() {
               className="px-6 bg-purple-600 hover:bg-purple-700"
               disabled={currentStep === 1 && !selectedProject}
             >
-              Next
+              {currentStep === 4 ? "Create Content" : "Next"}
             </Button>
           </div>
         </div>
