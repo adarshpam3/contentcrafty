@@ -1,17 +1,20 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Summary } from "../Summary";
 
-interface Category {
-  storeName: string;
-  categoryName: string;
-  keywords: string;
-  keyFeatures: string;
+interface Topic {
+  title: string;
+  h2Headings: string[];
+  options: {
+    addH2: boolean;
+    faq: boolean;
+    tableOfContents: boolean;
+    generateImage: boolean;
+  };
 }
 
 interface StepFourProps {
-  categories: Category[];
+  categories: Topic[];
   selectedLanguage: string;
 }
 
@@ -34,24 +37,23 @@ export function StepFour({ categories, selectedLanguage }: StepFourProps) {
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 px-4 text-gray-600">Category</th>
-                  <th className="text-left py-2 px-4 text-gray-600">Keywords</th>
-                  <th className="text-left py-2 px-4 text-gray-600">Key Features</th>
+                  <th className="text-left py-2 px-4 text-gray-600">Title</th>
+                  <th className="text-left py-2 px-4 text-gray-600">H2 Headings</th>
+                  <th className="text-left py-2 px-4 text-gray-600">Options</th>
                 </tr>
               </thead>
               <tbody>
-                {categories.map((category, index) => (
+                {categories.map((topic, index) => (
                   <tr key={index} className="border-b">
-                    <td className="py-4 px-4">{category.categoryName}</td>
+                    <td className="py-4 px-4">{topic.title}</td>
                     <td className="py-4 px-4 text-gray-600">
-                      {category.keywords.length > 50 
-                        ? category.keywords.substring(0, 50) + "..."
-                        : category.keywords}
+                      {topic.h2Headings.join(", ")}
                     </td>
                     <td className="py-4 px-4 text-gray-600">
-                      {category.keyFeatures.length > 50 
-                        ? category.keyFeatures.substring(0, 50) + "..."
-                        : category.keyFeatures}
+                      {Object.entries(topic.options)
+                        .filter(([_, value]) => value)
+                        .map(([key]) => key)
+                        .join(", ")}
                     </td>
                   </tr>
                 ))}
@@ -59,13 +61,6 @@ export function StepFour({ categories, selectedLanguage }: StepFourProps) {
             </table>
           </div>
         </Card>
-      </div>
-      
-      <div className="col-span-1">
-        <Summary 
-          categories={categories.length} 
-          selectedLanguage={selectedLanguage}
-        />
       </div>
     </div>
   );
