@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -26,6 +28,10 @@ export default function CreateEcommerceContent() {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [storeName, setStoreName] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [keywords, setKeywords] = useState("");
+  const [keyFeatures, setKeyFeatures] = useState("");
   const navigate = useNavigate();
 
   const { data: projects, isLoading } = useQuery({
@@ -57,6 +63,16 @@ export default function CreateEcommerceContent() {
     } else {
       setCurrentStep(prev => prev - 1);
     }
+  };
+
+  const handleGenerateWithAI = (field: string) => {
+    // TODO: Implement AI generation logic
+    console.log("Generating", field, "with AI");
+  };
+
+  const handleAddCategory = () => {
+    // TODO: Implement category addition logic
+    console.log("Adding category");
   };
 
   return (
@@ -148,6 +164,85 @@ export default function CreateEcommerceContent() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </>
+                ) : currentStep === 3 ? (
+                  <>
+                    <h2 className="text-2xl font-semibold mb-4">Add Categories</h2>
+                    <p className="text-gray-500 mb-6">
+                      Add your category here. Each category will have own description.
+                    </p>
+                    
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Store Name:
+                        </label>
+                        <Input
+                          placeholder="e.g., Zalando"
+                          value={storeName}
+                          onChange={(e) => setStoreName(e.target.value)}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Category Name:
+                        </label>
+                        <Input
+                          placeholder="e.g., Women's dresses"
+                          value={categoryName}
+                          onChange={(e) => setCategoryName(e.target.value)}
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Keywords:
+                          </label>
+                          <Button
+                            variant="link"
+                            className="text-purple-600 hover:text-purple-700"
+                            onClick={() => handleGenerateWithAI('keywords')}
+                          >
+                            Generate by AI
+                          </Button>
+                        </div>
+                        <Input
+                          placeholder="Enter keywords separated by commas"
+                          value={keywords}
+                          onChange={(e) => setKeywords(e.target.value)}
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Key Features:
+                          </label>
+                          <Button
+                            variant="link"
+                            className="text-purple-600 hover:text-purple-700"
+                            onClick={() => handleGenerateWithAI('keyFeatures')}
+                          >
+                            Generate by AI
+                          </Button>
+                        </div>
+                        <Textarea
+                          placeholder="Enter key features and description"
+                          value={keyFeatures}
+                          onChange={(e) => setKeyFeatures(e.target.value)}
+                          className="min-h-[200px]"
+                        />
+                      </div>
+
+                      <Button
+                        onClick={handleAddCategory}
+                        className="w-full bg-purple-100 text-purple-600 hover:bg-purple-200"
+                      >
+                        Add
+                      </Button>
+                    </div>
                   </>
                 ) : null}
               </Card>
