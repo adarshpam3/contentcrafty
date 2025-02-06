@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -14,9 +16,48 @@ const steps = [
   { number: 5, title: "Done", current: false },
 ];
 
+const languages = [
+  "English UK", "English US", "Spanish", "French", "German", "Italian", 
+  "Portuguese", "Dutch", "Polish", "Russian", "Japanese", "Korean", 
+  "Chinese", "Arabic", "Hindi", "Turkish", "Vietnamese", "Thai"
+];
+
 export default function CreateEcommerceContent() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
   const navigate = useNavigate();
+
+  const { data: projects, isLoading } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      return data || [];
+    },
+  });
+
+  const handleNext = () => {
+    if (currentStep === 1 && !selectedProject) {
+      return;
+    }
+    setCurrentStep(prev => Math.min(prev + 1, 5));
+  };
+
+  const handleBack = () => {
+    if (currentStep === 1) {
+      navigate(-1);
+    } else {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -62,20 +103,53 @@ export default function CreateEcommerceContent() {
             {/* Main Form */}
             <div className="col-span-2">
               <Card className="p-6">
-                <h2 className="text-2xl font-semibold mb-4">Select project</h2>
-                <p className="text-gray-500 mb-6">
-                  Select project where you want to write content.
-                </p>
-                
-                <Select>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="project1">Project 1</SelectItem>
-                    <SelectItem value="project2">Project 2</SelectItem>
-                  </SelectContent>
-                </Select>
+                {currentStep === 1 ? (
+                  <>
+                    <h2 className="text-2xl font-semibold mb-4">Select project</h2>
+                    <p className="text-gray-500 mb-6">
+                      Select project where you want to write content.
+                    </p>
+                    
+                    <Select value={selectedProject} onValueChange={setSelectedProject}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {isLoading ? (
+                          <SelectItem value="loading" disabled>Loading projects...</SelectItem>
+                        ) : projects && projects.length > 0 ? (
+                          projects.map((project) => (
+                            <SelectItem key={project.id} value={project.id}>
+                              {project.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-projects" disabled>No projects found</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </>
+                ) : currentStep === 2 ? (
+                  <>
+                    <h2 className="text-2xl font-semibold mb-4">Select language</h2>
+                    <p className="text-gray-500 mb-6">
+                      Choose the language in which you want to write your content.
+                    </p>
+                    
+                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select language..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {languages.map((language) => (
+                          <SelectItem key={language} value={language.toLowerCase()}>
+                            {language}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </>
+                ) : null}
               </Card>
             </div>
 
@@ -90,7 +164,9 @@ export default function CreateEcommerceContent() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Language:</span>
-                    <span className="text-gray-900">not selected</span>
+                    <span className="text-gray-900">
+                      {selectedLanguage || "not selected"}
+                    </span>
                   </div>
                 </div>
               </Card>
@@ -101,14 +177,15 @@ export default function CreateEcommerceContent() {
           <div className="flex justify-end space-x-4 mt-8">
             <Button
               variant="outline"
-              onClick={() => navigate(-1)}
+              onClick={handleBack}
               className="px-6"
             >
               Back
             </Button>
             <Button
-              onClick={() => setCurrentStep(prev => Math.min(prev + 1, 5))}
+              onClick={handleNext}
               className="px-6 bg-purple-600 hover:bg-purple-700"
+              disabled={currentStep === 1 && !selectedProject}
             >
               Next
             </Button>
