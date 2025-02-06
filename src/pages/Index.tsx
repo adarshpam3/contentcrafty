@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentCard } from "@/components/ContentCard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -49,6 +51,7 @@ const contentTypes = [
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState("blog");
+  const navigate = useNavigate();
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -102,6 +105,7 @@ export default function Index() {
                 <Button 
                   variant="ghost" 
                   className="w-full mt-4 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                  onClick={() => navigate('/articles')}
                 >
                   Go to articles
                 </Button>
@@ -121,6 +125,7 @@ export default function Index() {
                 <Button 
                   variant="ghost" 
                   className="w-full mt-4 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                  onClick={() => navigate('/projects')}
                 >
                   Publish articles
                 </Button>
@@ -140,6 +145,7 @@ export default function Index() {
                 <Button 
                   variant="ghost" 
                   className="w-full mt-4 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                  onClick={() => navigate('/articles')}
                 >
                   View status
                 </Button>
@@ -159,6 +165,7 @@ export default function Index() {
                 <Button 
                   variant="ghost" 
                   className="w-full mt-4 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                  onClick={() => navigate('/projects')}
                 >
                   Go to projects
                 </Button>
