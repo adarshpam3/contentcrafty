@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -32,7 +33,9 @@ export default function CreateEcommerceContent() {
   const [categoryName, setCategoryName] = useState("");
   const [keywords, setKeywords] = useState("");
   const [keyFeatures, setKeyFeatures] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
@@ -65,9 +68,50 @@ export default function CreateEcommerceContent() {
     }
   };
 
-  const handleGenerateWithAI = (field: string) => {
-    // TODO: Implement AI generation logic
-    console.log("Generating", field, "with AI");
+  const handleGenerateWithAI = async (field: string) => {
+    if (!storeName || !categoryName) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter store name and category name first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-ecommerce-content', {
+        body: {
+          type: field,
+          storeName,
+          categoryName,
+          language: selectedLanguage || 'English',
+        },
+      });
+
+      if (error) throw error;
+
+      if (field === 'keywords') {
+        setKeywords(data.content);
+      } else if (field === 'keyFeatures') {
+        setKeyFeatures(data.content);
+      }
+
+      toast({
+        title: "Generated Successfully",
+        description: `${field === 'keywords' ? 'Keywords' : 'Key features'} have been generated.`,
+      });
+    } catch (error) {
+      console.error('Error generating content:', error);
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate content. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleAddCategory = () => {
@@ -204,8 +248,9 @@ export default function CreateEcommerceContent() {
                             variant="link"
                             className="text-purple-600 hover:text-purple-700"
                             onClick={() => handleGenerateWithAI('keywords')}
+                            disabled={isGenerating}
                           >
-                            Generate by AI
+                            {isGenerating ? 'Generating...' : 'Generate by AI'}
                           </Button>
                         </div>
                         <Input
@@ -224,8 +269,9 @@ export default function CreateEcommerceContent() {
                             variant="link"
                             className="text-purple-600 hover:text-purple-700"
                             onClick={() => handleGenerateWithAI('keyFeatures')}
+                            disabled={isGenerating}
                           >
-                            Generate by AI
+                            {isGenerating ? 'Generating...' : 'Generate by AI'}
                           </Button>
                         </div>
                         <Textarea
