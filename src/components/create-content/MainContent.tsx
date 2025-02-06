@@ -118,7 +118,12 @@ export function MainContent() {
           />
         );
       case 4:
-        return <StepFour categories={categories} />;
+        return (
+          <StepFour 
+            categories={categories} 
+            selectedLanguage={selectedLanguage}
+          />
+        );
       case 5:
         return <StepFive />;
       default:
