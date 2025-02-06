@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,6 +27,8 @@ export function ContentCard({
   const handleClick = () => {
     if (title === "Fast Writer") {
       navigate("/create-content");
+    } else if (title === "Copy-commerce-001") {
+      navigate("/create-ecommerce-content");
     } else {
       console.log("Clicked:", title);
     }

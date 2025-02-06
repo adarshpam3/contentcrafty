@@ -56,6 +56,7 @@ const ecommerceContentTypes = [
       { label: "Feature", value: "Personalization" },
     ],
     buttonText: "Create Content",
+    recommended: true, // This will make the button purple
   }
 ];
 
