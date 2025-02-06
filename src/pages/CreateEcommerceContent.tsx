@@ -27,11 +27,15 @@ const languages = [
   "Chinese", "Arabic", "Hindi", "Turkish", "Vietnamese", "Thai"
 ];
 
-interface Category {
-  storeName: string;
-  categoryName: string;
-  keywords: string;
-  keyFeatures: string;
+interface Topic {
+  title: string;
+  h2Headings: string[];
+  options: {
+    addH2: boolean;
+    faq: boolean;
+    tableOfContents: boolean;
+    generateImage: boolean;
+  };
 }
 
 export default function CreateEcommerceContent() {
@@ -44,7 +48,7 @@ export default function CreateEcommerceContent() {
   const [keyFeatures, setKeyFeatures] = useState("");
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
   const [isGeneratingFeatures, setIsGeneratingFeatures] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -153,14 +157,18 @@ export default function CreateEcommerceContent() {
       return;
     }
 
-    const newCategory = {
-      storeName,
-      categoryName,
-      keywords,
-      keyFeatures,
+    const newTopic: Topic = {
+      title: categoryName,
+      h2Headings: keyFeatures.split('\n').filter(line => line.trim()),
+      options: {
+        addH2: true,
+        faq: false,
+        tableOfContents: true,
+        generateImage: false,
+      }
     };
 
-    setCategories(prev => [...prev, newCategory]);
+    setTopics(prev => [...prev, newTopic]);
 
     // Reset form
     setStoreName("");
@@ -175,7 +183,7 @@ export default function CreateEcommerceContent() {
   };
 
   const handleDeleteCategory = (index: number) => {
-    setCategories(prev => prev.filter((_, i) => i !== index));
+    setTopics(prev => prev.filter((_, i) => i !== index));
     toast({
       title: "Category Deleted",
       description: "The category has been removed.",
@@ -224,7 +232,7 @@ export default function CreateEcommerceContent() {
           {/* Main Content and Summary */}
           {currentStep === 4 ? (
             <StepFour 
-              categories={categories} 
+              categories={topics}
               selectedLanguage={selectedLanguage}
             />
           ) : (
@@ -375,7 +383,7 @@ export default function CreateEcommerceContent() {
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Categories:</span>
-                      <span className="text-gray-900">{categories.length}</span>
+                      <span className="text-gray-900">{topics.length}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Language:</span>
