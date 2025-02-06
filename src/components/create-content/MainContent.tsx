@@ -1,3 +1,4 @@
+
 import { StepOne } from "./steps/StepOne";
 import { StepTwo } from "./steps/StepTwo";
 import { StepThree } from "./steps/StepThree";
@@ -77,7 +78,12 @@ export function MainContent() {
           />
         );
       case 4:
-        return <StepFour topics={topics} />;
+        return (
+          <StepFour 
+            categories={topics}
+            selectedLanguage={selectedLanguage}
+          />
+        );
       case 5:
         return <StepFive />;
       default:

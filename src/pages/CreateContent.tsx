@@ -1,3 +1,4 @@
+
 import { Breadcrumb } from "@/components/create-content/Breadcrumb";
 import { CreateContentSteps } from "@/components/create-content/CreateContentSteps";
 import { MainContent } from "@/components/create-content/MainContent";
@@ -28,10 +29,8 @@ function CreateContentInner() {
 
           <div className="col-span-1">
             <Summary
-              selectedProject={selectedProject}
+              categories={topics.length}
               selectedLanguage={selectedLanguage}
-              topicsCount={topics.length}
-              imageCount={topics.filter(t => t.options.generateImage).length}
             />
           </div>
         </div>
