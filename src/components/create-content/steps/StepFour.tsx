@@ -13,37 +13,38 @@ export function StepFour({ categories, selectedLanguage }: StepFourProps) {
     <div className="grid grid-cols-3 gap-8">
       <div className="col-span-2">
         <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold">Review</h2>
-            <Button variant="outline" className="bg-purple-600 text-white hover:bg-purple-700">
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold mb-2">Review</h2>
+            <p className="text-gray-500 mb-6">
+              Check if everything is ok before describing your categories!
+            </p>
+            <Button variant="secondary" className="bg-purple-600 text-white hover:bg-purple-700 mb-8">
               GPT-4
             </Button>
           </div>
-          <p className="text-gray-500 mb-6">
-            Check if everything is ok before describing your categories!
-          </p>
           
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 px-4 text-gray-600">Title</th>
-                  <th className="text-left py-2 px-4 text-gray-600">H2 Headings</th>
-                  <th className="text-left py-2 px-4 text-gray-600">Options</th>
+                  <th className="text-left py-4 px-4 text-gray-600 font-medium">Category</th>
+                  <th className="text-left py-4 px-4 text-gray-600 font-medium">Keywords</th>
+                  <th className="text-left py-4 px-4 text-gray-600 font-medium">Key Features</th>
                 </tr>
               </thead>
               <tbody>
-                {categories.map((topic, index) => (
+                {categories.map((category, index) => (
                   <tr key={index} className="border-b">
-                    <td className="py-4 px-4">{topic.title}</td>
+                    <td className="py-4 px-4 text-gray-900">{category.title}</td>
                     <td className="py-4 px-4 text-gray-600">
-                      {topic.h2Headings.join(", ")}
+                      <div className="line-clamp-2">
+                        {category.h2Headings[0]}
+                      </div>
                     </td>
                     <td className="py-4 px-4 text-gray-600">
-                      {Object.entries(topic.options)
-                        .filter(([_, value]) => value)
-                        .map(([key]) => key)
-                        .join(", ")}
+                      <div className="line-clamp-2">
+                        {category.h2Headings.slice(1).join(", ")}
+                      </div>
                     </td>
                   </tr>
                 ))}
