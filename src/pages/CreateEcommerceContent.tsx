@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
@@ -367,7 +368,7 @@ export default function CreateEcommerceContent() {
                         </Button>
 
                         <CategoryList 
-                          categories={categories}
+                          categories={topics}
                           onDeleteCategory={handleDeleteCategory}
                         />
                       </div>
