@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { CategoryList } from "@/components/create-content/CategoryList";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -25,6 +26,13 @@ const languages = [
   "Chinese", "Arabic", "Hindi", "Turkish", "Vietnamese", "Thai"
 ];
 
+interface Category {
+  storeName: string;
+  categoryName: string;
+  keywords: string;
+  keyFeatures: string;
+}
+
 export default function CreateEcommerceContent() {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProject, setSelectedProject] = useState("");
@@ -33,7 +41,9 @@ export default function CreateEcommerceContent() {
   const [categoryName, setCategoryName] = useState("");
   const [keywords, setKeywords] = useState("");
   const [keyFeatures, setKeyFeatures] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
+  const [isGeneratingFeatures, setIsGeneratingFeatures] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -45,16 +55,26 @@ export default function CreateEcommerceContent() {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) {
-        throw error;
-      }
-
+      if (error) throw error;
       return data || [];
     },
   });
 
   const handleNext = () => {
     if (currentStep === 1 && !selectedProject) {
+      toast({
+        title: "Please select a project",
+        description: "You need to select a project before proceeding.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (currentStep === 2 && !selectedLanguage) {
+      toast({
+        title: "Please select a language",
+        description: "You need to select a language before proceeding.",
+        variant: "destructive",
+      });
       return;
     }
     setCurrentStep(prev => Math.min(prev + 1, 5));
@@ -68,7 +88,7 @@ export default function CreateEcommerceContent() {
     }
   };
 
-  const handleGenerateWithAI = async (field: string) => {
+  const handleGenerateWithAI = async (field: 'keywords' | 'keyFeatures') => {
     if (!storeName || !categoryName) {
       toast({
         title: "Missing Information",
@@ -78,7 +98,11 @@ export default function CreateEcommerceContent() {
       return;
     }
 
-    setIsGenerating(true);
+    if (field === 'keywords') {
+      setIsGeneratingKeywords(true);
+    } else {
+      setIsGeneratingFeatures(true);
+    }
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-ecommerce-content', {
@@ -94,7 +118,7 @@ export default function CreateEcommerceContent() {
 
       if (field === 'keywords') {
         setKeywords(data.content);
-      } else if (field === 'keyFeatures') {
+      } else {
         setKeyFeatures(data.content);
       }
 
@@ -110,13 +134,51 @@ export default function CreateEcommerceContent() {
         variant: "destructive",
       });
     } finally {
-      setIsGenerating(false);
+      if (field === 'keywords') {
+        setIsGeneratingKeywords(false);
+      } else {
+        setIsGeneratingFeatures(false);
+      }
     }
   };
 
   const handleAddCategory = () => {
-    // TODO: Implement category addition logic
-    console.log("Adding category");
+    if (!storeName || !categoryName || !keywords || !keyFeatures) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all fields before adding a category.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newCategory = {
+      storeName,
+      categoryName,
+      keywords,
+      keyFeatures,
+    };
+
+    setCategories(prev => [...prev, newCategory]);
+
+    // Reset form
+    setStoreName("");
+    setCategoryName("");
+    setKeywords("");
+    setKeyFeatures("");
+
+    toast({
+      title: "Category Added",
+      description: "The category has been added successfully.",
+    });
+  };
+
+  const handleDeleteCategory = (index: number) => {
+    setCategories(prev => prev.filter((_, i) => i !== index));
+    toast({
+      title: "Category Deleted",
+      description: "The category has been removed.",
+    });
   };
 
   return (
@@ -248,9 +310,9 @@ export default function CreateEcommerceContent() {
                             variant="link"
                             className="text-purple-600 hover:text-purple-700"
                             onClick={() => handleGenerateWithAI('keywords')}
-                            disabled={isGenerating}
+                            disabled={isGeneratingKeywords}
                           >
-                            {isGenerating ? 'Generating...' : 'Generate by AI'}
+                            {isGeneratingKeywords ? 'Generating...' : 'Generate by AI'}
                           </Button>
                         </div>
                         <Input
@@ -269,9 +331,9 @@ export default function CreateEcommerceContent() {
                             variant="link"
                             className="text-purple-600 hover:text-purple-700"
                             onClick={() => handleGenerateWithAI('keyFeatures')}
-                            disabled={isGenerating}
+                            disabled={isGeneratingFeatures}
                           >
-                            {isGenerating ? 'Generating...' : 'Generate by AI'}
+                            {isGeneratingFeatures ? 'Generating...' : 'Generate by AI'}
                           </Button>
                         </div>
                         <Textarea
@@ -288,6 +350,11 @@ export default function CreateEcommerceContent() {
                       >
                         Add
                       </Button>
+
+                      <CategoryList 
+                        categories={categories}
+                        onDeleteCategory={handleDeleteCategory}
+                      />
                     </div>
                   </>
                 ) : null}
@@ -300,8 +367,8 @@ export default function CreateEcommerceContent() {
                 <h3 className="text-lg font-semibold mb-4">Summary</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Articles:</span>
-                    <span className="text-gray-900">0</span>
+                    <span className="text-gray-600">Categories:</span>
+                    <span className="text-gray-900">{categories.length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Language:</span>
