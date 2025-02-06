@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { CategoryList } from "@/components/create-content/CategoryList";
-import { Summary } from "@/components/create-content/Summary";
 import { StepFour } from "@/components/create-content/steps/StepFour";
+import { Topic } from "@/types/ecommerce";
 
 const steps = [
   { number: 1, title: "Select Project", current: true },
@@ -27,17 +27,6 @@ const languages = [
   "Portuguese", "Dutch", "Polish", "Russian", "Japanese", "Korean", 
   "Chinese", "Arabic", "Hindi", "Turkish", "Vietnamese", "Thai"
 ];
-
-interface Topic {
-  title: string;
-  h2Headings: string[];
-  options: {
-    addH2: boolean;
-    faq: boolean;
-    tableOfContents: boolean;
-    generateImage: boolean;
-  };
-}
 
 export default function CreateEcommerceContent() {
   const [currentStep, setCurrentStep] = useState(1);

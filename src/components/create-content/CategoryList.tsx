@@ -1,15 +1,9 @@
 
 import { Button } from "@/components/ui/button";
-
-interface Category {
-  storeName: string;
-  categoryName: string;
-  keywords: string;
-  keyFeatures: string;
-}
+import { Topic } from "@/types/ecommerce";
 
 interface CategoryListProps {
-  categories: Category[];
+  categories: Topic[];
   onDeleteCategory: (index: number) => void;
 }
 
@@ -26,11 +20,13 @@ export function CategoryList({ categories, onDeleteCategory }: CategoryListProps
       </div>
       {categories.map((category, index) => (
         <div key={index} className="grid grid-cols-4 gap-4 py-3 border-t items-center">
-          <div className="text-purple-600">{category.categoryName}</div>
-          <div className="text-gray-600">{category.storeName}</div>
-          <div className="text-gray-600">{category.keywords}</div>
+          <div className="text-purple-600">{category.title}</div>
+          <div className="text-gray-600">-</div>
+          <div className="text-gray-600">-</div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-600 truncate">{category.keyFeatures.substring(0, 50)}...</span>
+            <span className="text-gray-600 truncate">
+              {category.h2Headings.join(", ").substring(0, 50)}...
+            </span>
             <Button
               variant="ghost"
               className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 h-auto text-xs"
