@@ -28,8 +28,8 @@ export default function ProjectDetails() {
     },
   });
 
-  const { data: articles = [], isLoading } = useQuery({
-    queryKey: ["project-articles", projectId],
+  const { data: allContent = [], isLoading } = useQuery({
+    queryKey: ["project-content", projectId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("articles")
@@ -38,7 +38,7 @@ export default function ProjectDetails() {
 
       if (error) {
         toast({
-          title: "Error loading articles",
+          title: "Error loading content",
           description: error.message,
           variant: "destructive",
         });
@@ -48,6 +48,10 @@ export default function ProjectDetails() {
     },
     enabled: !!projectId,
   });
+
+  // Filter content based on is_category flag
+  const articles = allContent.filter(item => !item.is_category);
+  const categories = allContent.filter(item => item.is_category);
 
   if (isLoading) {
     return <div className="p-8">Loading...</div>;
@@ -104,7 +108,7 @@ export default function ProjectDetails() {
                 </div>
               ) : (
                 <>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-4">
                     <Input
                       placeholder="Search by article title..."
                       className="max-w-sm"
@@ -168,7 +172,7 @@ export default function ProjectDetails() {
             </TabsContent>
 
             <TabsContent value="categories">
-              {articles.filter(a => a.is_category).length === 0 ? (
+              {categories.length === 0 ? (
                 <div className="bg-purple-50 rounded-lg p-6 text-center">
                   <p className="text-purple-700 mb-4">
                     You don't have any categories yet. Create your first category using our e-commerce model!
@@ -200,18 +204,20 @@ export default function ProjectDetails() {
                   <div className="bg-white rounded-lg border p-6">
                     <div className="grid grid-cols-4 gap-4 py-2 font-medium text-sm text-gray-500">
                       <div>Category</div>
-                      <div>Store</div>
-                      <div>Keywords</div>
-                      <div>Key Features</div>
+                      <div>Description</div>
+                      <div>Words</div>
+                      <div>Status</div>
                     </div>
-                    {articles.filter(a => a.is_category).map((category) => (
+                    {categories.map((category) => (
                       <div key={category.id} className="grid grid-cols-4 gap-4 py-3 border-t items-center">
                         <div className="text-purple-600">{category.topic}</div>
-                        <div className="text-gray-600">-</div>
-                        <div className="text-gray-600">-</div>
+                        <div className="text-gray-600 truncate">
+                          {category.category_description || '-'}
+                        </div>
+                        <div className="text-gray-600">{category.word_count || 0}</div>
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-600 truncate">
-                            {(category.h2_headings || []).join(", ").substring(0, 50)}...
+                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
+                            {category.status || 'completed'}
                           </span>
                           <Button
                             variant="ghost"
