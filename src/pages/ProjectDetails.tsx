@@ -2,12 +2,11 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ArticlesTab } from "@/components/projects/ArticlesTab";
+import { CategoriesTab } from "@/components/projects/CategoriesTab";
 
 export default function ProjectDetails() {
   const { projectId } = useParams();
@@ -94,143 +93,11 @@ export default function ProjectDetails() {
             </TabsList>
 
             <TabsContent value="articles">
-              {articles.length === 0 ? (
-                <div className="bg-purple-50 rounded-lg p-6 text-center">
-                  <p className="text-purple-700 mb-4">
-                    You don't have any articles assigned to this project yet. Use one of our models and start creating outstanding content!
-                  </p>
-                  <Button 
-                    onClick={() => navigate("/create-content")}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    Create Content
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <div className="flex justify-between items-center mb-4">
-                    <Input
-                      placeholder="Search by article title..."
-                      className="max-w-sm"
-                    />
-                    <div className="flex gap-2">
-                      <Button variant="outline" className="text-red-500">Delete Selected</Button>
-                      <Button variant="outline">Export</Button>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-12">
-                            <input type="checkbox" className="rounded border-gray-300" />
-                          </TableHead>
-                          <TableHead>Title</TableHead>
-                          <TableHead>Words</TableHead>
-                          <TableHead>Characters</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Used</TableHead>
-                          <TableHead>Comment</TableHead>
-                          <TableHead className="w-12"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {articles.map((article) => (
-                          <TableRow 
-                            key={article.id}
-                            className="cursor-pointer"
-                            onClick={() => navigate(`/articles/${article.id}`)}
-                          >
-                            <TableCell onClick={(e) => e.stopPropagation()}>
-                              <input type="checkbox" className="rounded border-gray-300" />
-                            </TableCell>
-                            <TableCell className="font-medium">{article.topic}</TableCell>
-                            <TableCell>{article.word_count || 0}</TableCell>
-                            <TableCell>{article.character_count || 0}</TableCell>
-                            <TableCell>
-                              <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
-                                {article.status || 'completed'}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-red-500">×</span>
-                            </TableCell>
-                            <TableCell>-</TableCell>
-                            <TableCell onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </>
-              )}
+              <ArticlesTab articles={articles} />
             </TabsContent>
 
             <TabsContent value="categories">
-              {categories.length === 0 ? (
-                <div className="bg-purple-50 rounded-lg p-6 text-center">
-                  <p className="text-purple-700 mb-4">
-                    You don't have any categories yet. Create your first category using our e-commerce model!
-                  </p>
-                  <Button 
-                    onClick={() => navigate("/create-ecommerce-content")}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    Create Category
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <Input
-                      placeholder="Search categories..."
-                      className="max-w-sm"
-                    />
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={() => navigate("/create-ecommerce-content")}
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
-                      >
-                        Create Category
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg border p-6">
-                    <div className="grid grid-cols-4 gap-4 py-2 font-medium text-sm text-gray-500">
-                      <div>Category</div>
-                      <div>Description</div>
-                      <div>Words</div>
-                      <div>Status</div>
-                    </div>
-                    {categories.map((category) => (
-                      <div key={category.id} className="grid grid-cols-4 gap-4 py-3 border-t items-center">
-                        <div className="text-purple-600">{category.topic}</div>
-                        <div className="text-gray-600 truncate">
-                          {category.category_description || '-'}
-                        </div>
-                        <div className="text-gray-600">{category.word_count || 0}</div>
-                        <div className="flex items-center justify-between">
-                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
-                            {category.status || 'completed'}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 h-auto text-xs"
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <CategoriesTab categories={categories} />
             </TabsContent>
           </Tabs>
         </div>
