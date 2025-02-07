@@ -38,12 +38,12 @@ export function EcommerceStepFour({ categories, selectedLanguage }: EcommerceSte
                     <td className="py-4 px-4 text-gray-900">{category.title}</td>
                     <td className="py-4 px-4 text-gray-600">
                       <div className="line-clamp-2">
-                        {category.h2Headings[0]}
+                        {category.h2Headings && category.h2Headings[0]}
                       </div>
                     </td>
                     <td className="py-4 px-4 text-gray-600">
                       <div className="line-clamp-2">
-                        {category.h2Headings.slice(1).join(", ")}
+                        {category.h2Headings && category.h2Headings.slice(1).join(", ")}
                       </div>
                     </td>
                   </tr>
