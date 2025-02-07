@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
@@ -12,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { CategoryList } from "@/components/create-content/CategoryList";
 import { EcommerceStepFour } from "@/components/create-content/steps/EcommerceStepFour";
+import { EcommerceStepFive } from "@/components/create-content/steps/EcommerceStepFive";
 import { Topic } from "@/types/ecommerce";
 
 const steps = [
@@ -71,6 +71,16 @@ export default function CreateEcommerceContent() {
         variant: "destructive",
       });
       return;
+    }
+    if (currentStep === 4) {
+      if (topics.length === 0) {
+        toast({
+          title: "No categories",
+          description: "Please add at least one category before proceeding.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
     setCurrentStep(prev => Math.min(prev + 1, 5));
   };
@@ -223,6 +233,12 @@ export default function CreateEcommerceContent() {
           {currentStep === 4 ? (
             <EcommerceStepFour 
               categories={topics}
+              selectedLanguage={selectedLanguage}
+            />
+          ) : currentStep === 5 ? (
+            <EcommerceStepFive
+              topics={topics}
+              selectedProject={selectedProject}
               selectedLanguage={selectedLanguage}
             />
           ) : (
@@ -396,13 +412,14 @@ export default function CreateEcommerceContent() {
             >
               Back
             </Button>
-            <Button
-              onClick={handleNext}
-              className="px-6 bg-purple-600 hover:bg-purple-700"
-              disabled={currentStep === 1 && !selectedProject}
-            >
-              {currentStep === 4 ? "Create Content" : "Next"}
-            </Button>
+            {currentStep < 5 && (
+              <Button
+                onClick={handleNext}
+                className="px-6 bg-purple-600 hover:bg-purple-700"
+              >
+                {currentStep === 4 ? "Create Content" : "Next"}
+              </Button>
+            )}
           </div>
         </div>
       </main>
