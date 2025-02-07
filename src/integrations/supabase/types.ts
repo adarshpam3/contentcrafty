@@ -49,14 +49,17 @@ export type Database = {
       }
       articles: {
         Row: {
+          category_description: string | null
           character_count: number | null
           content: string | null
           created_at: string | null
+          description: string | null
           h2_headings: string[] | null
           has_faq: boolean | null
           has_image: boolean | null
           has_toc: boolean | null
           id: string
+          is_category: boolean | null
           language: string
           project_id: string | null
           status: string | null
@@ -66,14 +69,17 @@ export type Database = {
           word_count: number | null
         }
         Insert: {
+          category_description?: string | null
           character_count?: number | null
           content?: string | null
           created_at?: string | null
+          description?: string | null
           h2_headings?: string[] | null
           has_faq?: boolean | null
           has_image?: boolean | null
           has_toc?: boolean | null
           id?: string
+          is_category?: boolean | null
           language: string
           project_id?: string | null
           status?: string | null
@@ -83,14 +89,17 @@ export type Database = {
           word_count?: number | null
         }
         Update: {
+          category_description?: string | null
           character_count?: number | null
           content?: string | null
           created_at?: string | null
+          description?: string | null
           h2_headings?: string[] | null
           has_faq?: boolean | null
           has_image?: boolean | null
           has_toc?: boolean | null
           id?: string
+          is_category?: boolean | null
           language?: string
           project_id?: string | null
           status?: string | null
