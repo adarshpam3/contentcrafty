@@ -12,6 +12,7 @@ import CreatePage from "@/pages/CreatePage";
 import CreateEcommerceContent from "@/pages/CreateEcommerceContent";
 import NotFound from "@/pages/NotFound";
 import ArticleView from "@/pages/ArticleView";
+import CategoryView from "@/pages/CategoryView";
 import Auth from "@/pages/Auth";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ function App() {
           <Route path="/create-page" element={<CreatePage />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/articles/:articleId" element={<ArticleView />} />
+          <Route path="/category/:categoryId" element={<CategoryView />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:projectId" element={<ProjectDetails />} />
           <Route path="/create-project" element={<CreateProject />} />
