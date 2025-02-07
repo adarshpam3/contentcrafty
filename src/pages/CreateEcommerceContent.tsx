@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { CategoryList } from "@/components/create-content/CategoryList";
-import { StepFour } from "@/components/create-content/steps/StepFour";
+import { EcommerceStepFour } from "@/components/create-content/steps/EcommerceStepFour";
 import { Topic } from "@/types/ecommerce";
 
 const steps = [
@@ -221,7 +221,7 @@ export default function CreateEcommerceContent() {
 
           {/* Main Content and Summary */}
           {currentStep === 4 ? (
-            <StepFour 
+            <EcommerceStepFour 
               categories={topics}
               selectedLanguage={selectedLanguage}
             />
