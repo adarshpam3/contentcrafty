@@ -58,7 +58,18 @@ export default function ImageGenerator() {
     if (!generatedImage) return;
 
     try {
-      const response = await fetch(generatedImage);
+      // First try to fetch the image through our own function
+      const response = await fetch(generatedImage, {
+        mode: 'cors',
+        headers: {
+          'Accept': 'image/*, application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch image');
+      }
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -77,7 +88,7 @@ export default function ImageGenerator() {
       console.error('Error downloading image:', error);
       toast({
         title: "Error",
-        description: "Failed to download image",
+        description: "Failed to download image. The image URL may have expired.",
         variant: "destructive",
       });
     }

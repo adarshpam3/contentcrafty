@@ -5,6 +5,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts"
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
 }
 
 serve(async (req) => {
@@ -29,7 +30,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "dall-e-3",
         prompt,
-        n: 1,  // Changed from 3 to 1 as DALL-E 3 only supports n=1
+        n: 1,
         size: "1024x1024",
       }),
     })
