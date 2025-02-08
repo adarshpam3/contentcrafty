@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,18 +8,34 @@ import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { ArticleSearch } from "@/components/articles/ArticleSearch";
 import { ArticleList } from "@/components/articles/ArticleList";
+import { CategoriesContent } from "@/components/articles/CategoriesContent";
 
 export default function Articles() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
-  const { data: articles, isLoading } = useQuery({
+  const { data: articles, isLoading: articlesLoading } = useQuery({
     queryKey: ["articles"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("articles")
         .select("*, projects(name)")
+        .eq('is_category', false)
+        .order("created_at", { ascending: sortDirection === "asc" });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("*")
+        .eq('is_category', true)
         .order("created_at", { ascending: sortDirection === "asc" });
 
       if (error) throw error;
@@ -28,6 +45,10 @@ export default function Articles() {
 
   const filteredArticles = articles?.filter((article) =>
     article.topic.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredCategories = categories?.filter((category) =>
+    category.topic.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
@@ -56,12 +77,12 @@ export default function Articles() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-sm text-gray-600">
-                {articles?.length || 0} Articles left (3 tokens)
+                {articles?.length || 0} Articles left (5 tokens)
               </div>
               <Button variant="outline">Upgrade Plan</Button>
               <Button 
                 className="bg-purple-600 hover:bg-purple-700 text-white"
-                onClick={() => navigate('/create-page')}
+                onClick={() => navigate('/create-content')}
               >
                 Create Content
               </Button>
@@ -83,15 +104,18 @@ export default function Articles() {
 
               <ArticleList 
                 articles={filteredArticles || []}
-                isLoading={isLoading}
+                isLoading={articlesLoading}
                 onDelete={handleDelete}
               />
             </TabsContent>
 
-            <TabsContent value="categories">
-              <div className="text-center p-8 text-gray-500">
-                Categories feature coming soon
-              </div>
+            <TabsContent value="categories" className="mt-6">
+              <CategoriesContent 
+                categories={filteredCategories || []}
+                isLoading={categoriesLoading}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+              />
             </TabsContent>
           </Tabs>
         </div>
