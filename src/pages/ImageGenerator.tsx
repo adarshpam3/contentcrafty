@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ImageGenerator() {
   const [prompt, setPrompt] = useState("");
@@ -24,19 +25,14 @@ export default function ImageGenerator() {
 
     setIsGenerating(true);
     try {
-      const response = await fetch(
-        "https://xyzcompany.supabase.co/functions/v1/generate-images",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt }),
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('generate-images', {
+        body: { prompt }
+      });
 
-      const data = await response.json();
-      
+      if (error) {
+        throw new Error(error.message);
+      }
+
       if (data.error) {
         throw new Error(data.error);
       }
@@ -47,6 +43,7 @@ export default function ImageGenerator() {
         description: "Images generated successfully!",
       });
     } catch (error) {
+      console.error('Error generating images:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to generate images",
