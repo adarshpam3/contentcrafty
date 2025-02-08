@@ -4,7 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function ImageGenerator() {
@@ -51,6 +51,35 @@ export default function ImageGenerator() {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!generatedImage) return;
+
+    try {
+      const response = await fetch(generatedImage);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `generated-image-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Success",
+        description: "Image downloaded successfully!",
+      });
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download image",
+        variant: "destructive",
+      });
     }
   };
 
@@ -118,6 +147,15 @@ export default function ImageGenerator() {
                   alt="Generated image"
                   className="w-full h-full object-cover"
                 />
+              </div>
+              <div className="mt-4 flex justify-center">
+                <Button
+                  onClick={handleDownload}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Download className="mr-2" />
+                  Download Image
+                </Button>
               </div>
             </div>
           )}
