@@ -60,9 +60,7 @@ export type Database = {
           has_toc: boolean | null
           id: string
           is_category: boolean | null
-          keywords: string[] | null
           language: string
-          meta_description: string | null
           project_id: string | null
           status: string | null
           topic: string
@@ -82,9 +80,7 @@ export type Database = {
           has_toc?: boolean | null
           id?: string
           is_category?: boolean | null
-          keywords?: string[] | null
           language: string
-          meta_description?: string | null
           project_id?: string | null
           status?: string | null
           topic: string
@@ -104,9 +100,7 @@ export type Database = {
           has_toc?: boolean | null
           id?: string
           is_category?: boolean | null
-          keywords?: string[] | null
           language?: string
-          meta_description?: string | null
           project_id?: string | null
           status?: string | null
           topic?: string
