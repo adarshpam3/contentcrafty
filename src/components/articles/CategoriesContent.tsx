@@ -114,15 +114,19 @@ export function CategoriesContent({
           </TableHeader>
           <TableBody>
             {categories.map((category) => (
-              <TableRow key={category.id}>
-                <TableCell>
-                  <Button
-                    variant="link"
-                    className="text-purple-600 hover:text-purple-800 p-0 h-auto font-medium"
-                    onClick={() => navigate(`/category/${category.id}`)}
-                  >
-                    {category.topic}
-                  </Button>
+              <TableRow 
+                key={category.id}
+                className="cursor-pointer hover:bg-gray-50"
+                onClick={(e) => {
+                  // Prevent navigation if clicking delete button
+                  const target = e.target as HTMLElement;
+                  if (!target.closest('button')) {
+                    navigate(`/category/${category.id}`);
+                  }
+                }}
+              >
+                <TableCell className="font-medium text-purple-600">
+                  {category.topic}
                 </TableCell>
                 <TableCell className="text-gray-600 max-w-md truncate">
                   {category.category_description || '-'}
@@ -141,7 +145,8 @@ export function CategoriesContent({
                 <TableCell>
                   <Button
                     variant="ghost"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setCategoryToDelete(category.id);
                       setDeleteDialogOpen(true);
                     }}
