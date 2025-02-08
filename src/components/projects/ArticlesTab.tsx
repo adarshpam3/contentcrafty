@@ -4,6 +4,20 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MoreVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Article {
   id: string;
@@ -19,6 +33,36 @@ interface ArticlesTabProps {
 
 export function ArticlesTab({ articles }: ArticlesTabProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
+
+  const handleDelete = async (articleId: string) => {
+    try {
+      const { error } = await supabase
+        .from('articles')
+        .delete()
+        .eq('id', articleId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Article deleted successfully",
+      });
+
+      // Refresh the data
+      queryClient.invalidateQueries({ queryKey: ["project-content"] });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+    setDeleteDialogOpen(false);
+  };
 
   if (articles.length === 0) {
     return (
@@ -88,7 +132,15 @@ export function ArticlesTab({ articles }: ArticlesTabProps) {
                 </TableCell>
                 <TableCell>-</TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => {
+                      setArticleToDelete(article.id);
+                      setDeleteDialogOpen(true);
+                    }}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  >
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </TableCell>
@@ -97,6 +149,26 @@ export function ArticlesTab({ articles }: ArticlesTabProps) {
           </TableBody>
         </Table>
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this article.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => articleToDelete && handleDelete(articleToDelete)}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
