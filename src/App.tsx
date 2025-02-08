@@ -14,6 +14,7 @@ import NotFound from "@/pages/NotFound";
 import ArticleView from "@/pages/ArticleView";
 import CategoryView from "@/pages/CategoryView";
 import Auth from "@/pages/Auth";
+import ImageGenerator from "@/pages/ImageGenerator";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ function App() {
           <Route path="/create-project" element={<CreateProject />} />
           <Route path="/create-content" element={<CreateContent />} />
           <Route path="/create-ecommerce-content" element={<CreateEcommerceContent />} />
+          <Route path="/image-generator" element={<ImageGenerator />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
