@@ -3,12 +3,14 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Copy, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function CategoryView() {
   const { categoryId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const { data: category, isLoading } = useQuery({
     queryKey: ["category", categoryId],
@@ -23,6 +25,14 @@ export default function CategoryView() {
       return data;
     },
   });
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link copied!",
+      description: "The category link has been copied to your clipboard.",
+    });
+  };
 
   if (isLoading) {
     return (
@@ -45,31 +55,65 @@ export default function CategoryView() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="mb-6">
-        <Button 
-          onClick={() => navigate("/projects")} 
-          variant="outline" 
-          className="flex items-center gap-2 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Projects
-        </Button>
-        <h1 className="text-3xl font-bold text-gray-900">{category.topic}</h1>
-        <p className="text-gray-600 mt-2">{category.category_description}</p>
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: category.content || '' }} />
-      </div>
-
-      <div className="mt-6 flex gap-4">
-        <div className="bg-purple-50 p-4 rounded-lg">
-          <p className="text-sm text-purple-600 font-medium">Word Count</p>
-          <p className="text-2xl font-bold text-purple-900">{category.word_count || 0}</p>
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center space-x-4 text-sm">
+            <span className="text-purple-600">Home</span>
+            <span>/</span>
+            <span className="text-purple-600">Projects</span>
+            <span>/</span>
+            <span className="text-gray-600">{category.topic}</span>
+          </div>
         </div>
-        <div className="bg-purple-50 p-4 rounded-lg">
-          <p className="text-sm text-purple-600 font-medium">Character Count</p>
-          <p className="text-2xl font-bold text-purple-900">{category.character_count || 0}</p>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-2">Edit category</h1>
+          <p className="text-gray-600">You can preview and edit your category description here.</p>
+        </div>
+
+        <div className="bg-white rounded-lg border p-6">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-semibold">{category.topic}</h2>
+              <span className="text-xs px-2 py-1 bg-purple-100 text-purple-600 rounded">title</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Download
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 bg-purple-50 hover:bg-purple-100"
+                onClick={handleCopyLink}
+              >
+                <Copy className="w-4 h-4" />
+                Copy share link
+              </Button>
+              <Button variant="outline" size="sm">
+                Save
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex gap-4 mb-4">
+            <div className="bg-purple-50 px-3 py-1 rounded-full text-sm text-purple-600">
+              Words: {category.word_count || 0}
+            </div>
+            <div className="bg-purple-50 px-3 py-1 rounded-full text-sm text-purple-600">
+              Characters: {category.character_count || 0}
+            </div>
+          </div>
+
+          <div className="prose max-w-none">
+            <div dangerouslySetInnerHTML={{ __html: category.content || '' }} />
+          </div>
         </div>
       </div>
     </div>
