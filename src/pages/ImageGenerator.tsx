@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -33,8 +33,8 @@ export default function ImageGenerator() {
         throw new Error(error.message);
       }
 
-      if (data.error) {
-        throw new Error(data.error);
+      if (!data?.data || !Array.isArray(data.data)) {
+        throw new Error('Invalid response format from image generation');
       }
 
       setGeneratedImages(data.data.map((img: { url: string }) => img.url));

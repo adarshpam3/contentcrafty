@@ -36,10 +36,18 @@ serve(async (req) => {
 
     const data = await response.json()
     
-    return new Response(JSON.stringify(data), {
+    // Check if the OpenAI API returned an error
+    if (data.error) {
+      console.error('OpenAI API error:', data.error)
+      throw new Error(data.error.message || 'Failed to generate images')
+    }
+
+    // Return the generated images data
+    return new Response(JSON.stringify({ data: data.data }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
+    console.error('Error in generate-images function:', error)
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
