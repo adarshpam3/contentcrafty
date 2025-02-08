@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 export default function ImageGenerator() {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const generateImages = async () => {
@@ -33,14 +33,14 @@ export default function ImageGenerator() {
         throw new Error(error.message);
       }
 
-      if (!data?.data || !Array.isArray(data.data)) {
+      if (!data?.data || !Array.isArray(data.data) || data.data.length === 0) {
         throw new Error('Invalid response format from image generation');
       }
 
-      setGeneratedImages(data.data.map((img: { url: string }) => img.url));
+      setGeneratedImage(data.data[0].url);
       toast({
         title: "Success",
-        description: "Images generated successfully!",
+        description: "Image generated successfully!",
       });
     } catch (error) {
       console.error('Error generating images:', error);
@@ -71,7 +71,7 @@ export default function ImageGenerator() {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="rounded-lg bg-purple-50 p-4 mb-6">
               <p className="text-purple-700">
-                Submit your idea below and watch as DALL-E 3 produces three images based on your prompt.
+                Submit your idea below and watch as DALL-E 3 brings it to life.
               </p>
             </div>
 
@@ -103,27 +103,22 @@ export default function ImageGenerator() {
                     Generating...
                   </>
                 ) : (
-                  "Generate Images"
+                  "Generate Image"
                 )}
               </Button>
             </div>
           </div>
 
-          {/* Generated Images */}
-          {generatedImages.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {generatedImages.map((imageUrl, index) => (
-                <div
-                  key={index}
-                  className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-white"
-                >
-                  <img
-                    src={imageUrl}
-                    alt={`Generated image ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
+          {/* Generated Image */}
+          {generatedImage && (
+            <div className="max-w-2xl mx-auto">
+              <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-white">
+                <img
+                  src={generatedImage}
+                  alt="Generated image"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           )}
         </div>

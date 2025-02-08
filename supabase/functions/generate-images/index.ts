@@ -29,7 +29,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "dall-e-3",
         prompt,
-        n: 3,
+        n: 1,  // Changed from 3 to 1 as DALL-E 3 only supports n=1
         size: "1024x1024",
       }),
     })
@@ -42,7 +42,7 @@ serve(async (req) => {
       throw new Error(data.error.message || 'Failed to generate images')
     }
 
-    // Return the generated images data
+    // Return the generated image data
     return new Response(JSON.stringify({ data: data.data }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
