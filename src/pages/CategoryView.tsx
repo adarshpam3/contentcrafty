@@ -73,7 +73,7 @@ export default function CategoryView() {
           {/* Header Section */}
           <div className="p-6 border-b">
             <h1 className="text-2xl font-bold text-gray-900">{category.topic}</h1>
-            <p className="text-gray-600 mt-2">{category.meta_description || category.category_description}</p>
+            <p className="text-gray-600 mt-2">{category.description || category.category_description}</p>
           </div>
 
           {/* Keywords Section */}
@@ -86,7 +86,7 @@ export default function CategoryView() {
               </Button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {(category.keywords || []).map((keyword, index) => (
+              {(category.keywords || []).map((keyword: string, index: number) => (
                 <span key={index} className="px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-sm">
                   {keyword}
                 </span>
