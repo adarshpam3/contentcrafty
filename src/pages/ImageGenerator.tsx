@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 export default function ImageGenerator() {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [generatedImage, setGeneratedImage] = useState<{ url: string; fileName: string } | null>(null);
   const { toast } = useToast();
 
   const generateImages = async () => {
@@ -37,7 +37,11 @@ export default function ImageGenerator() {
         throw new Error('Invalid response format from image generation');
       }
 
-      setGeneratedImage(data.data[0].url);
+      setGeneratedImage({
+        url: data.data[0].url,
+        fileName: data.data[0].fileName
+      });
+      
       toast({
         title: "Success",
         description: "Image generated successfully!",
@@ -55,26 +59,17 @@ export default function ImageGenerator() {
   };
 
   const handleDownload = async () => {
-    if (!generatedImage) return;
+    if (!generatedImage?.url) return;
 
     try {
-      // First try to fetch the image through our own function
-      const response = await fetch(generatedImage, {
-        mode: 'cors',
-        headers: {
-          'Accept': 'image/*, application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch image');
-      }
+      const response = await fetch(generatedImage.url);
+      if (!response.ok) throw new Error('Failed to fetch image');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `generated-image-${Date.now()}.png`;
+      a.download = generatedImage.fileName || 'generated-image.png';
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -88,7 +83,7 @@ export default function ImageGenerator() {
       console.error('Error downloading image:', error);
       toast({
         title: "Error",
-        description: "Failed to download image. The image URL may have expired.",
+        description: "Failed to download image",
         variant: "destructive",
       });
     }
@@ -154,7 +149,7 @@ export default function ImageGenerator() {
             <div className="max-w-2xl mx-auto">
               <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-white">
                 <img
-                  src={generatedImage}
+                  src={generatedImage.url}
                   alt="Generated image"
                   className="w-full h-full object-cover"
                 />
