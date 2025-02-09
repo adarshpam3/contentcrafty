@@ -15,8 +15,6 @@ import ArticleView from "@/pages/ArticleView";
 import CategoryView from "@/pages/CategoryView";
 import Auth from "@/pages/Auth";
 import ImageGenerator from "@/pages/ImageGenerator";
-import IndexingApi from "@/pages/IndexingApi";
-import PbnManagement from "@/pages/PbnManagement";
 
 const queryClient = new QueryClient();
 
@@ -37,8 +35,6 @@ function App() {
           <Route path="/create-content" element={<CreateContent />} />
           <Route path="/create-ecommerce-content" element={<CreateEcommerceContent />} />
           <Route path="/image-generator" element={<ImageGenerator />} />
-          <Route path="/indexing-api" element={<IndexingApi />} />
-          <Route path="/pbn" element={<PbnManagement />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
