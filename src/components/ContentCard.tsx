@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
 
 interface ContentCardProps {
   title: string;
@@ -12,6 +11,7 @@ interface ContentCardProps {
   features: Array<{ label: string; value: string }>;
   buttonText: string;
   recommended?: boolean;
+  onClick?: () => void;
 }
 
 export function ContentCard({
@@ -21,19 +21,8 @@ export function ContentCard({
   features,
   buttonText,
   recommended = false,
+  onClick,
 }: ContentCardProps) {
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    if (title === "Fast Writer") {
-      navigate("/create-content");
-    } else if (title === "Copy-commerce-001") {
-      navigate("/create-ecommerce-content");
-    } else {
-      console.log("Clicked:", title);
-    }
-  };
-
   return (
     <Card
       className={cn(
@@ -65,7 +54,7 @@ export function ContentCard({
         <Button
           className="w-full mt-6"
           variant={recommended ? "default" : "outline"}
-          onClick={handleClick}
+          onClick={onClick}
         >
           {buttonText}
         </Button>
