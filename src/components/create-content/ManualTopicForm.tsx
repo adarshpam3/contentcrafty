@@ -1,7 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { NeuronTextArea } from "./NeuronTextArea";
 
 interface TopicOptions {
   addH2: boolean;
@@ -94,11 +95,10 @@ export function ManualTopicForm({
       {options.addH2 && (
         <div>
           <label className="block text-sm font-medium mb-1">H2 Headings:</label>
-          <Textarea
+          <NeuronTextArea
             placeholder="Each H2 heading in new line"
             value={h2Headings}
             onChange={(e) => setH2Headings(e.target.value)}
-            className="min-h-[100px]"
           />
         </div>
       )}
