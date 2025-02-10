@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentCard } from "@/components/ContentCard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +17,7 @@ const blogContentTypes = [
       { label: "Feature", value: "Bulk generator" },
     ],
     buttonText: "Create Content",
+    route: "/create-content"
   },
   {
     title: "Advanced Writer",
@@ -41,6 +43,7 @@ const blogContentTypes = [
       { label: "Feature", value: "NeuronWriter Integration" },
     ],
     buttonText: "Create Content",
+    route: "/create-neuron-content"
   },
 ];
 
@@ -56,12 +59,14 @@ const ecommerceContentTypes = [
       { label: "Feature", value: "Personalization" },
     ],
     buttonText: "Create Content",
-    recommended: true, // This will make the button purple
+    recommended: true,
+    route: "/create-ecommerce-content"
   }
 ];
 
 export default function CreatePage() {
   const [activeTab, setActiveTab] = useState("blog");
+  const navigate = useNavigate();
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -94,12 +99,14 @@ export default function CreatePage() {
                     <ContentCard
                       key={index}
                       {...content}
+                      onClick={() => content.route && navigate(content.route)}
                     />
                   ))
                 : ecommerceContentTypes.map((content, index) => (
                     <ContentCard
                       key={index}
                       {...content}
+                      onClick={() => content.route && navigate(content.route)}
                     />
                   ))
               }
