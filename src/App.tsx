@@ -10,6 +10,7 @@ import CreateProject from "@/pages/CreateProject";
 import CreateContent from "@/pages/CreateContent";
 import CreatePage from "@/pages/CreatePage";
 import CreateEcommerceContent from "@/pages/CreateEcommerceContent";
+import CreateNeuronContent from "@/pages/CreateNeuronContent";
 import NotFound from "@/pages/NotFound";
 import ArticleView from "@/pages/ArticleView";
 import CategoryView from "@/pages/CategoryView";
@@ -36,6 +37,7 @@ function App() {
           <Route path="/create-project" element={<CreateProject />} />
           <Route path="/create-content" element={<CreateContent />} />
           <Route path="/create-ecommerce-content" element={<CreateEcommerceContent />} />
+          <Route path="/create-neuron-content" element={<CreateNeuronContent />} />
           <Route path="/image-generator" element={<ImageGenerator />} />
           <Route path="/indexing-api" element={<IndexingApi />} />
           <Route path="/pbn" element={<PbnManagement />} />

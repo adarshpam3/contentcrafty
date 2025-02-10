@@ -29,6 +29,8 @@ export function ContentCard({
       navigate("/create-content");
     } else if (title === "Copy-commerce-001") {
       navigate("/create-ecommerce-content");
+    } else if (title === "Neuron & Contadu Writer") {
+      navigate("/create-neuron-content");
     } else {
       console.log("Clicked:", title);
     }
