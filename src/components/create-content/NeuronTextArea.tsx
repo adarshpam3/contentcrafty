@@ -2,7 +2,7 @@
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-interface NeuronTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface NeuronTextAreaProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
