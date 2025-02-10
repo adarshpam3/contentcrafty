@@ -1,13 +1,14 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentCard } from "@/components/ContentCard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Globe, Pencil, Eye, FileEdit } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 const blogContentTypes = [
   {
@@ -68,6 +69,63 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState("blog");
   const navigate = useNavigate();
 
+  // Query for total articles
+  const { data: totalArticles = 0 } = useQuery({
+    queryKey: ["totalArticles"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("articles")
+        .select("*", { count: "exact", head: true })
+        .eq('is_category', false);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  // Query for unpublished articles
+  const { data: unpublishedArticles = 0 } = useQuery({
+    queryKey: ["unpublishedArticles"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("articles")
+        .select("*", { count: "exact", head: true })
+        .eq('status', 'pending')
+        .eq('is_category', false);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  // Query for in-progress articles
+  const { data: inProgressArticles = 0 } = useQuery({
+    queryKey: ["inProgressArticles"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("articles")
+        .select("*", { count: "exact", head: true })
+        .eq('status', 'draft')
+        .eq('is_category', false);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  // Query for total projects
+  const { data: totalProjects = 0 } = useQuery({
+    queryKey: ["totalProjects"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("projects")
+        .select("*", { count: "exact", head: true });
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -103,7 +161,12 @@ export default function Index() {
           {/* Articles Section */}
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold">Your articles</h2>
-            <p className="text-gray-600">You haven't written any articles this month yet.</p>
+            <p className="text-gray-600">
+              {totalArticles === 0 
+                ? "You haven't written any articles this month yet."
+                : `You have written ${totalArticles} articles this month.`
+              }
+            </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Total Articles Card */}
@@ -111,7 +174,7 @@ export default function Index() {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-gray-600">Total</p>
-                    <p className="text-3xl font-semibold">0</p>
+                    <p className="text-3xl font-semibold">{totalArticles}</p>
                   </div>
                   <div className="p-3 bg-gray-100 rounded-full">
                     <Pencil className="w-5 h-5 text-gray-600" />
@@ -131,7 +194,7 @@ export default function Index() {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-gray-600">Unpublished</p>
-                    <p className="text-3xl font-semibold">0</p>
+                    <p className="text-3xl font-semibold">{unpublishedArticles}</p>
                   </div>
                   <div className="p-3 bg-gray-100 rounded-full">
                     <Eye className="w-5 h-5 text-gray-600" />
@@ -151,7 +214,7 @@ export default function Index() {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-gray-600">In progress</p>
-                    <p className="text-3xl font-semibold">0</p>
+                    <p className="text-3xl font-semibold">{inProgressArticles}</p>
                   </div>
                   <div className="p-3 bg-gray-100 rounded-full">
                     <FileEdit className="w-5 h-5 text-gray-600" />
@@ -171,7 +234,7 @@ export default function Index() {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-gray-600">Projects</p>
-                    <p className="text-3xl font-semibold">2</p>
+                    <p className="text-3xl font-semibold">{totalProjects}</p>
                   </div>
                   <div className="p-3 bg-gray-100 rounded-full">
                     <Globe className="w-5 h-5 text-gray-600" />
