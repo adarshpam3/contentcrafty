@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { NeuronTextArea } from "./NeuronTextArea";
+import { useToast } from "@/components/ui/use-toast";
 
 interface TopicOptions {
   addH2: boolean;
@@ -30,6 +31,20 @@ export function ManualTopicForm({
   setH2Headings,
   onAddTopic,
 }: ManualTopicFormProps) {
+  const { toast } = useToast();
+
+  const handleSubmit = () => {
+    if (!topic.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a topic",
+        variant: "destructive",
+      });
+      return;
+    }
+    onAddTopic();
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-gray-500 mb-4">
@@ -105,7 +120,7 @@ export function ManualTopicForm({
       
       <Button 
         className="w-full bg-purple-100 text-purple-600 hover:bg-purple-200"
-        onClick={onAddTopic}
+        onClick={handleSubmit}
       >
         Add
       </Button>
