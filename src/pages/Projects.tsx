@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { MoreVertical, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Sidebar } from "@/components/Sidebar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,6 +81,7 @@ export default function Projects() {
 
   return (
     <div className="p-8">
+       <Sidebar />
       <div className="flex justify-between items-center mb-6">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold">Projects</h1>
