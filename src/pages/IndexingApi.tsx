@@ -39,7 +39,7 @@ export default function IndexingApi() {
                 Setup your first Indexing API project to start using the tool.
               </p>
               <Button 
-                onClick={() => navigate('/create-project')}
+                onClick={() => navigate('/create-indexing-api-project')}
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 Create project

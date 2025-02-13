@@ -44,6 +44,7 @@ function App() {
           <Route path="/pbn" element={<PbnManagement />} />
           <Route path="/subscription" element={<Subscription />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/create-indexing-api-project" element={<CreateIndexingAPIProject />} />
         </Routes>
       </Router>
       <Toaster />
