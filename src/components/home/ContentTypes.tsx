@@ -1,7 +1,10 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContentCard } from "@/components/ContentCard";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const blogContentTypes = [
   {
@@ -15,6 +18,7 @@ const blogContentTypes = [
       { label: "Feature", value: "Bulk generator" },
     ],
     buttonText: "Create Content",
+    action: "/create-content"
   },
   {
     title: "Advanced Writer",
@@ -28,6 +32,7 @@ const blogContentTypes = [
     ],
     buttonText: "Subscribe to use Advanced Writer",
     recommended: true,
+    action: "/subscription"
   },
   {
     title: "Neuron & Contadu Writer",
@@ -40,6 +45,7 @@ const blogContentTypes = [
       { label: "Feature", value: "NeuronWriter Integration" },
     ],
     buttonText: "Create Content",
+    action: "/create-content"
   },
 ];
 
@@ -55,11 +61,34 @@ const ecommerceContentTypes = [
       { label: "Feature", value: "Personalization" },
     ],
     buttonText: "Create Content",
+    action: "/create-content"
   }
 ];
 
 export function ContentTypes() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("blog");
+
+  const { data: subscription } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleCardAction = (action: string, requiresPro: boolean = false) => {
+    if (requiresPro && subscription?.plan_type !== 'pro' && subscription?.plan_type !== 'enterprise') {
+      navigate('/subscription');
+    } else {
+      navigate(action);
+    }
+  };
 
   return (
     <Tabs defaultValue="blog" className="space-y-8" value={activeTab} onValueChange={setActiveTab}>
@@ -74,12 +103,14 @@ export function ContentTypes() {
               <ContentCard
                 key={index}
                 {...content}
+                onClick={() => handleCardAction(content.action, content.title === "Advanced Writer")}
               />
             ))
           : ecommerceContentTypes.map((content, index) => (
               <ContentCard
                 key={index}
                 {...content}
+                onClick={() => handleCardAction(content.action)}
               />
             ))
         }

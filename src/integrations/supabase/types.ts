@@ -434,6 +434,42 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          articles_remaining: number
+          created_at: string
+          id: string
+          plan_type: string
+          price: number
+          status: string
+          tokens_remaining: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          articles_remaining?: number
+          created_at?: string
+          id?: string
+          plan_type?: string
+          price?: number
+          status?: string
+          tokens_remaining?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          articles_remaining?: number
+          created_at?: string
+          id?: string
+          plan_type?: string
+          price?: number
+          status?: string
+          tokens_remaining?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           created_at: string
