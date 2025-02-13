@@ -19,6 +19,7 @@ const blogContentTypes = [
       { label: "Feature", value: "Bulk generator" },
     ],
     buttonText: "Create Content",
+    action: "/create-content",
   },
   {
     title: "Advanced Writer",
@@ -32,6 +33,7 @@ const blogContentTypes = [
     ],
     buttonText: "Subscribe to use Advanced Writer",
     recommended: true,
+    action: "/subscription",
   },
   {
     title: "Neuron & Contadu Writer",
@@ -44,6 +46,7 @@ const blogContentTypes = [
       { label: "Feature", value: "NeuronWriter Integration" },
     ],
     buttonText: "Create Content",
+    action: "/create-neuron-content",
   },
 ];
 
@@ -60,6 +63,7 @@ const ecommerceContentTypes = [
     ],
     buttonText: "Create Content",
     recommended: true, // This will make the button purple
+    action: "/create-ecommerce-content",
   }
 ];
 
