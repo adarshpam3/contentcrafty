@@ -6,11 +6,7 @@ import { StepFour } from "./steps/StepFour";
 import { StepFive } from "./steps/StepFive";
 import { useContentCreation } from "./ContentCreationProvider";
 
-interface MainContentProps {
-  checkSubscriptionAccess: () => boolean;
-}
-
-export function MainContent({ checkSubscriptionAccess }: MainContentProps) {
+export function MainContent() {
   const {
     currentStep,
     topic,
@@ -79,7 +75,6 @@ export function MainContent({ checkSubscriptionAccess }: MainContentProps) {
             isGenerating={isGenerating}
             setIsGenerating={setIsGenerating}
             selectedLanguage={selectedLanguage}
-            checkSubscriptionAccess={checkSubscriptionAccess}
           />
         );
       case 4:

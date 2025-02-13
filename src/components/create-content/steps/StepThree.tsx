@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Pencil, Upload } from "lucide-react";
@@ -45,7 +44,6 @@ interface StepThreeProps {
   isGenerating: boolean;
   setIsGenerating: (value: boolean) => void;
   selectedLanguage: string;
-  checkSubscriptionAccess: () => boolean;
 }
 
 export function StepThree({
@@ -70,7 +68,6 @@ export function StepThree({
   isGenerating,
   setIsGenerating,
   selectedLanguage,
-  checkSubscriptionAccess,
 }: StepThreeProps) {
   return (
     <Card className="p-6">
@@ -118,7 +115,6 @@ export function StepThree({
             isGenerating={isGenerating}
             setIsGenerating={setIsGenerating}
             selectedLanguage={selectedLanguage}
-            checkSubscriptionAccess={checkSubscriptionAccess}
           />
         </TabsContent>
 

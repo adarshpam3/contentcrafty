@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -25,7 +24,6 @@ interface KeywordsAITabProps {
   isGenerating: boolean;
   setIsGenerating: (value: boolean) => void;
   selectedLanguage: string;
-  checkSubscriptionAccess: () => boolean;
 }
 
 export function KeywordsAITab({
@@ -38,14 +36,8 @@ export function KeywordsAITab({
   isGenerating,
   setIsGenerating,
   selectedLanguage,
-  checkSubscriptionAccess,
 }: KeywordsAITabProps) {
   const handleGenerateTopics = async () => {
-    // Check subscription before proceeding
-    if (!checkSubscriptionAccess()) {
-      return;
-    }
-
     if (keywords.length === 0) {
       toast({
         title: "Keywords Required",
