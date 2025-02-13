@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,7 +51,7 @@ export default function Auth() {
 
         if (error) throw error;
 
-        navigate("/");
+        navigate("/create-project");
       } else {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
