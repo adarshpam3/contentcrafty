@@ -51,8 +51,8 @@ export default function Auth() {
 
         if (error) throw error;
 
-        // After successful login, navigate to create-project
-        navigate("/create-project");
+        // After successful login, navigate to create first project
+        navigate("/create-first-project");
       } else {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),

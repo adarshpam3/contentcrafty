@@ -34,9 +34,12 @@ export function useCheckProject() {
       return;
     }
 
-    if (projects && projects.length === 0 && window.location.pathname !== "/create-project") {
-      navigate("/create-project");
-    } else if (projects && projects.length > 0 && window.location.pathname === "/create-project") {
+    const currentPath = window.location.pathname;
+    const allowedPaths = ["/create-first-project", "/create-project"];
+
+    if (projects && projects.length === 0 && !allowedPaths.includes(currentPath)) {
+      navigate("/create-first-project");
+    } else if (projects && projects.length > 0 && currentPath === "/create-first-project") {
       navigate("/");
     }
   }, [session, projects, navigate]);

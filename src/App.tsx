@@ -7,6 +7,7 @@ import Articles from "@/pages/Articles";
 import Projects from "@/pages/Projects";
 import ProjectDetails from "@/pages/ProjectDetails";
 import CreateProject from "@/pages/CreateProject";
+import CreateFirstProject from "@/pages/CreateFirstProject";
 import CreateContent from "@/pages/CreateContent";
 import CreatePage from "@/pages/CreatePage";
 import CreateEcommerceContent from "@/pages/CreateEcommerceContent";
@@ -30,6 +31,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/create-first-project" element={<CreateFirstProject />} />
           <Route path="/create-page" element={<CreatePage />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/articles/:articleId" element={<ArticleView />} />
