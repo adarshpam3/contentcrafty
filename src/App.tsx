@@ -19,6 +19,7 @@ import ImageGenerator from "@/pages/ImageGenerator";
 import IndexingApi from "@/pages/IndexingApi";
 import PbnManagement from "@/pages/PbnManagement";
 import Subscription from "@/pages/Subscription";
+import CreateIndexingAPIProject from "@/pages/CreateIndexingAPIProject";
 
 const queryClient = new QueryClient();
 
