@@ -12,6 +12,7 @@ interface ContentCardProps {
   features: Array<{ label: string; value: string }>;
   buttonText: string;
   recommended?: boolean;
+  onClick?: () => void;
 }
 
 export function ContentCard({
@@ -21,11 +22,14 @@ export function ContentCard({
   features,
   buttonText,
   recommended = false,
+  onClick,
 }: ContentCardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (title === "Fast Writer") {
+    if (onClick) {
+      onClick();
+    } else if (title === "Fast Writer") {
       navigate("/create-content");
     } else if (title === "Copy-commerce-001") {
       navigate("/create-ecommerce-content");

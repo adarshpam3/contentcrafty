@@ -75,7 +75,7 @@ export function ContentTypes() {
       const { data, error } = await supabase
         .from("subscriptions")
         .select("*")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
