@@ -4,15 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Sidebar } from "@/components/Sidebar";
 import { Statistics } from "@/components/home/Statistics";
 import { ContentTypes } from "@/components/home/ContentTypes";
-import { useCheckProject } from "@/hooks/use-check-project";
 
 export default function Index() {
-  const { isLoading } = useCheckProject();
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />

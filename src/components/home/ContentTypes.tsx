@@ -45,7 +45,7 @@ const blogContentTypes = [
       { label: "Feature", value: "NeuronWriter Integration" },
     ],
     buttonText: "Create Content",
-    action: "/create-neuron-content"
+    action: "/create-content"
   },
 ];
 
@@ -61,7 +61,7 @@ const ecommerceContentTypes = [
       { label: "Feature", value: "Personalization" },
     ],
     buttonText: "Create Content",
-    action: "/create-ecommerce-content"
+    action: "/create-content"
   }
 ];
 
