@@ -51,8 +51,18 @@ export default function Auth() {
 
         if (error) throw error;
 
-        // After successful login, navigate to create first project
-        navigate("/create-first-project");
+        // Check if user has any projects
+        const { data: projects } = await supabase
+          .from("projects")
+          .select("id")
+          .limit(1);
+
+        // Navigate based on whether user has projects
+        if (!projects || projects.length === 0) {
+          navigate("/create-first-project");
+        } else {
+          navigate("/");
+        }
       } else {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
