@@ -46,7 +46,7 @@ const blogContentTypes = [
       { label: "Feature", value: "NeuronWriter Integration" },
     ],
     buttonText: "Create Content",
-    action: "/create-content"
+    action: "/create-neuron-content"
   },
 ];
 
