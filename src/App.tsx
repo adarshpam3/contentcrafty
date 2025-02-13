@@ -18,6 +18,7 @@ import Auth from "@/pages/Auth";
 import ImageGenerator from "@/pages/ImageGenerator";
 import IndexingApi from "@/pages/IndexingApi";
 import PbnManagement from "@/pages/PbnManagement";
+import Subscription from "@/pages/Subscription";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="/image-generator" element={<ImageGenerator />} />
           <Route path="/indexing-api" element={<IndexingApi />} />
           <Route path="/pbn" element={<PbnManagement />} />
+          <Route path="/subscription" element={<Subscription />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
