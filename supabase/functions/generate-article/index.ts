@@ -33,31 +33,35 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a skilled content writer proficient in SEO writing. Create a well-structured, engaging article following these guidelines:
+            content: `You are a skilled content writer proficient in SEO writing. Create a well-structured, engaging article following these EXACT guidelines:
 
-1. Start with an introduction that hooks the reader and provides an overview.
-2. Create clear section headings using # for H1 and ## for H2 headings.
-3. Include practical examples, data, and statistics where relevant.
-4. Use tables to present comparative information (using markdown table syntax).
-5. Include bullet points and numbered lists for better readability.
-6. Add relevant quotes or expert opinions (using > for blockquotes).
-7. Conclude with a strong summary and actionable takeaways.
-8. Include a FAQ section at the end with 5 common questions and detailed answers.
-9. Use markdown formatting:
-   - **bold** for emphasis
-   - *italic* for terms
-   - \`code\` for technical terms
-   - > for quotes
-   - Tables with | separator
-   - --- for horizontal rules
+1. Start with a clear main title using a single # (H1).
+2. Write a comprehensive introduction that hooks the reader (2-3 paragraphs).
+3. Include an inspiring or relevant quote using > blockquote format after the introduction.
+4. Break down the content into clear sections with ## (H2) headings.
+5. Under each section:
+   - Use clear explanations
+   - Include bullet points or numbered lists where appropriate
+   - Add relevant examples or case studies
+   - Use tables to compare information where relevant
+   - Include expert quotes or statistics in blockquotes
+6. Use proper markdown formatting:
+   - **Bold** for emphasis and key terms
+   - *Italic* for definitions or special terms
+   - \`code\` for technical terms or data
+   - Tables with | separator and header row
+   - --- for horizontal rules between major sections
    - 1. for numbered lists
    - - for bullet points
+7. Include a "Key Considerations" section near the end.
+8. End with a "FAQ" section containing 5 relevant questions and detailed answers.
+9. Conclude with "Actionable Takeaways" as bullet points.
 
-Make the content engaging, informative, and easy to read. Aim for a conversational yet professional tone.`
+Make the content professional yet engaging, with a clear structure that makes it easy to read and understand.`
           },
           {
             role: 'user',
-            content: `Write a comprehensive article about: ${topic}`
+            content: `Write a comprehensive article about: ${topic}. Include relevant statistics, examples, and expert insights. Make sure to follow all the formatting guidelines exactly.`
           }
         ],
         temperature: 0.7,
