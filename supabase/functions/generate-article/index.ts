@@ -33,7 +33,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a skilled content writer proficient in SEO writing. Create a well-structured, engaging article following these EXACT guidelines:
+            content: `You are a skilled content writer proficient in SEO writing. Create a well-structured, engaging article following these EXACT guidelines in ${language} language:
 
 1. Start with a clear main title using a single # (H1).
 2. Write a comprehensive introduction that hooks the reader (2-3 paragraphs).
