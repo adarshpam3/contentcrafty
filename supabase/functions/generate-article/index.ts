@@ -61,7 +61,7 @@ Make the content professional yet engaging, with a clear structure that makes it
           },
           {
             role: 'user',
-            content: `Write a comprehensive article about: ${topic} in ${language}. Ensure the entire content, including headings, explanations, and examples, are written in ${language}. Include relevant statistics, examples, and expert insights. Make sure to follow all the formatting guidelines exactly.`
+            content: `Write a comprehensive article about: ${topic}. Include relevant statistics, examples, and expert insights. Make sure to follow all the formatting guidelines exactly.`
           }
         ],
         temperature: 0.7,
