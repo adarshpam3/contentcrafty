@@ -1,11 +1,33 @@
 
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Loader2, Download, RefreshCw } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import ReactMarkdown from 'react-markdown';
+import {
+  Loader2,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  Link as LinkIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  List,
+  ListOrdered,
+  Table,
+  Image as ImageIcon,
+  Code,
+  Quote,
+  Undo,
+  Redo,
+  Download,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -16,6 +38,8 @@ import {
 
 export default function ArticleView() {
   const { articleId } = useParams();
+  const { toast } = useToast();
+  const [content, setContent] = useState("");
 
   const { data: article, isLoading } = useQuery({
     queryKey: ["article", articleId],
@@ -27,9 +51,72 @@ export default function ArticleView() {
         .single();
 
       if (error) throw error;
+      setContent(data.content || "");
       return data;
     },
   });
+
+  const handleSave = async () => {
+    const { error } = await supabase
+      .from("articles")
+      .update({ content })
+      .eq("id", articleId);
+
+    if (error) {
+      toast({
+        title: "Error saving article",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Article saved",
+      description: "Your changes have been saved successfully",
+    });
+  };
+
+  const insertText = (before: string, after = "") => {
+    const textarea = document.querySelector("textarea");
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+    const newContent =
+      content.substring(0, start) +
+      before +
+      selectedText +
+      after +
+      content.substring(end);
+
+    setContent(newContent);
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        start + before.length,
+        end + before.length
+      );
+    }, 0);
+  };
+
+  const formatButtons = [
+    { icon: Bold, label: "Bold", action: () => insertText("**", "**") },
+    { icon: Italic, label: "Italic", action: () => insertText("*", "*") },
+    { icon: Underline, label: "Underline", action: () => insertText("__", "__") },
+    { icon: Strikethrough, label: "Strike", action: () => insertText("~~", "~~") },
+    { icon: LinkIcon, label: "Link", action: () => insertText("[", "](url)") },
+    { icon: AlignLeft, label: "Align Left", action: () => {} },
+    { icon: AlignCenter, label: "Align Center", action: () => {} },
+    { icon: AlignRight, label: "Align Right", action: () => {} },
+    { icon: List, label: "Bullet List", action: () => insertText("- ") },
+    { icon: ListOrdered, label: "Numbered List", action: () => insertText("1. ") },
+    { icon: Table, label: "Table", action: () => insertText("\n| Column 1 | Column 2 |\n| -------- | -------- |\n| Cell 1   | Cell 2   |\n") },
+    { icon: ImageIcon, label: "Image", action: () => insertText("![Alt text](", ")") },
+    { icon: Code, label: "Code", action: () => insertText("`", "`") },
+    { icon: Quote, label: "Quote", action: () => insertText("> ") },
+  ];
 
   if (isLoading) {
     return (
@@ -65,8 +152,8 @@ export default function ArticleView() {
                 </h2>
                 <div className="flex gap-4 text-sm">
                   <span className="text-purple-600">Model: copy-mate-003</span>
-                  <span>Words: {article.word_count || 0}</span>
-                  <span>Characters: {article.character_count || 0}</span>
+                  <span>Words: {content.split(/\s+/).length}</span>
+                  <span>Characters: {content.length}</span>
                 </div>
               </div>
 
@@ -74,12 +161,19 @@ export default function ArticleView() {
                 <div className="flex justify-between items-center mb-4">
                   <TabsList>
                     <TabsTrigger value="edit">Edit</TabsTrigger>
-                    <TabsTrigger value="html">HTML</TabsTrigger>
+                    <TabsTrigger value="preview">Preview</TabsTrigger>
                   </TabsList>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline">Export Article</Button>
-                    <Button variant="outline">Copy share link</Button>
-                    <Button>Save</Button>
+                  <div className="space-x-2">
+                    <Button variant="outline" onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      toast({
+                        title: "Link copied",
+                        description: "Share link has been copied to clipboard",
+                      });
+                    }}>
+                      Copy share link
+                    </Button>
+                    <Button onClick={handleSave}>Save</Button>
                   </div>
                 </div>
 
@@ -106,20 +200,52 @@ export default function ArticleView() {
                         <SelectItem value="18">18</SelectItem>
                       </SelectContent>
                     </Select>
+
+                    <div className="flex flex-wrap gap-1 ml-2">
+                      {formatButtons.map((button) => (
+                        <Button
+                          key={button.label}
+                          variant="ghost"
+                          size="sm"
+                          className="p-2 h-8"
+                          title={button.label}
+                          onClick={button.action}
+                        >
+                          <button.icon className="h-4 w-4" />
+                        </Button>
+                      ))}
+                      <div className="border-l border-gray-200 mx-2" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-8"
+                        title="Undo"
+                        onClick={() => document.execCommand('undo')}
+                      >
+                        <Undo className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-8"
+                        title="Redo"
+                        onClick={() => document.execCommand('redo')}
+                      >
+                        <Redo className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
                 <TabsContent value="edit">
                   <textarea
                     className="w-full min-h-[500px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    value={article.content}
-                    onChange={() => {}}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
                   />
                 </TabsContent>
-                <TabsContent value="html">
-                  <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
-                    <code>{article.content}</code>
-                  </pre>
+                <TabsContent value="preview" className="prose max-w-none">
+                  <ReactMarkdown>{content}</ReactMarkdown>
                 </TabsContent>
               </Tabs>
             </Card>
@@ -156,7 +282,7 @@ export default function ArticleView() {
                 <h3 className="font-medium mb-4">Article Status</h3>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center">
-                    <input type="radio" className="mr-2" name="status" checked />
+                    <input type="radio" className="mr-2" name="status" defaultChecked />
                     <span>Used</span>
                   </label>
                   <label className="flex items-center">
