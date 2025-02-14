@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Bold, Italic, Underline, StrikeThrough, Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Table, Image as ImageIcon, Code, Quote, Undo, Redo } from "lucide-react";
+import { Loader2, Bold, Italic, Underline, Strikethrough, Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Table, Image as ImageIcon, Code, Quote, Undo, Redo } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import ReactMarkdown from 'react-markdown';
 
@@ -22,7 +22,7 @@ export function ArticleEditor({ content, wordCount, characterCount, onSave }: Ar
     { icon: Bold, label: "Bold" },
     { icon: Italic, label: "Italic" },
     { icon: Underline, label: "Underline" },
-    { icon: StrikeThrough, label: "Strike" },
+    { icon: Strikethrough, label: "Strike" },
     { icon: LinkIcon, label: "Link" },
     { icon: AlignLeft, label: "Align Left" },
     { icon: AlignCenter, label: "Align Center" },
