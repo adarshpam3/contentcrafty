@@ -1,25 +1,46 @@
-
-"use client";
-
-import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Bold, Italic, Strikethrough, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import ReactMarkdown from "react-markdown";
+import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import ReactMarkdown from 'react-markdown';
+import {
+  Loader2,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  Link as LinkIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  List,
+  ListOrdered,
+  Table,
+  Image as ImageIcon,
+  Code,
+  Quote,
+  Undo,
+  Redo,
+  Download,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-export default function EditArticle() {
+export default function ArticleView() {
   const { articleId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
   const [content, setContent] = useState("");
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Fetch article data
   const { data: article, isLoading, error } = useQuery({
     queryKey: ["article", articleId],
     queryFn: async () => {
@@ -30,52 +51,23 @@ export default function EditArticle() {
         .maybeSingle();
 
       if (error) throw error;
+      
+      if (!data) {
+        toast({
+          title: "Article not found",
+          description: "The requested article does not exist",
+          variant: "destructive",
+        });
+        navigate("/articles");
+        return null;
+      }
+
+      setContent(data.content || "");
       return data;
     },
   });
 
-  // Sync fetched content to state
-  useEffect(() => {
-    if (article) {
-      setContent(article.content || "");
-    }
-  }, [articleId, article]);
-
-  // Insert markdown syntax at cursor position
-  const insertText = (before: string, after = "") => {
-    if (!textAreaRef.current) return;
-    const textarea = textAreaRef.current;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = content.substring(start, end);
-
-    const newContent =
-      content.substring(0, start) +
-      before +
-      selectedText +
-      after +
-      content.substring(end);
-
-    setContent(newContent);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + before.length, end + before.length);
-    }, 0);
-  };
-
-  // Save changes
   const handleSave = async () => {
-    if (article?.content === content) {
-      toast({
-        title: "No changes",
-        description: "No modifications detected",
-        variant: "default",
-      });
-      return;
-    }
-
     const { error } = await supabase
       .from("articles")
       .update({ content })
@@ -96,60 +88,246 @@ export default function EditArticle() {
     });
   };
 
-  if (isLoading) return <Loader2 className="animate-spin mx-auto mt-10" />;
-  if (error) return <p className="text-red-500 text-center">Error loading article</p>;
+  const insertText = (before: string, after = "") => {
+    const textarea = document.querySelector("textarea");
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+    const newContent =
+      content.substring(0, start) +
+      before +
+      selectedText +
+      after +
+      content.substring(end);
+
+    setContent(newContent);
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        start + before.length,
+        end + before.length
+      );
+    }, 0);
+  };
+
+  const formatButtons = [
+    { icon: Bold, label: "Bold", action: () => insertText("**", "**") },
+    { icon: Italic, label: "Italic", action: () => insertText("*", "*") },
+    { icon: Underline, label: "Underline", action: () => insertText("__", "__") },
+    { icon: Strikethrough, label: "Strike", action: () => insertText("~~", "~~") },
+    { icon: LinkIcon, label: "Link", action: () => insertText("[", "](url)") },
+    { icon: AlignLeft, label: "Align Left", action: () => {} },
+    { icon: AlignCenter, label: "Align Center", action: () => {} },
+    { icon: AlignRight, label: "Align Right", action: () => {} },
+    { icon: List, label: "Bullet List", action: () => insertText("- ") },
+    { icon: ListOrdered, label: "Numbered List", action: () => insertText("1. ") },
+    { icon: Table, label: "Table", action: () => insertText("\n| Column 1 | Column 2 |\n| -------- | -------- |\n| Cell 1   | Cell 2   |\n") },
+    { icon: ImageIcon, label: "Image", action: () => insertText("![Alt text](", ")") },
+    { icon: Code, label: "Code", action: () => insertText("`", "`") },
+    { icon: Quote, label: "Quote", action: () => insertText("> ") },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen flex-col gap-4">
+        <p className="text-red-500">Error loading article: {error.message}</p>
+        <Button onClick={() => navigate("/articles")} variant="outline">
+          Return to Articles
+        </Button>
+      </div>
+    );
+  }
+
+  if (!article) {
+    return (
+      <div className="flex items-center justify-center min-h-screen flex-col gap-4">
+        <p className="text-gray-500">Article not found</p>
+        <Button onClick={() => navigate("/articles")} variant="outline">
+          Return to Articles
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-2xl mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4">{article?.title || "Edit Article"}</h1>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold mb-2">Edit article</h1>
+          <p className="text-gray-500">You can preview and edit your article here.</p>
+        </div>
 
-      <Tabs defaultValue="edit">
-        <TabsList className="mb-4">
-          <TabsTrigger value="edit">Edit</TabsTrigger>
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-        </TabsList>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            <Card className="p-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
+                  {article.topic}
+                  <span className="text-purple-600 text-sm font-normal cursor-pointer">↗ title</span>
+                </h2>
+                <div className="flex gap-4 text-sm">
+                  <span className="text-purple-600">Model: copy-mate-003</span>
+                  <span>Words: {content.split(/\s+/).length}</span>
+                  <span>Characters: {content.length}</span>
+                </div>
+              </div>
 
-        <TabsContent value="edit">
-          <div className="mb-2 flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => insertText("**", "**")}>
-              <Bold className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => insertText("_", "_")}>
-              <Italic className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => insertText("~~", "~~")}>
-              <Strikethrough className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => insertText('<div style="text-align:left;">', "</div>")}>
-              <AlignLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => insertText('<div style="text-align:center;">', "</div>")}>
-              <AlignCenter className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => insertText('<div style="text-align:right;">', "</div>")}>
-              <AlignRight className="h-4 w-4" />
-            </Button>
+              <Tabs defaultValue="edit" className="w-full">
+                <div className="flex justify-between items-center mb-4">
+                  <TabsList>
+                    <TabsTrigger value="edit">Edit</TabsTrigger>
+                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                  </TabsList>
+                  <div className="space-x-2">
+                    <Button variant="outline" onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      toast({
+                        title: "Link copied",
+                        description: "Share link has been copied to clipboard",
+                      });
+                    }}>
+                      Copy share link
+                    </Button>
+                    <Button onClick={handleSave}>Save</Button>
+                  </div>
+                </div>
+
+                <div className="border rounded-lg mb-4">
+                  <div className="flex items-center gap-2 p-2 border-b">
+                    <Select defaultValue="default">
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Font" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Default</SelectItem>
+                        <SelectItem value="arial">Arial</SelectItem>
+                        <SelectItem value="times">Times New Roman</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select defaultValue="16">
+                      <SelectTrigger className="w-[80px]">
+                        <SelectValue placeholder="Size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="12">12</SelectItem>
+                        <SelectItem value="14">14</SelectItem>
+                        <SelectItem value="16">16</SelectItem>
+                        <SelectItem value="18">18</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <div className="flex flex-wrap gap-1 ml-2">
+                      {formatButtons.map((button) => (
+                        <Button
+                          key={button.label}
+                          variant="ghost"
+                          size="sm"
+                          className="p-2 h-8"
+                          title={button.label}
+                          onClick={button.action}
+                        >
+                          <button.icon className="h-4 w-4" />
+                        </Button>
+                      ))}
+                      <div className="border-l border-gray-200 mx-2" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-8"
+                        title="Undo"
+                        onClick={() => document.execCommand('undo')}
+                      >
+                        <Undo className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-8"
+                        title="Redo"
+                        onClick={() => document.execCommand('redo')}
+                      >
+                        <Redo className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <TabsContent value="edit">
+                  <textarea
+                    className="w-full min-h-[500px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                  />
+                </TabsContent>
+                <TabsContent value="preview" className="prose max-w-none">
+                  <ReactMarkdown>{content}</ReactMarkdown>
+                </TabsContent>
+              </Tabs>
+            </Card>
           </div>
 
-          <textarea
-            ref={textAreaRef}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full h-64 border rounded-lg p-2"
-            placeholder="Write your article..."
-          />
-        </TabsContent>
+          <div className="lg:col-span-1">
+            <Card className="p-6">
+              <h3 className="font-medium mb-4">Featured Image</h3>
+              {article.featured_image ? (
+                <img
+                  src={article.featured_image}
+                  alt="Featured"
+                  className="w-full rounded-lg mb-4"
+                />
+              ) : (
+                <div className="bg-gray-100 rounded-lg aspect-video mb-4 flex items-center justify-center">
+                  <p className="text-gray-500">No image</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Button className="w-full" variant="outline">
+                  New Image
+                </Button>
+                <Button className="w-full" variant="outline">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+                <p className="text-sm text-gray-500 text-center">
+                  Generate an image using DALL-E 3
+                </p>
+              </div>
 
-        <TabsContent value="preview">
-          <div className="p-4 border rounded-lg">
-            <ReactMarkdown>{content || "_Nothing to preview_"}</ReactMarkdown>
+              <div className="mt-8">
+                <h3 className="font-medium mb-4">Article Status</h3>
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center">
+                    <input type="radio" className="mr-2" name="status" defaultChecked />
+                    <span>Used</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="radio" className="mr-2" name="status" />
+                    <span>Unused</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <h3 className="font-medium mb-4">Notes</h3>
+                <textarea
+                  className="w-full h-32 p-2 border rounded-lg resize-none"
+                  placeholder="Add notes about this article..."
+                />
+              </div>
+            </Card>
           </div>
-        </TabsContent>
-      </Tabs>
-
-      <Button onClick={handleSave} className="mt-4">
-        Save
-      </Button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -51,6 +51,14 @@ export default function Articles() {
     category.topic.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const { error } = await supabase.from("articles").delete().eq("id", id);
+    if (error) {
+      console.error("Error deleting article:", error);
+    }
+  };
+
   const toggleSort = () => {
     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
   };
@@ -97,6 +105,7 @@ export default function Articles() {
               <ArticleList 
                 articles={filteredArticles || []}
                 isLoading={articlesLoading}
+                onDelete={handleDelete}
               />
             </TabsContent>
 
