@@ -54,6 +54,7 @@ export type Database = {
           content: string | null
           created_at: string | null
           description: string | null
+          featured_image: string | null
           h2_headings: string[] | null
           has_faq: boolean | null
           has_image: boolean | null
@@ -76,6 +77,7 @@ export type Database = {
           content?: string | null
           created_at?: string | null
           description?: string | null
+          featured_image?: string | null
           h2_headings?: string[] | null
           has_faq?: boolean | null
           has_image?: boolean | null
@@ -98,6 +100,7 @@ export type Database = {
           content?: string | null
           created_at?: string | null
           description?: string | null
+          featured_image?: string | null
           h2_headings?: string[] | null
           has_faq?: boolean | null
           has_image?: boolean | null
