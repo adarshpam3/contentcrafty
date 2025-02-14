@@ -1,6 +1,10 @@
+
 import React from "react";
 import { ArticleTableRow } from "./ArticleTableRow";
 import { Database } from "@/integrations/supabase/types";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Article = Database["public"]["Tables"]["articles"]["Row"];
 
@@ -11,10 +15,36 @@ interface ArticleListProps {
     } | null;
   })[];
   isLoading: boolean;
-  onDelete: (e: React.MouseEvent, id: string) => Promise<void>;
 }
 
-export const ArticleList = ({ articles, isLoading, onDelete }: ArticleListProps) => {
+export const ArticleList = ({ articles, isLoading }: ArticleListProps) => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('articles')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      await queryClient.invalidateQueries({ queryKey: ['articles'] });
+
+      toast({
+        title: "Article deleted",
+        description: "The article has been permanently deleted",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete the article",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <table className="w-full">
@@ -46,7 +76,7 @@ export const ArticleList = ({ articles, isLoading, onDelete }: ArticleListProps)
               <ArticleTableRow 
                 key={article.id} 
                 article={article}
-                onDelete={onDelete}
+                onDelete={handleDelete}
               />
             ))
           )}
