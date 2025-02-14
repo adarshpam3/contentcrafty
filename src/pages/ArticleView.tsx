@@ -1,5 +1,4 @@
-
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -38,19 +37,31 @@ import {
 
 export default function ArticleView() {
   const { articleId } = useParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [content, setContent] = useState("");
 
-  const { data: article, isLoading } = useQuery({
+  const { data: article, isLoading, error } = useQuery({
     queryKey: ["article", articleId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("articles")
         .select("*, projects(name)")
         .eq("id", articleId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      
+      if (!data) {
+        toast({
+          title: "Article not found",
+          description: "The requested article does not exist",
+          variant: "destructive",
+        });
+        navigate("/articles");
+        return null;
+      }
+
       setContent(data.content || "");
       return data;
     },
@@ -126,10 +137,24 @@ export default function ArticleView() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen flex-col gap-4">
+        <p className="text-red-500">Error loading article: {error.message}</p>
+        <Button onClick={() => navigate("/articles")} variant="outline">
+          Return to Articles
+        </Button>
+      </div>
+    );
+  }
+
   if (!article) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen flex-col gap-4">
         <p className="text-gray-500">Article not found</p>
+        <Button onClick={() => navigate("/articles")} variant="outline">
+          Return to Articles
+        </Button>
       </div>
     );
   }
