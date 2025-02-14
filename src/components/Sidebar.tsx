@@ -1,7 +1,17 @@
-import { Home, FileText, ShoppingBag, Image, Database, Network, PenTool } from "lucide-react";
+
+import { Home, FileText, ShoppingBag, Image, Database, Network, PenTool, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
   { icon: Home, label: "Home", href: "/" },
@@ -16,6 +26,36 @@ const menuItems = [
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const { data: session } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Logged out successfully",
+      });
+      
+      navigate("/auth");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to log out",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div
@@ -48,6 +88,35 @@ export function Sidebar() {
             ))}
           </div>
         </nav>
+
+        <div className="p-4 border-t border-gray-200">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={cn(
+                "flex items-center w-full p-2 rounded-lg hover:bg-gray-100 transition-colors",
+                !collapsed && "space-x-3"
+              )}>
+                <User className="w-5 h-5 text-gray-500" />
+                {!collapsed && (
+                  <span className="text-gray-700 text-sm truncate">
+                    {session?.user?.email || "User"}
+                  </span>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onSelect={() => navigate("/contact")}>
+                Contact us
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => navigate("/subscription")}>
+                Subscription
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={handleLogout} className="text-red-600">
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         <button
           onClick={() => setCollapsed(!collapsed)}
