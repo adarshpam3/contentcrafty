@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -28,24 +29,39 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',  // Use a more powerful model
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: `You are a skilled content writer proficient in SEO writing. Write a well-structured, engaging, and SEO-optimized article on a given topic. 
-            - First, generate an **outline** with at least 15 headings and subheadings (H1, H2, H3, H4).
-            - Then, write a **2000-word article** based on the outline.
-            - Use **Markdown** formatting and bold all headings.
-            - Use a conversational and engaging tone.
-            - End with a **Conclusion** and **5 unique FAQs**.`
+            content: `You are a skilled content writer proficient in SEO writing. Create a well-structured, engaging article following these guidelines:
+
+1. Start with an introduction that hooks the reader and provides an overview.
+2. Create clear section headings using # for H1 and ## for H2 headings.
+3. Include practical examples, data, and statistics where relevant.
+4. Use tables to present comparative information (using markdown table syntax).
+5. Include bullet points and numbered lists for better readability.
+6. Add relevant quotes or expert opinions (using > for blockquotes).
+7. Conclude with a strong summary and actionable takeaways.
+8. Include a FAQ section at the end with 5 common questions and detailed answers.
+9. Use markdown formatting:
+   - **bold** for emphasis
+   - *italic* for terms
+   - \`code\` for technical terms
+   - > for quotes
+   - Tables with | separator
+   - --- for horizontal rules
+   - 1. for numbered lists
+   - - for bullet points
+
+Make the content engaging, informative, and easy to read. Aim for a conversational yet professional tone.`
           },
           {
             role: 'user',
-            content: `Write a detailed article on the topic: ${topic}`
+            content: `Write a comprehensive article about: ${topic}`
           }
         ],
         temperature: 0.7,
-        max_tokens: 4096,  // Increased token limit for full article generation
+        max_tokens: 4096,
       }),
     });
 
