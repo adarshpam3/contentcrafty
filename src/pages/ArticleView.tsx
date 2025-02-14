@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -187,7 +188,7 @@ export default function EditArticle() {
 
   return (
     <div className="max-w-2xl mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4">{article?.title || "Edit Article"}</h1>
+      <h1 className="text-2xl font-bold mb-4">{article?.topic || "Edit Article"}</h1>
 
       {/* Featured Image Section */}
       <div className="mb-6">
