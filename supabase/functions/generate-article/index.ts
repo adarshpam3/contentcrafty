@@ -45,7 +45,7 @@ serve(async (req) => {
           }
         ],
         temperature: 0.7,
-        max_tokens: 4000,  // Increased token limit for full article generation
+        max_tokens: 4096,  // Increased token limit for full article generation
       }),
     });
 
