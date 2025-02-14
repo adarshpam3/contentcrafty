@@ -28,29 +28,24 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',  // Use a more powerful model
         messages: [
           {
             role: 'system',
-            content: `Act as a skilled content writer who is proficient in SEO writing and has excellent ${language} skills. To get started, please create two tables.
-             The first table should contain an outline of the article, and the second table should contain the article itself. 
-             Please use Markdown language to bold the heading of the second table.
-             Before writing the article, please compose an outline that includes at least 15 headings and subheadings (including H1, H2, H3, and H4 headings). 
-             Then, proceed to write the article based on the outline step-by-step. The article should be 2,000 words long, unique, SEO-optimized, and human-written in English.
-             It should cover the given topic and include at least 15 headings and subheadings (including H1, H2, H3, and H4 headings). 
-             Please compose the article in your own words, avoiding copying and pasting from other sources.
-             When producing content, please consider complexity and burstiness, striving to achieve high levels of both without sacrificing specificity or context. 
-             Use paragraphs that fully engage the reader, and write in a conversational style that is human-like.
-             This means employing an informal tone, utilizing personal pronouns, keeping it simple, engaging the reader, utilizing the active voice, keeping it brief, asking rhetorical questions, and incorporating analogies and metaphors. 
-             Please end the article with a conclusion paragraph and 5 unique FAQs after the conclusion. Additionally, remember to bold the title and all headings of the article and use appropriate headings for H tags.`
+            content: `You are a skilled content writer proficient in SEO writing. Write a well-structured, engaging, and SEO-optimized article on a given topic. 
+            - First, generate an **outline** with at least 15 headings and subheadings (H1, H2, H3, H4).
+            - Then, write a **2000-word article** based on the outline.
+            - Use **Markdown** formatting and bold all headings.
+            - Use a conversational and engaging tone.
+            - End with a **Conclusion** and **5 unique FAQs**.`
           },
           {
             role: 'user',
-            content: `Write a comprehensive article about: ${topic}`
+            content: `Write a detailed article on the topic: ${topic}`
           }
         ],
         temperature: 0.7,
-        max_tokens: 2000,
+        max_tokens: 4000,  // Increased token limit for full article generation
       }),
     });
 
