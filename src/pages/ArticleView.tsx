@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import { Loader2, Bold, Italic, Strikethrough, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -101,7 +100,7 @@ export default function EditArticle() {
 
   return (
     <div className="max-w-2xl mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4">{article?.topic || "Edit Article"}</h1>
+      <h1 className="text-2xl font-bold mb-4">{article?.title || "Edit Article"}</h1>
 
       <Tabs defaultValue="edit">
         <TabsList className="mb-4">
