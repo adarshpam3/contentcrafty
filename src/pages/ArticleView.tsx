@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,24 +5,41 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
-import { Editor } from '@tinymce/tinymce-react';
 import {
   Loader2,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  Link as LinkIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  List,
+  ListOrdered,
+  Table,
+  Image as ImageIcon,
+  Code,
+  Quote,
+  Undo,
+  Redo,
   Download,
-  Printer,
-  Copy,
-  RotateCcw,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ArticleView() {
   const { articleId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [content, setContent] = useState("");
-  const [isPreview, setIsPreview] = useState(false);
-  const editorRef = useRef<any>(null);
 
   const { data: article, isLoading, error } = useQuery({
     queryKey: ["article", articleId],
@@ -72,26 +88,46 @@ export default function ArticleView() {
     });
   };
 
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>${article?.topic || 'Article'}</title>
-            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-          </head>
-          <body class="p-8">
-            <div class="prose max-w-none">
-              ${content}
-            </div>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+  const insertText = (before: string, after = "") => {
+    const textarea = document.querySelector("textarea");
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+    const newContent =
+      content.substring(0, start) +
+      before +
+      selectedText +
+      after +
+      content.substring(end);
+
+    setContent(newContent);
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        start + before.length,
+        end + before.length
+      );
+    }, 0);
   };
+
+  const formatButtons = [
+    { icon: Bold, label: "Bold", action: () => insertText("**", "**") },
+    { icon: Italic, label: "Italic", action: () => insertText("*", "*") },
+    { icon: Underline, label: "Underline", action: () => insertText("__", "__") },
+    { icon: Strikethrough, label: "Strike", action: () => insertText("~~", "~~") },
+    { icon: LinkIcon, label: "Link", action: () => insertText("[", "](url)") },
+    { icon: AlignLeft, label: "Align Left", action: () => {} },
+    { icon: AlignCenter, label: "Align Center", action: () => {} },
+    { icon: AlignRight, label: "Align Right", action: () => {} },
+    { icon: List, label: "Bullet List", action: () => insertText("- ") },
+    { icon: ListOrdered, label: "Numbered List", action: () => insertText("1. ") },
+    { icon: Table, label: "Table", action: () => insertText("\n| Column 1 | Column 2 |\n| -------- | -------- |\n| Cell 1   | Cell 2   |\n") },
+    { icon: ImageIcon, label: "Image", action: () => insertText("![Alt text](", ")") },
+    { icon: Code, label: "Code", action: () => insertText("`", "`") },
+    { icon: Quote, label: "Quote", action: () => insertText("> ") },
+  ];
 
   if (isLoading) {
     return (
@@ -146,79 +182,97 @@ export default function ArticleView() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex gap-2">
-                  <Button
-                    variant={!isPreview ? "default" : "outline"}
-                    onClick={() => setIsPreview(false)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant={isPreview ? "default" : "outline"}
-                    onClick={() => setIsPreview(true)}
-                  >
-                    Preview
-                  </Button>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
+              <Tabs defaultValue="edit" className="w-full">
+                <div className="flex justify-between items-center mb-4">
+                  <TabsList>
+                    <TabsTrigger value="edit">Edit</TabsTrigger>
+                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                  </TabsList>
+                  <div className="space-x-2">
+                    <Button variant="outline" onClick={() => {
                       navigator.clipboard.writeText(window.location.href);
                       toast({
                         title: "Link copied",
                         description: "Share link has been copied to clipboard",
                       });
-                    }}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy link
-                  </Button>
-                  <Button variant="outline" onClick={handlePrint}>
-                    <Printer className="w-4 h-4 mr-2" />
-                    Print
-                  </Button>
-                  <Button onClick={handleSave}>Save</Button>
+                    }}>
+                      Copy share link
+                    </Button>
+                    <Button onClick={handleSave}>Save</Button>
+                  </div>
                 </div>
-              </div>
 
-              {!isPreview ? (
-                <Editor
-                  apiKey="your-tinymce-api-key"
-                  onInit={(evt, editor) => editorRef.current = editor}
-                  value={content}
-                  onEditorChange={(newContent) => setContent(newContent)}
-                  init={{
-                    height: 500,
-                    menubar: true,
-                    plugins: [
-                      'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                      'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                      'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount',
-                      'codesample'
-                    ],
-                    toolbar: 'undo redo | formatselect | ' +
-                      'bold italic underline strikethrough | forecolor backcolor | subscript superscript | ' +
-                      'alignleft aligncenter alignright alignjustify | ' +
-                      'bullist numlist outdent indent | link image table | ' +
-                      'removeformat code fullscreen | help',
-                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                    skin: 'oxide',
-                    toolbar_sticky: true,
-                    autosave_ask_before_unload: true,
-                    table_responsive_width: true,
-                    image_caption: true,
-                    quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote',
-                    contextmenu: 'link image table',
-                    branding: false,
-                  }}
-                />
-              ) : (
-                <div className="prose max-w-none border rounded-lg p-6">
-                  <div dangerouslySetInnerHTML={{ __html: content }} />
+                <div className="border rounded-lg mb-4">
+                  <div className="flex items-center gap-2 p-2 border-b">
+                    <Select defaultValue="default">
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Font" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Default</SelectItem>
+                        <SelectItem value="arial">Arial</SelectItem>
+                        <SelectItem value="times">Times New Roman</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select defaultValue="16">
+                      <SelectTrigger className="w-[80px]">
+                        <SelectValue placeholder="Size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="12">12</SelectItem>
+                        <SelectItem value="14">14</SelectItem>
+                        <SelectItem value="16">16</SelectItem>
+                        <SelectItem value="18">18</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <div className="flex flex-wrap gap-1 ml-2">
+                      {formatButtons.map((button) => (
+                        <Button
+                          key={button.label}
+                          variant="ghost"
+                          size="sm"
+                          className="p-2 h-8"
+                          title={button.label}
+                          onClick={button.action}
+                        >
+                          <button.icon className="h-4 w-4" />
+                        </Button>
+                      ))}
+                      <div className="border-l border-gray-200 mx-2" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-8"
+                        title="Undo"
+                        onClick={() => document.execCommand('undo')}
+                      >
+                        <Undo className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-8"
+                        title="Redo"
+                        onClick={() => document.execCommand('redo')}
+                      >
+                        <Redo className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                <TabsContent value="edit">
+                  <textarea
+                    className="w-full min-h-[500px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                  />
+                </TabsContent>
+                <TabsContent value="preview" className="prose max-w-none">
+                  <ReactMarkdown>{content}</ReactMarkdown>
+                </TabsContent>
+              </Tabs>
             </Card>
           </div>
 
