@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -25,7 +24,7 @@ serve(async (req) => {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': Bearer ${openAIApiKey},
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -33,7 +32,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a skilled content writer proficient in SEO writing. Create a well-structured, engaging article following these EXACT guidelines:
+            content: You are a skilled content writer proficient in SEO writing. Create a well-structured, engaging article following these EXACT guidelines:
 
 1. Start with a clear main title using a single # (H1).
 2. Write a comprehensive introduction that hooks the reader (2-3 paragraphs).
@@ -48,7 +47,7 @@ serve(async (req) => {
 6. Use proper markdown formatting:
    - **Bold** for emphasis and key terms
    - *Italic* for definitions or special terms
-   - \`code\` for technical terms or data
+   - \code\ for technical terms or data
    - Tables with | separator and header row
    - --- for horizontal rules between major sections
    - 1. for numbered lists
@@ -57,11 +56,11 @@ serve(async (req) => {
 8. End with a "FAQ" section containing 5 relevant questions and detailed answers.
 9. Conclude with "Actionable Takeaways" as bullet points.
 
-Make the content professional yet engaging, with a clear structure that makes it easy to read and understand.`
+Make the content professional yet engaging, with a clear structure that makes it easy to read and understand.
           },
           {
             role: 'user',
-            content: `Write a comprehensive article about: ${topic}. Include relevant statistics, examples, and expert insights. Make sure to follow all the formatting guidelines exactly.`
+            content: Write a comprehensive article about: ${topic}. Include relevant statistics, examples, and expert insights. Make sure to follow all the formatting guidelines exactly.
           }
         ],
         temperature: 0.7,
@@ -72,7 +71,7 @@ Make the content professional yet engaging, with a clear structure that makes it
     if (!response.ok) {
       const errorData = await response.json();
       console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
+      throw new Error(OpenAI API error: ${errorData.error?.message || response.statusText});
     }
 
     const data = await response.json();
