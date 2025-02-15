@@ -25,7 +25,7 @@ export function StatisticsCard({ title, value, icon: Icon, buttonText, onClick }
       </div>
       <Button 
         variant="ghost" 
-        className="w-full mt-4 bg-purple-50 text-purple-600 hover:bg-purple-100"
+        className="w-full mt-4 bg-[#8A898C] text-white hover:bg-gray-700"
         onClick={onClick}
       >
         {buttonText}
