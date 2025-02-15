@@ -15,7 +15,7 @@ export default function IndexingApi() {
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Breadcrumb */}
           <div className="flex items-center space-x-2 text-sm">
-            <span className="text-purple-600 hover:underline cursor-pointer"
+            <span className="text-[#06962c] hover:underline cursor-pointer"
                   onClick={() => navigate('/')}>
               Home
             </span>
@@ -28,19 +28,19 @@ export default function IndexingApi() {
             <h1 className="text-4xl font-semibold">Indexing API</h1>
             <p className="text-gray-600">
               The Indexing API allows speeding up the indexing of pages in the Google search engine. More informations{" "}
-              <a href="#" className="text-purple-600 hover:underline">here</a>.
+              <a href="#" className="text-[#06962c] hover:underline">here</a>.
             </p>
           </div>
 
           {/* Action Card */}
-          <Card className="p-6 bg-purple-50 border-purple-100">
+          <Card className="p-6 bg-[#e6f4ea] border-[#b8e6c4]">
             <div className="flex justify-between items-center">
-              <p className="text-purple-900">
+              <p className="text-[#06962c]">
                 Setup your first Indexing API project to start using the tool.
               </p>
               <Button 
                 onClick={() => navigate('/create-indexing-api-project')}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-[#06962c] hover:bg-[#057a24] text-white"
               >
                 Create project
               </Button>

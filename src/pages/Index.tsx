@@ -26,18 +26,18 @@ export default function Index() {
           </div>
 
           {/* SEO Boost Card */}
-          <Card className="p-6 bg-purple-50 border-purple-100">
+          <Card className="p-6 bg-[#e6f4ea] border-[#b8e6c4]">
             <div className="flex justify-between items-center">
               <div className="space-y-2">
-                <h2 className="text-lg font-semibold text-purple-700">
+                <h2 className="text-lg font-semibold text-[#06962c]">
                   🤖🔥 Boost Your SEO with AI Internal Linking 🔥🤖
                 </h2>
-                <p className="text-purple-600">
+                <p className="text-[#057a24]">
                   An AI-powered tool designed to automatically plan and insert internal links on your website.
                 </p>
               </div>
               <Button 
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-[#06962c] hover:bg-[#057a24] text-white"
                 onClick={() => console.log("Go to Linkrobot")}
               >
                 Go to Linkrobot 🤖

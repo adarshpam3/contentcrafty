@@ -21,24 +21,24 @@ export function NeuronTermsInput({
       <h2 className="text-2xl font-semibold mb-6">NeuronWriter terms</h2>
       <p className="text-gray-600 mb-4">
         Provide the JSON script copied from the NeuronWriter tool. You can find more information in{" "}
-        <a href="#" className="text-purple-600 hover:text-purple-700">our guide</a>.
+        <a href="#" className="text-[#06962c] hover:text-[#057a24]">our guide</a>.
       </p>
 
-      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-        <p className="text-purple-900 flex items-center gap-2">
+      <div className="bg-[#e6f4ea] border border-[#b8e6c4] rounded-lg p-4 mb-6">
+        <p className="text-[#06962c] flex items-center gap-2">
           To use this model, you need to have an active account in the{" "}
           <a 
             href="https://neuronwriter.com" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-purple-600 hover:text-purple-700"
+            className="text-[#06962c] hover:text-[#057a24]"
           >
             NeuronWriter
           </a>
           {" "}application.
           <Button 
             variant="secondary"
-            className="bg-purple-600 text-white hover:bg-purple-700 ml-auto"
+            className="bg-[#06962c] text-white hover:bg-[#057a24] ml-auto"
             onClick={() => window.open('https://neuronwriter.com', '_blank')}
           >
             Go to Neuron
@@ -52,7 +52,7 @@ export function NeuronTermsInput({
           <Button
             variant="ghost"
             size="sm"
-            className="text-purple-600 hover:text-purple-700 flex items-center gap-1"
+            className="text-[#06962c] hover:text-[#057a24] flex items-center gap-1"
           >
             <AlertCircle className="h-4 w-4" />
             How to get JSON?
@@ -67,7 +67,7 @@ export function NeuronTermsInput({
 
         <Button
           onClick={onParseScript}
-          className="w-full bg-purple-100 text-purple-600 hover:bg-purple-200"
+          className="w-full bg-[#b8e6c4] text-[#06962c] hover:bg-[#a5d4b1]"
         >
           Parse Script
         </Button>

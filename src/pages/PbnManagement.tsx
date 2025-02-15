@@ -15,7 +15,7 @@ export default function PbnManagement() {
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Breadcrumb */}
           <div className="flex items-center space-x-2 text-sm">
-            <span className="text-purple-600 hover:underline cursor-pointer"
+            <span className="text-[#06962c] hover:underline cursor-pointer"
                   onClick={() => navigate('/')}>
               Home
             </span>
@@ -32,17 +32,17 @@ export default function PbnManagement() {
           </div>
 
           {/* Action Card */}
-          <Card className="p-6 bg-purple-50 border-purple-100">
+          <Card className="p-6 bg-[#e6f4ea] border-[#b8e6c4]">
             <div className="flex justify-between items-center">
               <div className="space-y-1">
-                <p className="text-purple-900">
-                  You have no project with the <span className="font-medium">PBN Management</span> plugin enabled. To do this, go to the <span className="text-purple-600">Projects</span> tab, then go to{" "}
-                  <span className="text-purple-600">Integrations</span> for the project you want to manage, and enable the plugin. Remember that the PBN Management tool only works for websites based on WordPress.
+                <p className="text-[#06962c]">
+                  You have no project with the <span className="font-medium">PBN Management</span> plugin enabled. To do this, go to the <span className="text-[#06962c]">Projects</span> tab, then go to{" "}
+                  <span className="text-[#06962c]">Integrations</span> for the project you want to manage, and enable the plugin. Remember that the PBN Management tool only works for websites based on WordPress.
                 </p>
               </div>
               <Button 
                 onClick={() => navigate('/projects')}
-                className="bg-purple-600 hover:bg-purple-700 text-white whitespace-nowrap ml-4"
+                className="bg-[#06962c] hover:bg-[#057a24] text-white whitespace-nowrap ml-4"
               >
                 Go to projects
               </Button>
