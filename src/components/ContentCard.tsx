@@ -44,11 +44,11 @@ export function ContentCard({
     <Card
       className={cn(
         "relative overflow-hidden transition-all hover:shadow-lg",
-        recommended && "border-purple-500 shadow-purple-100"
+        recommended && "border-[#06962c] shadow-[#e6f4ea]"
       )}
     >
       {recommended && (
-        <div className="absolute top-0 right-0 bg-purple-500 text-white px-3 py-1 text-sm">
+        <div className="absolute top-0 right-0 bg-[#06962c] text-white px-3 py-1 text-sm">
           Recommended
         </div>
       )}
@@ -69,7 +69,10 @@ export function ContentCard({
           ))}
         </div>
         <Button
-          className="w-full mt-6"
+          className={cn(
+            "w-full mt-6",
+            recommended ? "bg-[#06962c] text-white hover:bg-[#057a24]" : "border-[#06962c] text-[#06962c] hover:bg-[#e6f4ea]"
+          )}
           variant={recommended ? "default" : "outline"}
           onClick={handleClick}
         >

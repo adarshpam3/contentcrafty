@@ -41,7 +41,6 @@ export function KeywordsAITab({
   checkSubscriptionAccess,
 }: KeywordsAITabProps) {
   const handleGenerateTopics = async () => {
-    // Check subscription before proceeding
     if (!checkSubscriptionAccess()) {
       return;
     }
@@ -108,7 +107,7 @@ export function KeywordsAITab({
         />
         <Button 
           onClick={onAddKeyword}
-          className="bg-purple-100 text-purple-600 hover:bg-purple-200"
+          className="bg-[#b8e6c4] text-[#06962c] hover:bg-[#a5d4b1]"
         >
           Add
         </Button>
@@ -120,8 +119,8 @@ export function KeywordsAITab({
             <h3 className="text-sm font-medium mb-2">List of your keywords</h3>
             <div className="space-y-2">
               {keywords.map((keyword, index) => (
-                <div key={index} className="flex items-center justify-between bg-purple-50 p-2 rounded">
-                  <span className="text-purple-600">{keyword}</span>
+                <div key={index} className="flex items-center justify-between bg-[#e6f4ea] p-2 rounded">
+                  <span className="text-[#06962c]">{keyword}</span>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -137,7 +136,7 @@ export function KeywordsAITab({
 
           <Button 
             onClick={handleGenerateTopics}
-            className="w-full bg-purple-600 text-white hover:bg-purple-700 mt-4"
+            className="w-full bg-[#06962c] text-white hover:bg-[#057a24] mt-4"
             disabled={isGenerating}
           >
             {isGenerating ? (
@@ -156,7 +155,7 @@ export function KeywordsAITab({
         <DialogContent>
           <DialogTitle>Generating Topics</DialogTitle>
           <div className="flex flex-col items-center justify-center py-8 space-y-4">
-            <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#06962c]" />
             <h2 className="text-lg font-semibold">Please wait, topics generation in progress...</h2>
             <p className="text-gray-500">Do not leave this screen while generating articles!</p>
           </div>

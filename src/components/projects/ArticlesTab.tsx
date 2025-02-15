@@ -65,13 +65,13 @@ export function ArticlesTab({ articles }: ArticlesTabProps) {
 
   if (articles.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-8 text-center shadow-sm border border-purple-200">
-        <p className="text-purple-800 font-medium mb-4 text-lg">
+      <div className="bg-gradient-to-br from-[#e6f4ea] to-[#b8e6c4] rounded-lg p-8 text-center shadow-sm border border-[#b8e6c4]">
+        <p className="text-[#06962c] font-medium mb-4 text-lg">
           You don't have any articles assigned to this project yet. Use one of our models and start creating outstanding content!
         </p>
         <Button 
           onClick={() => navigate("/create-page")}
-          className="bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-200"
+          className="bg-[#06962c] hover:bg-[#057a24] text-white font-medium shadow-md hover:shadow-lg transition-all duration-200"
         >
           Create Content
         </Button>
@@ -84,7 +84,7 @@ export function ArticlesTab({ articles }: ArticlesTabProps) {
       <div className="flex justify-between items-center mb-6">
         <Input
           placeholder="Search by article title..."
-          className="max-w-sm border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+          className="max-w-sm border-gray-200 focus:border-[#06962c] focus:ring-[#06962c]"
         />
         <div className="flex gap-3">
           <Button 
@@ -95,26 +95,26 @@ export function ArticlesTab({ articles }: ArticlesTabProps) {
           </Button>
           <Button 
             variant="outline"
-            className="border-purple-200 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium"
+            className="border-[#b8e6c4] text-[#06962c] hover:bg-[#e6f4ea] hover:text-[#057a24] font-medium"
           >
             Export
           </Button>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-purple-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-[#b8e6c4] shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-purple-50">
+            <TableRow className="bg-[#e6f4ea]">
               <TableHead className="w-12">
-                <input type="checkbox" className="rounded border-purple-300" />
+                <input type="checkbox" className="rounded border-[#b8e6c4]" />
               </TableHead>
-              <TableHead className="font-semibold text-purple-900">Title</TableHead>
-              <TableHead className="font-semibold text-purple-900">Words</TableHead>
-              <TableHead className="font-semibold text-purple-900">Characters</TableHead>
-              <TableHead className="font-semibold text-purple-900">Status</TableHead>
-              <TableHead className="font-semibold text-purple-900">Used</TableHead>
-              <TableHead className="font-semibold text-purple-900">Comment</TableHead>
+              <TableHead className="font-semibold text-[#06962c]">Title</TableHead>
+              <TableHead className="font-semibold text-[#06962c]">Words</TableHead>
+              <TableHead className="font-semibold text-[#06962c]">Characters</TableHead>
+              <TableHead className="font-semibold text-[#06962c]">Status</TableHead>
+              <TableHead className="font-semibold text-[#06962c]">Used</TableHead>
+              <TableHead className="font-semibold text-[#06962c]">Comment</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -122,13 +122,13 @@ export function ArticlesTab({ articles }: ArticlesTabProps) {
             {articles.map((article) => (
               <TableRow 
                 key={article.id}
-                className="cursor-pointer hover:bg-purple-50/50 transition-colors"
+                className="cursor-pointer hover:bg-[#e6f4ea]/50 transition-colors"
                 onClick={() => navigate(`/articles/${article.id}`)}
               >
                 <TableCell onClick={(e) => e.stopPropagation()}>
-                  <input type="checkbox" className="rounded border-purple-300" />
+                  <input type="checkbox" className="rounded border-[#b8e6c4]" />
                 </TableCell>
-                <TableCell className="font-medium text-purple-900">{article.topic}</TableCell>
+                <TableCell className="font-medium text-[#06962c]">{article.topic}</TableCell>
                 <TableCell className="text-gray-700">{article.word_count || 0}</TableCell>
                 <TableCell className="text-gray-700">{article.character_count || 0}</TableCell>
                 <TableCell>
@@ -160,15 +160,15 @@ export function ArticlesTab({ articles }: ArticlesTabProps) {
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-white border-purple-100">
+        <AlertDialogContent className="bg-white border-[#b8e6c4]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-purple-900">Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle className="text-[#06962c]">Are you sure?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-600">
               This action cannot be undone. This will permanently delete this article.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-purple-200 text-purple-700 hover:bg-purple-50">
+            <AlertDialogCancel className="border-[#b8e6c4] text-[#06962c] hover:bg-[#e6f4ea]">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

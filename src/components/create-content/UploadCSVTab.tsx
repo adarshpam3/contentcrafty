@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 
@@ -27,12 +28,12 @@ export function UploadCSVTab() {
           }}
         />
       </div>
-      <a href="#" className="text-purple-600 hover:underline text-sm block">
+      <a href="#" className="text-[#06962c] hover:underline text-sm block">
         CSV example
       </a>
-      <div className="bg-purple-50 p-4 rounded-lg mt-4">
-        <p className="text-purple-600 font-medium">Important:</p>
-        <p className="text-purple-600">
+      <div className="bg-[#e6f4ea] p-4 rounded-lg mt-4">
+        <p className="text-[#06962c] font-medium">Important:</p>
+        <p className="text-[#06962c]">
           titles can not contain comma like: 'Small Changes, Big Results: 5 Tips For...'
         </p>
       </div>

@@ -52,7 +52,6 @@ export function CategoriesTab({ categories }: CategoriesTabProps) {
         description: "Category deleted successfully",
       });
 
-      // Refresh the data
       queryClient.invalidateQueries({ queryKey: ["project-content"] });
     } catch (error: any) {
       toast({
@@ -66,13 +65,13 @@ export function CategoriesTab({ categories }: CategoriesTabProps) {
 
   if (categories.length === 0) {
     return (
-      <div className="bg-purple-50 rounded-lg p-6 text-center">
-        <p className="text-purple-700 mb-4">
+      <div className="bg-[#e6f4ea] rounded-lg p-6 text-center">
+        <p className="text-[#06962c] mb-4">
           You don't have any categories yet. Create your first category using our e-commerce model!
         </p>
         <Button 
           onClick={() => navigate("/create-ecommerce-content")}
-          className="bg-purple-600 hover:bg-purple-700 text-white"
+          className="bg-[#06962c] hover:bg-[#057a24] text-white"
         >
           Create Category
         </Button>
@@ -89,7 +88,7 @@ export function CategoriesTab({ categories }: CategoriesTabProps) {
         />
         <Button 
           onClick={() => navigate("/create-ecommerce-content")}
-          className="bg-purple-600 hover:bg-purple-700 text-white"
+          className="bg-[#06962c] hover:bg-[#057a24] text-white"
         >
           Create Category
         </Button>
@@ -113,7 +112,7 @@ export function CategoriesTab({ categories }: CategoriesTabProps) {
                 <TableCell>
                   <Button
                     variant="link"
-                    className="text-purple-600 hover:text-purple-800 p-0 h-auto font-medium"
+                    className="text-[#06962c] hover:text-[#057a24] p-0 h-auto font-medium"
                     onClick={() => navigate(`/category/${category.id}`)}
                   >
                     {category.topic}
