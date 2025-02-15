@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -26,6 +27,8 @@ export default {
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "#8B5CF6",
+          light: "#A78BFA",
+          dark: "#7C3AED",
           foreground: "#FFFFFF",
         },
         secondary: {
@@ -44,6 +47,10 @@ export default {
           DEFAULT: "#F9FAFB",
           foreground: "#18181B",
         },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
         card: {
           DEFAULT: "#FFFFFF",
           foreground: "#18181B",
@@ -53,6 +60,16 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        'soft': '0 2px 8px rgba(0, 0, 0, 0.05)',
+        'medium': '0 4px 12px rgba(0, 0, 0, 0.08)',
+      },
+      fontWeight: {
+        normal: '400',
+        medium: '500',
+        semibold: '600',
+        bold: '700',
       },
       keyframes: {
         "accordion-down": {
