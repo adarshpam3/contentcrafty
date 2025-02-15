@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,20 +22,10 @@ import {
   Image as ImageIcon,
   Code,
   Quote,
-  Undo,
-  Redo,
-  Download,
-  ImagePlus,
-  Sparkles,
   Share2
 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { EditorToolbar } from "@/components/article/EditorToolbar";
+import { ArticleSidebar } from "@/components/article/ArticleSidebar";
 
 export default function ArticleView() {
   const { articleId } = useParams();
@@ -215,7 +204,7 @@ export default function ArticleView() {
                   <span className="text-[#06962c] text-sm font-normal cursor-pointer hover:underline">↗ edit title</span>
                 </h2>
                 <div className="flex gap-4 text-sm bg-[#e6f4ea] p-2 rounded-lg">
-                  <span className="text-[#06962c]">Model: {article.model || 'copy-mate-003'}</span>
+                  <span className="text-[#06962c]">AI Assistant</span>
                   <span>Words: {content.split(/\s+/).length}</span>
                   <span>Characters: {content.length}</span>
                 </div>
@@ -251,65 +240,7 @@ export default function ArticleView() {
                   </div>
                 </div>
 
-                <div className="border rounded-lg mb-4">
-                  <div className="flex flex-wrap items-center gap-2 p-2 border-b">
-                    <Select defaultValue="default">
-                      <SelectTrigger className="w-[120px]">
-                        <SelectValue placeholder="Font" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="default">Default</SelectItem>
-                        <SelectItem value="arial">Arial</SelectItem>
-                        <SelectItem value="times">Times New Roman</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select defaultValue="16">
-                      <SelectTrigger className="w-[80px]">
-                        <SelectValue placeholder="Size" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="12">12</SelectItem>
-                        <SelectItem value="14">14</SelectItem>
-                        <SelectItem value="16">16</SelectItem>
-                        <SelectItem value="18">18</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    <div className="flex flex-wrap gap-1 ml-2">
-                      {formatButtons.map((button) => (
-                        <Button
-                          key={button.label}
-                          variant="ghost"
-                          size="sm"
-                          className="p-2 h-8 hover:bg-[#e6f4ea] hover:text-[#06962c]"
-                          title={button.label}
-                          onClick={button.action}
-                        >
-                          <button.icon className="h-4 w-4" />
-                        </Button>
-                      ))}
-                      <div className="border-l border-gray-200 mx-2" />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="p-2 h-8 hover:bg-[#e6f4ea] hover:text-[#06962c]"
-                        title="Undo"
-                        onClick={() => document.execCommand('undo')}
-                      >
-                        <Undo className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="p-2 h-8 hover:bg-[#e6f4ea] hover:text-[#06962c]"
-                        title="Redo"
-                        onClick={() => document.execCommand('redo')}
-                      >
-                        <Redo className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                <EditorToolbar formatButtons={formatButtons} />
 
                 <TabsContent value="edit">
                   <textarea
@@ -328,95 +259,11 @@ export default function ArticleView() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h3 className="font-medium mb-4 text-gray-800 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4" />
-                Featured Image
-              </h3>
-              
-              {article.featured_image ? (
-                <div className="space-y-4">
-                  <div className="aspect-square rounded-lg overflow-hidden border border-gray-200">
-                    <img
-                      src={article.featured_image}
-                      alt="Featured"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      className="w-full"
-                      variant="outline"
-                      onClick={handleGenerateImage}
-                      disabled={isGeneratingImage}
-                    >
-                      {isGeneratingImage ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <ImagePlus className="w-4 h-4 mr-2" />
-                      )}
-                      New
-                    </Button>
-                    <Button className="w-full" variant="outline">
-                      <Download className="w-4 h-4 mr-2" />
-                      Save
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="aspect-square rounded-lg border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-4">
-                    <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-500 text-center">
-                      No featured image yet
-                    </p>
-                  </div>
-                  <Button 
-                    className="w-full bg-[#06962c] hover:bg-[#057a24]"
-                    onClick={handleGenerateImage}
-                    disabled={isGeneratingImage}
-                  >
-                    {isGeneratingImage ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <Sparkles className="w-4 h-4 mr-2" />
-                    )}
-                    Generate with AI
-                  </Button>
-                </div>
-              )}
-
-              <div className="mt-8">
-                <h3 className="font-medium mb-4 text-gray-800">Article Status</h3>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center">
-                    <input 
-                      type="radio" 
-                      className="w-4 h-4 text-[#06962c] border-gray-300 focus:ring-[#06962c]" 
-                      name="status" 
-                      defaultChecked 
-                    />
-                    <span className="ml-2 text-sm text-gray-600">Used</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input 
-                      type="radio" 
-                      className="w-4 h-4 text-[#06962c] border-gray-300 focus:ring-[#06962c]" 
-                      name="status" 
-                    />
-                    <span className="ml-2 text-sm text-gray-600">Unused</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="mt-8">
-                <h3 className="font-medium mb-4 text-gray-800">Notes</h3>
-                <textarea
-                  className="w-full h-32 p-3 text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#06962c] placeholder-gray-400"
-                  placeholder="Add notes about this article..."
-                />
-              </div>
-            </div>
+            <ArticleSidebar
+              imageUrl={article.featured_image}
+              isGenerating={isGeneratingImage}
+              onGenerateImage={handleGenerateImage}
+            />
           </div>
         </div>
       </div>
