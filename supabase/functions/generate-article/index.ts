@@ -24,11 +24,11 @@ serve(async (req) => {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': Bearer ${openAIApiKey},
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
@@ -100,7 +100,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorData = await response.json();
       console.error('OpenAI API error:', errorData);
-      throw new Error(OpenAI API error: ${errorData.error?.message || response.statusText});
+      throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
     }
 
     const data = await response.json();
@@ -140,4 +140,4 @@ serve(async (req) => {
       },
     );
   }
-});
+}); 
