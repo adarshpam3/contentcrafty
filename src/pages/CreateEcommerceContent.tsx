@@ -211,9 +211,10 @@ export default function CreateEcommerceContent() {
               {/* Connecting lines */}
               <div className="absolute top-5 left-0 w-full h-[2px] bg-gray-200">
                 <div 
-                  className="h-full bg-purple-600 transition-all duration-300"
+                  className="h-full transition-all duration-300"
                   style={{ 
                     width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
+                    backgroundColor: '#06962c'
                   }}
                 />
               </div>
@@ -223,11 +224,14 @@ export default function CreateEcommerceContent() {
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-200
                       ${currentStep === step.number 
-                        ? "bg-purple-600 text-white scale-110"
+                        ? "text-white scale-110"
                         : currentStep > step.number
-                        ? "bg-purple-200 text-purple-700"
+                        ? "bg-[#b8e6c4] text-[#06962c]"
                         : "bg-gray-200 text-gray-500"
                       }`}
+                    style={{
+                      backgroundColor: currentStep === step.number ? '#06962c' : undefined
+                    }}
                   >
                     {step.number}
                   </div>
@@ -339,7 +343,7 @@ export default function CreateEcommerceContent() {
                             </label>
                             <Button
                               variant="link"
-                              className="text-purple-600 hover:text-purple-700"
+                              className="text-[#06962c] hover:text-[#057a24]"
                               onClick={() => handleGenerateWithAI('keywords')}
                               disabled={isGeneratingKeywords}
                             >
@@ -360,7 +364,7 @@ export default function CreateEcommerceContent() {
                             </label>
                             <Button
                               variant="link"
-                              className="text-purple-600 hover:text-purple-700"
+                              className="text-[#06962c] hover:text-[#057a24]"
                               onClick={() => handleGenerateWithAI('keyFeatures')}
                               disabled={isGeneratingFeatures}
                             >
@@ -377,7 +381,7 @@ export default function CreateEcommerceContent() {
 
                         <Button
                           onClick={handleAddCategory}
-                          className="w-full bg-purple-100 text-purple-600 hover:bg-purple-200"
+                          className="w-full bg-[#b8e6c4] text-[#06962c] hover:bg-[#a5d4b1]"
                         >
                           Add
                         </Button>
@@ -425,7 +429,8 @@ export default function CreateEcommerceContent() {
             {currentStep < 5 && (
               <Button
                 onClick={handleNext}
-                className="px-6 bg-purple-600 hover:bg-purple-700"
+                className="px-6 bg-[#06962c] hover:bg-[#057a24] text-white"
+                disabled={disableNext}
               >
                 {currentStep === 4 ? "Create Content" : "Next"}
               </Button>

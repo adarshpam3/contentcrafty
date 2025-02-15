@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 
 interface NavigationButtonsProps {
@@ -18,7 +19,7 @@ export function NavigationButtons({ onBack, onNext, disableNext }: NavigationBut
       </Button>
       <Button
         onClick={onNext}
-        className="px-6 bg-purple-600 hover:bg-purple-700"
+        className="px-6 bg-[#06962c] hover:bg-[#057a24] text-white"
         disabled={disableNext}
       >
         Next
