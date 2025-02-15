@@ -78,7 +78,7 @@ export default function ProjectDetails() {
             <div className="flex gap-2">
               <Button variant="outline">Upgrade Plan</Button>
               <Button 
-                onClick={() => navigate("/create-content")}
+                onClick={() => navigate("/create-page")}
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 Create Content
