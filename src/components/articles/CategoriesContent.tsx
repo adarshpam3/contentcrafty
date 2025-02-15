@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -51,7 +50,6 @@ export function CategoriesContent({
         description: "Category deleted successfully",
       });
 
-      // Refresh the data
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     } catch (error: any) {
       toast({
@@ -64,18 +62,18 @@ export function CategoriesContent({
   };
 
   if (isLoading) {
-    return <div className="text-center py-4">Loading categories...</div>;
+    return <div className="text-center py-8 text-gray-500">Loading categories...</div>;
   }
 
   if (categories.length === 0) {
     return (
-      <div className="bg-purple-50 rounded-lg p-6 text-center">
-        <p className="text-purple-700 mb-4">
+      <div className="bg-[#e6f4ea] rounded-lg p-8 text-center border border-[#b8e6c4]">
+        <p className="text-[#06962c] mb-4 text-lg">
           You don't have any categories yet. Create your first category using our e-commerce model!
         </p>
         <Button 
           onClick={() => navigate("/create-ecommerce-content")}
-          className="bg-purple-600 hover:bg-purple-700 text-white"
+          className="bg-[#06962c] hover:bg-[#057a24] text-white"
         >
           Create Category
         </Button>
@@ -87,45 +85,44 @@ export function CategoriesContent({
     <div>
       <div className="flex justify-between items-center mb-4">
         <Input
-          placeholder="search by category..."
-          className="max-w-sm"
+          placeholder="Search by category..."
+          className="max-w-sm border-gray-200 focus:ring-[#06962c]"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
         />
         <Button 
           onClick={() => navigate("/create-ecommerce-content")}
-          className="bg-purple-600 hover:bg-purple-700 text-white"
+          className="bg-[#06962c] hover:bg-[#057a24] text-white"
         >
           Create Category
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg border">
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-[#f8f9fa]">
             <TableRow>
-              <TableHead>Category</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Words</TableHead>
-              <TableHead>Characters</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Delete</TableHead>
+              <TableHead className="text-gray-600">Category</TableHead>
+              <TableHead className="text-gray-600">Description</TableHead>
+              <TableHead className="text-gray-600">Words</TableHead>
+              <TableHead className="text-gray-600">Characters</TableHead>
+              <TableHead className="text-gray-600">Status</TableHead>
+              <TableHead className="text-gray-600">Delete</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {categories.map((category) => (
               <TableRow 
                 key={category.id}
-                className="cursor-pointer hover:bg-gray-50"
+                className="hover:bg-[#f8f9fa] cursor-pointer"
                 onClick={(e) => {
-                  // Prevent navigation if clicking delete button
                   const target = e.target as HTMLElement;
                   if (!target.closest('button')) {
                     navigate(`/category/${category.id}`);
                   }
                 }}
               >
-                <TableCell className="font-medium text-purple-600">
+                <TableCell className="font-medium text-[#06962c]">
                   {category.topic}
                 </TableCell>
                 <TableCell className="text-gray-600 max-w-md truncate">
@@ -138,7 +135,7 @@ export function CategoriesContent({
                   {category.character_count || 0}
                 </TableCell>
                 <TableCell>
-                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                  <span className="bg-[#e6f4ea] text-[#06962c] px-3 py-1 rounded-full text-sm">
                     {category.status || 'completed'}
                   </span>
                 </TableCell>
@@ -150,7 +147,7 @@ export function CategoriesContent({
                       setCategoryToDelete(category.id);
                       setDeleteDialogOpen(true);
                     }}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 h-auto text-sm"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
                   >
                     Delete
                   </Button>
@@ -162,7 +159,7 @@ export function CategoriesContent({
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -170,10 +167,10 @@ export function CategoriesContent({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="border-gray-200">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => categoryToDelete && handleDelete(categoryToDelete)}
-              className="bg-red-500 hover:bg-red-600"
+              className="bg-red-500 hover:bg-red-600 text-white"
             >
               Delete
             </AlertDialogAction>

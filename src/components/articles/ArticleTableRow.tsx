@@ -38,28 +38,28 @@ export const ArticleTableRow = ({ article, onDelete }: ArticleTableRowProps) => 
   return (
     <>
       <tr 
-        className="border-b hover:bg-gray-50 cursor-pointer transition-colors"
+        className="border-b border-gray-100 hover:bg-[#f8f9fa] cursor-pointer transition-colors"
         onClick={() => navigate(`/articles/${article.id}`)}
       >
         <td className="p-4">
-          <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm">
+          <span className="bg-[#e6f4ea] text-[#06962c] px-3 py-1 rounded-full text-sm font-medium">
             {article.projects?.name || 'No Project'}
           </span>
         </td>
-        <td className="p-4 text-gray-900">
+        <td className="p-4 text-gray-900 font-medium">
           {article.topic}
         </td>
         <td className="p-4 text-gray-600">{article.word_count || 0}</td>
         <td className="p-4 text-gray-600">{article.character_count || 0}</td>
         <td className="p-4">
-          <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm">
-            {article.status || 'pending'}
+          <span className="bg-[#e6f4ea] text-[#06962c] px-3 py-1 rounded-full text-sm">
+            {article.status || 'completed'}
           </span>
         </td>
         <td className="p-4">
           <Button
             variant="ghost"
-            className="text-red-500 hover:text-red-700"
+            className="text-red-500 hover:text-red-700 hover:bg-red-50"
             onClick={(e) => {
               e.stopPropagation();
               setShowDeleteDialog(true);
@@ -72,7 +72,7 @@ export const ArticleTableRow = ({ article, onDelete }: ArticleTableRowProps) => 
       </tr>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -80,7 +80,7 @@ export const ArticleTableRow = ({ article, onDelete }: ArticleTableRowProps) => 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="border-gray-200">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-500 hover:bg-red-600 text-white"
