@@ -1,10 +1,10 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import {
@@ -26,6 +26,9 @@ import {
   Undo,
   Redo,
   Download,
+  ImagePlus,
+  Sparkles,
+  Share2
 } from "lucide-react";
 import {
   Select,
@@ -40,6 +43,7 @@ export default function ArticleView() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [content, setContent] = useState("");
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const { data: article, isLoading, error } = useQuery({
     queryKey: ["article", articleId],
@@ -88,6 +92,41 @@ export default function ArticleView() {
     });
   };
 
+  const handleGenerateImage = async () => {
+    setIsGeneratingImage(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-images', {
+        body: { prompt: article?.topic || '' }
+      });
+
+      if (error) throw error;
+
+      if (!data?.data?.[0]?.url) {
+        throw new Error('Failed to generate image');
+      }
+
+      const { error: updateError } = await supabase
+        .from("articles")
+        .update({ featured_image: data.data[0].url })
+        .eq("id", articleId);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Success",
+        description: "Featured image generated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error generating image",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   const insertText = (before: string, after = "") => {
     const textarea = document.querySelector("textarea");
     if (!textarea) return;
@@ -132,26 +171,15 @@ export default function ArticleView() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#06962c]" />
       </div>
     );
   }
 
-  if (error) {
+  if (error || !article) {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col gap-4">
-        <p className="text-red-500">Error loading article: {error.message}</p>
-        <Button onClick={() => navigate("/articles")} variant="outline">
-          Return to Articles
-        </Button>
-      </div>
-    );
-  }
-
-  if (!article) {
-    return (
-      <div className="flex items-center justify-center min-h-screen flex-col gap-4">
-        <p className="text-gray-500">Article not found</p>
+        <p className="text-red-500">{error ? `Error loading article: ${error.message}` : 'Article not found'}</p>
         <Button onClick={() => navigate("/articles")} variant="outline">
           Return to Articles
         </Button>
@@ -163,20 +191,31 @@ export default function ArticleView() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-2">Edit article</h1>
-          <p className="text-gray-500">You can preview and edit your article here.</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold mb-2 text-gray-800">Edit article</h1>
+              <p className="text-gray-500">Project: {article.projects?.name}</p>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/articles")}
+              className="text-gray-600"
+            >
+              Back to Articles
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
-            <Card className="p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <div className="mb-6">
-                <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
+                <h2 className="text-2xl font-medium mb-4 flex items-center gap-2 text-gray-800">
                   {article.topic}
-                  <span className="text-purple-600 text-sm font-normal cursor-pointer">↗ title</span>
+                  <span className="text-[#06962c] text-sm font-normal cursor-pointer hover:underline">↗ edit title</span>
                 </h2>
-                <div className="flex gap-4 text-sm">
-                  <span className="text-purple-600">Model: copy-mate-003</span>
+                <div className="flex gap-4 text-sm bg-[#e6f4ea] p-2 rounded-lg">
+                  <span className="text-[#06962c]">Model: {article.model || 'copy-mate-003'}</span>
                   <span>Words: {content.split(/\s+/).length}</span>
                   <span>Characters: {content.length}</span>
                 </div>
@@ -189,21 +228,31 @@ export default function ArticleView() {
                     <TabsTrigger value="preview">Preview</TabsTrigger>
                   </TabsList>
                   <div className="space-x-2">
-                    <Button variant="outline" onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
-                      toast({
-                        title: "Link copied",
-                        description: "Share link has been copied to clipboard",
-                      });
-                    }}>
-                      Copy share link
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        toast({
+                          title: "Link copied",
+                          description: "Share link has been copied to clipboard",
+                        });
+                      }}
+                      className="text-gray-600"
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Share
                     </Button>
-                    <Button onClick={handleSave}>Save</Button>
+                    <Button 
+                      onClick={handleSave}
+                      className="bg-[#06962c] hover:bg-[#057a24]"
+                    >
+                      Save Changes
+                    </Button>
                   </div>
                 </div>
 
                 <div className="border rounded-lg mb-4">
-                  <div className="flex items-center gap-2 p-2 border-b">
+                  <div className="flex flex-wrap items-center gap-2 p-2 border-b">
                     <Select defaultValue="default">
                       <SelectTrigger className="w-[120px]">
                         <SelectValue placeholder="Font" />
@@ -232,7 +281,7 @@ export default function ArticleView() {
                           key={button.label}
                           variant="ghost"
                           size="sm"
-                          className="p-2 h-8"
+                          className="p-2 h-8 hover:bg-[#e6f4ea] hover:text-[#06962c]"
                           title={button.label}
                           onClick={button.action}
                         >
@@ -243,7 +292,7 @@ export default function ArticleView() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="p-2 h-8"
+                        className="p-2 h-8 hover:bg-[#e6f4ea] hover:text-[#06962c]"
                         title="Undo"
                         onClick={() => document.execCommand('undo')}
                       >
@@ -252,7 +301,7 @@ export default function ArticleView() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="p-2 h-8"
+                        className="p-2 h-8 hover:bg-[#e6f4ea] hover:text-[#06962c]"
                         title="Redo"
                         onClick={() => document.execCommand('redo')}
                       >
@@ -264,67 +313,110 @@ export default function ArticleView() {
 
                 <TabsContent value="edit">
                   <textarea
-                    className="w-full min-h-[500px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full min-h-[500px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#06962c] text-gray-800"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                   />
                 </TabsContent>
                 <TabsContent value="preview" className="prose max-w-none">
-                  <ReactMarkdown>{content}</ReactMarkdown>
+                  <div className="p-4 border rounded-lg min-h-[500px]">
+                    <ReactMarkdown>{content}</ReactMarkdown>
+                  </div>
                 </TabsContent>
               </Tabs>
-            </Card>
+            </div>
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="p-6">
-              <h3 className="font-medium mb-4">Featured Image</h3>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="font-medium mb-4 text-gray-800 flex items-center gap-2">
+                <ImageIcon className="w-4 h-4" />
+                Featured Image
+              </h3>
+              
               {article.featured_image ? (
-                <img
-                  src={article.featured_image}
-                  alt="Featured"
-                  className="w-full rounded-lg mb-4"
-                />
+                <div className="space-y-4">
+                  <div className="aspect-square rounded-lg overflow-hidden border border-gray-200">
+                    <img
+                      src={article.featured_image}
+                      alt="Featured"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      className="w-full"
+                      variant="outline"
+                      onClick={handleGenerateImage}
+                      disabled={isGeneratingImage}
+                    >
+                      {isGeneratingImage ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <ImagePlus className="w-4 h-4 mr-2" />
+                      )}
+                      New
+                    </Button>
+                    <Button className="w-full" variant="outline">
+                      <Download className="w-4 h-4 mr-2" />
+                      Save
+                    </Button>
+                  </div>
+                </div>
               ) : (
-                <div className="bg-gray-100 rounded-lg aspect-video mb-4 flex items-center justify-center">
-                  <p className="text-gray-500">No image</p>
+                <div className="space-y-4">
+                  <div className="aspect-square rounded-lg border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-4">
+                    <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-500 text-center">
+                      No featured image yet
+                    </p>
+                  </div>
+                  <Button 
+                    className="w-full bg-[#06962c] hover:bg-[#057a24]"
+                    onClick={handleGenerateImage}
+                    disabled={isGeneratingImage}
+                  >
+                    {isGeneratingImage ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    Generate with AI
+                  </Button>
                 </div>
               )}
-              <div className="space-y-2">
-                <Button className="w-full" variant="outline">
-                  New Image
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download
-                </Button>
-                <p className="text-sm text-gray-500 text-center">
-                  Generate an image using DALL-E 3
-                </p>
-              </div>
 
               <div className="mt-8">
-                <h3 className="font-medium mb-4">Article Status</h3>
+                <h3 className="font-medium mb-4 text-gray-800">Article Status</h3>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center">
-                    <input type="radio" className="mr-2" name="status" defaultChecked />
-                    <span>Used</span>
+                    <input 
+                      type="radio" 
+                      className="w-4 h-4 text-[#06962c] border-gray-300 focus:ring-[#06962c]" 
+                      name="status" 
+                      defaultChecked 
+                    />
+                    <span className="ml-2 text-sm text-gray-600">Used</span>
                   </label>
                   <label className="flex items-center">
-                    <input type="radio" className="mr-2" name="status" />
-                    <span>Unused</span>
+                    <input 
+                      type="radio" 
+                      className="w-4 h-4 text-[#06962c] border-gray-300 focus:ring-[#06962c]" 
+                      name="status" 
+                    />
+                    <span className="ml-2 text-sm text-gray-600">Unused</span>
                   </label>
                 </div>
               </div>
 
               <div className="mt-8">
-                <h3 className="font-medium mb-4">Notes</h3>
+                <h3 className="font-medium mb-4 text-gray-800">Notes</h3>
                 <textarea
-                  className="w-full h-32 p-2 border rounded-lg resize-none"
+                  className="w-full h-32 p-3 text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#06962c] placeholder-gray-400"
                   placeholder="Add notes about this article..."
                 />
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
