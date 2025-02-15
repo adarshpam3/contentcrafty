@@ -190,6 +190,12 @@ export default function CreateEcommerceContent() {
     });
   };
 
+  const disableNext = (
+    (currentStep === 1 && !selectedProject) ||
+    (currentStep === 2 && !selectedLanguage) ||
+    (currentStep === 4 && topics.length === 0)
+  );
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
