@@ -71,7 +71,7 @@ export function ArticlesTab({ articles }: ArticlesTabProps) {
           You don't have any articles assigned to this project yet. Use one of our models and start creating outstanding content!
         </p>
         <Button 
-          onClick={() => navigate("/create-content")}
+          onClick={() => navigate("/create-page")}
           className="bg-purple-600 hover:bg-purple-700 text-white"
         >
           Create Content
