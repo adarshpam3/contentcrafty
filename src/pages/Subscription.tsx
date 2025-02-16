@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, Zap, Users, Star, Crown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ const plans = [
     name: "Starter",
     price: "Free",
     description: "Perfect for trying out our service",
+    icon: Star,
     features: [
       "3 articles per month",
       "Basic AI writing",
@@ -28,6 +29,7 @@ const plans = [
     price: "$29",
     period: "month",
     description: "Best for professional content creators",
+    icon: Zap,
     features: [
       "50 articles per month",
       "Advanced AI writing",
@@ -45,6 +47,7 @@ const plans = [
     price: "$99",
     period: "month",
     description: "For teams and agencies",
+    icon: Crown,
     features: [
       "Unlimited articles",
       "Advanced AI writing",
@@ -79,7 +82,6 @@ export default function Subscription() {
   });
 
   const handleUpgrade = async (planType: string) => {
-    // This would typically integrate with a payment provider
     toast({
       title: "Coming Soon",
       description: "Payment integration will be available soon!",
@@ -88,74 +90,102 @@ export default function Subscription() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gradient-to-b from-[#f8f9fa] to-white">
       <Sidebar />
       <main className="flex-1 p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-semibold">Subscription Plans</h1>
-            <p className="text-gray-600">Choose the perfect plan for your needs</p>
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl font-bold text-gray-900">Choose Your Plan</h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Select the perfect plan that matches your content creation needs. Upgrade or downgrade anytime.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {plans.map((plan) => (
-              <Card 
-                key={plan.type}
-                className={`p-6 relative ${
-                  plan.recommended 
-                    ? 'border-2 border-purple-500' 
-                    : ''
-                }`}
-              >
-                {plan.recommended && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm">
-                      Recommended
-                    </span>
-                  </div>
-                )}
-                
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-semibold">{plan.name}</h2>
-                    <div className="flex items-end">
-                      <span className="text-3xl font-bold">{plan.price}</span>
-                      {plan.period && (
-                        <span className="text-gray-500 ml-1">/{plan.period}</span>
-                      )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {plans.map((plan) => {
+              const Icon = plan.icon;
+              const isCurrentPlan = subscription?.plan_type === plan.type;
+              
+              return (
+                <Card 
+                  key={plan.type}
+                  className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${
+                    plan.recommended 
+                      ? 'border-2 border-[#06962c] shadow-md' 
+                      : 'border border-gray-200'
+                  }`}
+                >
+                  {plan.recommended && (
+                    <div className="absolute top-5 right-5">
+                      <span className="bg-[#06962c] text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Recommended
+                      </span>
                     </div>
-                    <p className="text-gray-600">{plan.description}</p>
+                  )}
+                  
+                  <div className="p-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className={`p-2 rounded-lg ${
+                        plan.recommended 
+                          ? 'bg-[#e6f4ea] text-[#06962c]' 
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900">{plan.name}</h2>
+                    </div>
+
+                    <div className="mb-6">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
+                        {plan.period && (
+                          <span className="text-gray-500">/{plan.period}</span>
+                        )}
+                      </div>
+                      <p className="mt-2 text-gray-600">{plan.description}</p>
+                    </div>
+
+                    <div className="space-y-4 mb-8">
+                      {plan.features.map((feature, index) => (
+                        <div key={index} className="flex items-start gap-3">
+                          <div className="mt-1">
+                            <Check className={`h-4 w-4 ${
+                              plan.recommended 
+                                ? 'text-[#06962c]' 
+                                : 'text-gray-600'
+                            }`} />
+                          </div>
+                          <span className="text-gray-600">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Button
+                      className={`w-full h-12 text-base font-medium ${
+                        isCurrentPlan
+                          ? 'bg-[#e6f4ea] text-[#06962c] hover:bg-[#d1e9d5]'
+                          : plan.recommended
+                            ? 'bg-[#06962c] hover:bg-[#057a24] text-white'
+                            : 'bg-gray-900 hover:bg-gray-800 text-white'
+                      }`}
+                      onClick={() => handleUpgrade(plan.type)}
+                      disabled={isCurrentPlan}
+                    >
+                      {isCurrentPlan ? "Current Plan" : plan.buttonText}
+                    </Button>
                   </div>
-
-                  <ul className="space-y-3">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <Check className="h-5 w-5 text-green-500 mr-2 shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button
-                    className={`w-full ${
-                      subscription?.plan_type === plan.type
-                        ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        : 'bg-purple-600 hover:bg-purple-700 text-white'
-                    }`}
-                    onClick={() => handleUpgrade(plan.type)}
-                    disabled={subscription?.plan_type === plan.type}
-                  >
-                    {subscription?.plan_type === plan.type
-                      ? "Current Plan"
-                      : plan.buttonText}
-                  </Button>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
 
-          <div className="mt-8 text-center text-gray-600">
-            <p>Need help choosing the right plan? Contact our sales team</p>
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-3 bg-[#e6f4ea] rounded-lg">
+              <Users className="h-5 w-5 text-[#06962c]" />
+              <p className="text-[#06962c]">
+                Need help choosing the right plan? <a href="#" className="underline font-medium">Contact our sales team</a>
+              </p>
+            </div>
           </div>
         </div>
       </main>
