@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm'; // Add this import
+import remarkGfm from 'remark-gfm';
 import {
   Loader2,
   Bold,
