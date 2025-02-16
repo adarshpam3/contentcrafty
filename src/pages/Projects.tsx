@@ -19,12 +19,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Projects() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [projectToRename, setProjectToRename] = useState<{ id: string; name: string } | null>(null);
+  const [newProjectName, setNewProjectName] = useState("");
   const queryClient = useQueryClient();
 
   const { data: projects, isLoading } = useQuery({
@@ -73,6 +88,34 @@ export default function Projects() {
       });
     } finally {
       setProjectToDelete(null);
+    }
+  };
+
+  const handleRename = async () => {
+    if (!projectToRename || !newProjectName.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update({ name: newProjectName.trim() })
+        .eq("id", projectToRename.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Project renamed successfully",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      setProjectToRename(null);
+      setNewProjectName("");
+    } catch (error: any) {
+      toast({
+        title: "Error renaming project",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -174,18 +217,17 @@ export default function Projects() {
                       <TableRow 
                         key={project.id} 
                         className="cursor-pointer hover:bg-gray-50 transition-colors"
-                        onClick={() => navigate(`/projects/${project.id}`)}
                       >
-                        <TableCell>
+                        <TableCell onClick={() => navigate(`/projects/${project.id}`)}>
                           <span className="text-[#06962c] hover:underline font-medium">
                             {project.name}
                           </span>
                         </TableCell>
-                        <TableCell>{project.articles?.[0]?.count || 0}</TableCell>
-                        <TableCell>
+                        <TableCell onClick={() => navigate(`/projects/${project.id}`)}>{project.articles?.[0]?.count || 0}</TableCell>
+                        <TableCell onClick={() => navigate(`/projects/${project.id}`)}>
                           <X className="text-red-500 h-5 w-5" />
                         </TableCell>
-                        <TableCell>
+                        <TableCell onClick={() => navigate(`/projects/${project.id}`)}>
                           <X className="text-red-500 h-5 w-5" />
                         </TableCell>
                         <TableCell>
@@ -201,9 +243,23 @@ export default function Projects() {
                           </Button>
                         </TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setProjectToRename(project);
+                                  setNewProjectName(project.name);
+                                }}
+                              >
+                                Rename
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -214,6 +270,7 @@ export default function Projects() {
           </div>
         </div>
 
+        {/* Delete Dialog */}
         <AlertDialog open={!!projectToDelete} onOpenChange={() => setProjectToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -230,6 +287,31 @@ export default function Projects() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Rename Dialog */}
+        <Dialog open={!!projectToRename} onOpenChange={() => setProjectToRename(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Rename Project</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <Input
+                placeholder="Enter new project name"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setProjectToRename(null)}>
+                Cancel
+              </Button>
+              <Button onClick={handleRename} className="bg-[#06962c] hover:bg-[#057a24] text-white">
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
