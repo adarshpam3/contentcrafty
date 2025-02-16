@@ -24,37 +24,38 @@ serve(async (req) => {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': Bearer ${openAIApiKey},
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
-body: JSON.stringify({
-        model: 'gpt-4o',
+      body: JSON.stringify({
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
-            content: 'You are a skilled content writer proficient in SEO writing. Create a well-structured, engaging article following these EXACT guidelines:
-1. Start with a clear main title using a single # (H1).
-2. Write a comprehensive introduction that hooks the reader (2-3 paragraphs).
-3. Include an inspiring or relevant quote using > blockquote format after the introduction.
-4. Break down the content into clear sections with ## (H2) headings.
-5. Under each section:
-   - Use clear explanations
-   - Include bullet points or numbered lists where appropriate
-   - Add relevant examples or case studies
-   - Use tables to compare information where relevant
-   - Include expert quotes or statistics in blockquotes
-6. Use proper markdown formatting:
-   - **Bold** for emphasis and key terms
-   - *Italic* for definitions or special terms
-   - \code\ for technical terms or data
-   - Tables with | separator and header row
-   - --- for horizontal rules between major sections
-   - 1. for numbered lists
-   - - for bullet points
-7. Include a "Key Considerations" section near the end.
-8. End with a "FAQ" section containing 5 relevant questions and detailed answers.
-9. Conclude with "Actionable Takeaways" as bullet points.
-Make the content professional yet engaging, with a clear structure that makes it easy to read and understand.'
+            content: `You are a skilled content writer proficient in SEO writing. Create a well-structured, engaging article following these EXACT guidelines:
+1. **Title**: Start with a clear, SEO-friendly main title using a single # (H1). Include the primary keyword naturally.
+2. **Introduction**: Write a comprehensive introduction (2-3 paragraphs) that hooks the reader, explains the importance of the topic, and includes the primary keyword.
+3. **Quote**: Include an inspiring or relevant quote using > blockquote format after the introduction.
+4. **Sections**: Break down the content into clear sections with ## (H2) headings. Each section should focus on a specific aspect of the topic.
+5. **Content Under Each Section**:
+   - Use clear explanations and include relevant examples or case studies.
+   - Use bullet points or numbered lists where appropriate.
+   - Add tables to compare information where relevant (use markdown tables with | separator and header row).
+   - Include expert quotes or statistics in blockquotes.
+6. **Formatting**:
+   - Use **bold** for emphasis and key terms.
+   - Use *italic* for definitions or special terms.
+   - Use \`code\` for technical terms or data.
+   - Use --- for horizontal rules between major sections.
+7. **Key Considerations**: Include a "Key Considerations" section near the end, summarizing the most important points.
+8. **FAQ**: End with a "FAQ" section containing 5 relevant questions and detailed answers.
+9. **Conclusion**: Conclude with "Actionable Takeaways" as bullet points, summarizing practical steps the reader can take.
+10. **SEO Optimization**:
+   - Ensure the primary keyword is used naturally throughout the article (title, headings, and body).
+   - Use secondary keywords where relevant.
+   - Write a meta description at the end that summarizes the article and includes the primary keyword.
+
+Make the content professional yet engaging, with a clear structure that makes it easy to read and understand.`
           },
           {
             role: 'user',
@@ -62,17 +63,18 @@ Make the content professional yet engaging, with a clear structure that makes it
 - Ensure it includes **relevant statistics, real-world examples, and expert insights**.  
 - Make it highly structured, engaging, and easy to read.  
 - Use proper **bold formatting, bullet points, tables, and clear sectioning**.  
-- Follow all formatting guidelines exactly for **maximum readability and SEO impact**.`  
+- Follow all formatting guidelines exactly for **maximum readability and SEO impact**.`
           }
         ],
         temperature: 0.7,
         max_tokens: 4096,
       }),
     });
-if (!response.ok) {
+
+    if (!response.ok) {
       const errorData = await response.json();
       console.error('OpenAI API error:', errorData);
-      throw new Error(OpenAI API error: ${errorData.error?.message || response.statusText});
+      throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
     }
 
     const data = await response.json();
@@ -104,7 +106,7 @@ if (!response.ok) {
     );
   } catch (error) {
     console.error('Error in generate-article function:', error);
-return new Response(
+    return new Response(
       JSON.stringify({ error: error.message }),
       {
         status: 500,
