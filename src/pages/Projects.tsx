@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -108,12 +107,9 @@ export default function Projects() {
         description: "Project renamed successfully",
       });
 
-      // First clear the project rename state
       setProjectToRename(null);
       setNewProjectName("");
-
-      // Then invalidate the query
-      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
 
     } catch (error: any) {
       toast({
@@ -258,7 +254,7 @@ export default function Projects() {
                               <DropdownMenuItem 
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setProjectToRename(project);
+                                  setProjectToRename({ id: project.id, name: project.name });
                                   setNewProjectName(project.name);
                                 }}
                               >
@@ -317,6 +313,7 @@ export default function Projects() {
                 value={newProjectName}
                 onChange={(e) => setNewProjectName(e.target.value)}
                 className="w-full"
+                autoFocus
               />
             </div>
             <DialogFooter>
@@ -330,7 +327,7 @@ export default function Projects() {
                 Cancel
               </Button>
               <Button 
-                onClick={handleRename} 
+                onClick={handleRename}
                 className="bg-[#06962c] hover:bg-[#057a24] text-white"
               >
                 Save
