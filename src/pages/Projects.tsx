@@ -78,15 +78,22 @@ export default function Projects() {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Project renamed successfully",
-      });
-
+      // Clear states before invalidating query
+      const tempToastMessage = "Project renamed successfully";
       setProjectToRename(null);
       setNewProjectName("");
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
 
+      // Invalidate and refetch in the background
+      queryClient.invalidateQueries({ 
+        queryKey: ["projects"],
+        exact: true 
+      });
+
+      // Show toast after state updates
+      toast({
+        title: "Success",
+        description: tempToastMessage,
+      });
     } catch (error: any) {
       toast({
         title: "Error renaming project",
