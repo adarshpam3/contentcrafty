@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm'; // Add this import
 import {
   Loader2,
   Bold,
@@ -251,7 +252,7 @@ export default function ArticleView() {
                 </TabsContent>
                 <TabsContent value="preview" className="prose max-w-none">
                   <div className="p-4 border rounded-lg min-h-[500px]">
-                    <ReactMarkdown>{content}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
                   </div>
                 </TabsContent>
               </Tabs>
