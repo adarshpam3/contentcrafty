@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -22,44 +23,47 @@ import PbnManagement from "@/pages/PbnManagement";
 import Subscription from "@/pages/Subscription";
 import CreateIndexingAPIProject from "@/pages/CreateIndexingAPIProject";
 
-// Create a new QueryClient instance outside of the component
+// Create a new QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/create-first-project" element={<CreateFirstProject />} />
-          <Route path="/create-page" element={<CreatePage />} />
-          <Route path="/articles" element={<Articles />} />
-          <Route path="/articles/:articleId" element={<ArticleView />} />
-          <Route path="/category/:categoryId" element={<CategoryView />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:projectId" element={<ProjectDetails />} />
-          <Route path="/create-project" element={<CreateProject />} />
-          <Route path="/create-content" element={<CreateContent />} />
-          <Route path="/create-ecommerce-content" element={<CreateEcommerceContent />} />
-          <Route path="/create-neuron-content" element={<CreateNeuronContent />} />
-          <Route path="/image-generator" element={<ImageGenerator />} />
-          <Route path="/indexing-api" element={<IndexingApi />} />
-          <Route path="/pbn" element={<PbnManagement />} />
-          <Route path="/subscription" element={<Subscription />} />
-          <Route path="/create-indexing-api-project" element={<CreateIndexingAPIProject />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
-      <Toaster />
-    </QueryClientProvider>
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/create-first-project" element={<CreateFirstProject />} />
+            <Route path="/create-page" element={<CreatePage />} />
+            <Route path="/articles" element={<Articles />} />
+            <Route path="/articles/:articleId" element={<ArticleView />} />
+            <Route path="/category/:categoryId" element={<CategoryView />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:projectId" element={<ProjectDetails />} />
+            <Route path="/create-project" element={<CreateProject />} />
+            <Route path="/create-content" element={<CreateContent />} />
+            <Route path="/create-ecommerce-content" element={<CreateEcommerceContent />} />
+            <Route path="/create-neuron-content" element={<CreateNeuronContent />} />
+            <Route path="/image-generator" element={<ImageGenerator />} />
+            <Route path="/indexing-api" element={<IndexingApi />} />
+            <Route path="/pbn" element={<PbnManagement />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/create-indexing-api-project" element={<CreateIndexingAPIProject />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </Router>
+      </QueryClientProvider>
+    </React.StrictMode>
   );
 }
 
