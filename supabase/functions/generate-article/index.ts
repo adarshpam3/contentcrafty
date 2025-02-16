@@ -47,15 +47,15 @@ serve(async (req) => {
    - Use *italic* for definitions or special terms.
    - Use \`code\` for technical terms or data.
    - Use --- for horizontal rules between major sections.
-7. **Key Considerations**: Include a "Key Considerations" section near the end, summarizing the most important points.
-8. **FAQ**: End with a "FAQ" section containing 5 relevant questions and detailed answers.
+7. **Key Considerations**: Include a "Key Considerations" section near the end, summarizing the most important points. Use bullet points for clarity.
+8. **FAQ**: End with a "FAQ" section containing 5 relevant questions and detailed answers. Use **bold** for questions and normal text for answers.
 9. **Conclusion**: Conclude with "Actionable Takeaways" as bullet points, summarizing practical steps the reader can take.
 10. **SEO Optimization**:
    - Ensure the primary keyword is used naturally throughout the article (title, headings, and body).
    - Use secondary keywords where relevant.
    - Write a meta description at the end that summarizes the article and includes the primary keyword.
 
-Make the content professional yet engaging, with a clear structure that makes it easy to read and understand.`
+Make the content professional yet engaging, with a clear structure that makes it easy to read and understand. Follow all formatting guidelines exactly for maximum readability and SEO impact.`
           },
           {
             role: 'user',
@@ -66,8 +66,8 @@ Make the content professional yet engaging, with a clear structure that makes it
 - Follow all formatting guidelines exactly for **maximum readability and SEO impact**.`
           }
         ],
-        temperature: 0.7,
-        max_tokens: 4096,
+        temperature: 0.5, // Lower temperature for more structured output
+        max_tokens: 3500, // Slightly reduce max_tokens to avoid truncation
       }),
     });
 
