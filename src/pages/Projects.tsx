@@ -22,6 +22,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -107,9 +108,13 @@ export default function Projects() {
         description: "Project renamed successfully",
       });
 
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      // First clear the project rename state
       setProjectToRename(null);
       setNewProjectName("");
+
+      // Then invalidate the query
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+
     } catch (error: any) {
       toast({
         title: "Error renaming project",
@@ -251,7 +256,8 @@ export default function Projects() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem 
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setProjectToRename(project);
                                   setNewProjectName(project.name);
                                 }}
@@ -289,10 +295,21 @@ export default function Projects() {
         </AlertDialog>
 
         {/* Rename Dialog */}
-        <Dialog open={!!projectToRename} onOpenChange={() => setProjectToRename(null)}>
+        <Dialog 
+          open={!!projectToRename} 
+          onOpenChange={(open) => {
+            if (!open) {
+              setProjectToRename(null);
+              setNewProjectName("");
+            }
+          }}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Rename Project</DialogTitle>
+              <DialogDescription>
+                Enter a new name for your project below.
+              </DialogDescription>
             </DialogHeader>
             <div className="py-4">
               <Input
@@ -303,10 +320,19 @@ export default function Projects() {
               />
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setProjectToRename(null)}>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setProjectToRename(null);
+                  setNewProjectName("");
+                }}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleRename} className="bg-[#06962c] hover:bg-[#057a24] text-white">
+              <Button 
+                onClick={handleRename} 
+                className="bg-[#06962c] hover:bg-[#057a24] text-white"
+              >
                 Save
               </Button>
             </DialogFooter>
