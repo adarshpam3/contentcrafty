@@ -71,7 +71,7 @@ export function Sidebar() {
             "font-semibold text-[#06962c]",
             collapsed ? "text-center text-xl" : "text-2xl"
           )}>
-            {collapsed ? "C" : "Copymate"}
+            {collapsed ? "S" : "SERPify"}
           </h1>
         </div>
         
