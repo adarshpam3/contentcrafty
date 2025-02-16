@@ -22,7 +22,15 @@ import PbnManagement from "@/pages/PbnManagement";
 import Subscription from "@/pages/Subscription";
 import CreateIndexingAPIProject from "@/pages/CreateIndexingAPIProject";
 
-const queryClient = new QueryClient();
+// Create a new QueryClient instance outside of the component
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 function App() {
   return (
@@ -46,8 +54,8 @@ function App() {
           <Route path="/indexing-api" element={<IndexingApi />} />
           <Route path="/pbn" element={<PbnManagement />} />
           <Route path="/subscription" element={<Subscription />} />
-          <Route path="*" element={<NotFound />} />
           <Route path="/create-indexing-api-project" element={<CreateIndexingAPIProject />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
       <Toaster />
