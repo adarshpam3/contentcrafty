@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from "react-markdown";
 import { EditorToolbar } from "./EditorToolbar";
 import { formatButtons } from "./editorConfig";
 
@@ -16,15 +15,15 @@ interface ArticleContentProps {
   isHtmlContent?: boolean;
 }
 
-export function ArticleContent({ 
-  topic, 
-  content, 
-  onContentChange, 
+export function ArticleContent({
+  topic,
+  content,
+  onContentChange,
   onSave,
-  isHtmlContent = false 
+  isHtmlContent = false,
 }: ArticleContentProps) {
   const { toast } = useToast();
-  const [previewMode, setPreviewMode] = useState<'html' | 'original'>('html');
+  const [previewMode, setPreviewMode] = useState<"html" | "original">("html");
   const wordCount = content.split(/\s+/).length;
   const charCount = content.length;
 
@@ -52,37 +51,30 @@ export function ArticleContent({
     }, 0);
   };
 
-  // Function to extract text content from HTML
-  const getTextFromHtml = (html: string) => {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    return tempDiv.textContent || tempDiv.innerText || '';
-  };
-
   // Function to convert HTML to Markdown-like format
-  const convertHtmlToOriginal = (html: string) => {
-    const tempDiv = document.createElement('div');
+  const convertHtmlToMarkdown = (html: string) => {
+    const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
-    
+
     // Convert basic HTML elements to markdown-like format
     let text = tempDiv.innerHTML;
-    text = text.replace(/<h1.*?>(.*?)<\/h1>/gi, '# $1\n\n');
-    text = text.replace(/<h2.*?>(.*?)<\/h2>/gi, '## $1\n\n');
-    text = text.replace(/<h3.*?>(.*?)<\/h3>/gi, '### $1\n\n');
-    text = text.replace(/<p.*?>(.*?)<\/p>/gi, '$1\n\n');
-    text = text.replace(/<strong.*?>(.*?)<\/strong>/gi, '**$1**');
-    text = text.replace(/<em.*?>(.*?)<\/em>/gi, '_$1_');
-    text = text.replace(/<ul.*?>(.*?)<\/ul>/gi, '$1\n');
-    text = text.replace(/<li.*?>(.*?)<\/li>/gi, '* $1\n');
-    text = text.replace(/<br.*?>/gi, '\n');
-    
+    text = text.replace(/<h1.*?>(.*?)<\/h1>/gi, "# $1\n\n");
+    text = text.replace(/<h2.*?>(.*?)<\/h2>/gi, "## $1\n\n");
+    text = text.replace(/<h3.*?>(.*?)<\/h3>/gi, "### $1\n\n");
+    text = text.replace(/<p.*?>(.*?)<\/p>/gi, "$1\n\n");
+    text = text.replace(/<strong.*?>(.*?)<\/strong>/gi, "**$1**");
+    text = text.replace(/<em.*?>(.*?)<\/em>/gi, "_$1_");
+    text = text.replace(/<ul.*?>(.*?)<\/ul>/gi, "$1\n");
+    text = text.replace(/<li.*?>(.*?)<\/li>/gi, "* $1\n");
+    text = text.replace(/<br.*?>/gi, "\n");
+
     // Remove any remaining HTML tags
-    text = text.replace(/<[^>]*>/g, '');
-    
+    text = text.replace(/<[^>]*>/g, "");
+
     // Fix spacing
-    text = text.replace(/\n\s*\n/g, '\n\n');
+    text = text.replace(/\n\s*\n/g, "\n\n");
     text = text.trim();
-    
+
     return text;
   };
 
@@ -114,16 +106,16 @@ export function ArticleContent({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setPreviewMode('html')}
-                  className={previewMode === 'html' ? 'bg-[#e6f4ea] text-[#06962c]' : ''}
+                  onClick={() => setPreviewMode("html")}
+                  className={previewMode === "html" ? "bg-[#e6f4ea] text-[#06962c]" : ""}
                 >
                   HTML
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setPreviewMode('original')}
-                  className={previewMode === 'original' ? 'bg-[#e6f4ea] text-[#06962c]' : ''}
+                  onClick={() => setPreviewMode("original")}
+                  className={previewMode === "original" ? "bg-[#e6f4ea] text-[#06962c]" : ""}
                 >
                   Original
                 </Button>
@@ -131,8 +123,8 @@ export function ArticleContent({
             )}
           </div>
           <div className="space-x-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
                 toast({
@@ -145,19 +137,20 @@ export function ArticleContent({
               <Share2 className="w-4 h-4 mr-2" />
               Share
             </Button>
-            <Button 
-              onClick={onSave}
-              className="bg-[#06962c] hover:bg-[#057a24]"
-            >
+            <Button onClick={onSave} className="bg-[#06962c] hover:bg-[#057a24]">
               Save Changes
             </Button>
           </div>
         </div>
 
-        {!isHtmlContent && <EditorToolbar formatButtons={formatButtons.map(btn => ({
-          ...btn,
-          action: () => insertText(btn.beforeText, btn.afterText)
-        }))} />}
+        {!isHtmlContent && (
+          <EditorToolbar
+            formatButtons={formatButtons.map((btn) => ({
+              ...btn,
+              action: () => insertText(btn.beforeText, btn.afterText),
+            }))}
+          />
+        )}
 
         <TabsContent value="edit">
           <textarea
@@ -169,11 +162,11 @@ export function ArticleContent({
         <TabsContent value="preview" className="prose max-w-none">
           <div className="p-4 border rounded-lg min-h-[500px]">
             {isHtmlContent ? (
-              previewMode === 'html' ? (
+              previewMode === "html" ? (
                 <div dangerouslySetInnerHTML={{ __html: content }} />
               ) : (
                 <pre className="whitespace-pre-wrap font-mono text-sm">
-                  {convertHtmlToOriginal(content)}
+                  {convertHtmlToMarkdown(content)}
                 </pre>
               )
             ) : (
