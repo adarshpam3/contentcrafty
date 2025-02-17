@@ -10,6 +10,19 @@ import { ArticleHeader } from "@/components/article/ArticleHeader";
 import { ArticleContent } from "@/components/article/ArticleContent";
 import { ArticleSidebar } from "@/components/article/ArticleSidebar";
 
+interface Project {
+  name: string;
+  type: string;
+}
+
+interface Article {
+  id: string;
+  topic: string;
+  content: string;
+  featured_image: string | null;
+  projects: Project | null;
+}
+
 export default function ArticleView() {
   const { articleId } = useParams();
   const navigate = useNavigate();
@@ -22,7 +35,7 @@ export default function ArticleView() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("articles")
-        .select("*, projects(name, content_type)")
+        .select("*, projects(name, type)")
         .eq("id", articleId)
         .maybeSingle();
 
@@ -39,7 +52,7 @@ export default function ArticleView() {
       }
 
       setContent(data.content || "");
-      return data;
+      return data as Article;
     },
   });
 
@@ -118,7 +131,7 @@ export default function ArticleView() {
     );
   }
 
-  const isHtmlContent = article.projects?.content_type === 'fast_writer';
+  const isHtmlContent = article.projects?.type === 'fast_writer';
 
   return (
     <div className="min-h-screen bg-gray-50">
