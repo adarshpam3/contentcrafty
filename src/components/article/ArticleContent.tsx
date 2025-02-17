@@ -24,6 +24,7 @@ export function ArticleContent({
   isHtmlContent = false 
 }: ArticleContentProps) {
   const { toast } = useToast();
+  const [previewMode, setPreviewMode] = useState<'html' | 'original'>('html');
   const wordCount = content.split(/\s+/).length;
   const charCount = content.length;
 
@@ -51,6 +52,40 @@ export function ArticleContent({
     }, 0);
   };
 
+  // Function to extract text content from HTML
+  const getTextFromHtml = (html: string) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || '';
+  };
+
+  // Function to convert HTML to Markdown-like format
+  const convertHtmlToOriginal = (html: string) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // Convert basic HTML elements to markdown-like format
+    let text = tempDiv.innerHTML;
+    text = text.replace(/<h1.*?>(.*?)<\/h1>/gi, '# $1\n\n');
+    text = text.replace(/<h2.*?>(.*?)<\/h2>/gi, '## $1\n\n');
+    text = text.replace(/<h3.*?>(.*?)<\/h3>/gi, '### $1\n\n');
+    text = text.replace(/<p.*?>(.*?)<\/p>/gi, '$1\n\n');
+    text = text.replace(/<strong.*?>(.*?)<\/strong>/gi, '**$1**');
+    text = text.replace(/<em.*?>(.*?)<\/em>/gi, '_$1_');
+    text = text.replace(/<ul.*?>(.*?)<\/ul>/gi, '$1\n');
+    text = text.replace(/<li.*?>(.*?)<\/li>/gi, '* $1\n');
+    text = text.replace(/<br.*?>/gi, '\n');
+    
+    // Remove any remaining HTML tags
+    text = text.replace(/<[^>]*>/g, '');
+    
+    // Fix spacing
+    text = text.replace(/\n\s*\n/g, '\n\n');
+    text = text.trim();
+    
+    return text;
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
       <div className="mb-6">
@@ -69,10 +104,32 @@ export function ArticleContent({
 
       <Tabs defaultValue="edit" className="w-full">
         <div className="flex justify-between items-center mb-4">
-          <TabsList>
-            <TabsTrigger value="edit">Edit</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-4">
+            <TabsList>
+              <TabsTrigger value="edit">Edit</TabsTrigger>
+              <TabsTrigger value="preview">Preview</TabsTrigger>
+            </TabsList>
+            {isHtmlContent && (
+              <div className="flex items-center gap-2 ml-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPreviewMode('html')}
+                  className={previewMode === 'html' ? 'bg-[#e6f4ea] text-[#06962c]' : ''}
+                >
+                  HTML
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPreviewMode('original')}
+                  className={previewMode === 'original' ? 'bg-[#e6f4ea] text-[#06962c]' : ''}
+                >
+                  Original
+                </Button>
+              </div>
+            )}
+          </div>
           <div className="space-x-2">
             <Button 
               variant="outline" 
@@ -112,7 +169,13 @@ export function ArticleContent({
         <TabsContent value="preview" className="prose max-w-none">
           <div className="p-4 border rounded-lg min-h-[500px]">
             {isHtmlContent ? (
-              <div dangerouslySetInnerHTML={{ __html: content }} />
+              previewMode === 'html' ? (
+                <div dangerouslySetInnerHTML={{ __html: content }} />
+              ) : (
+                <pre className="whitespace-pre-wrap font-mono text-sm">
+                  {convertHtmlToOriginal(content)}
+                </pre>
+              )
             ) : (
               <ReactMarkdown>{content}</ReactMarkdown>
             )}
