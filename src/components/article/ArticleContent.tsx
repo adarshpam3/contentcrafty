@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,13 +50,6 @@ export function ArticleContent({
         end + before.length
       );
     }, 0);
-  };
-
-  // Function to extract text content from HTML
-  const getTextFromHtml = (html: string) => {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    return tempDiv.textContent || tempDiv.innerText || '';
   };
 
   // Function to convert HTML to Markdown-like format
