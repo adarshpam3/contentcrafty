@@ -20,6 +20,15 @@ export function ArticlePreview({ content, isHtmlContent, previewMode }: ArticleP
 
   // For HTML content
   if (isHtmlContent) {
+    // Extract body content if full HTML document is provided
+    let processedContent = content;
+    if (content.includes('<body>')) {
+      const bodyMatch = content.match(/<body>([\s\S]*?)<\/body>/i);
+      if (bodyMatch && bodyMatch[1]) {
+        processedContent = bodyMatch[1].trim();
+      }
+    }
+
     return (
       <div className="p-4 border rounded-lg min-h-[500px]">
         {previewMode === 'html' ? (
@@ -27,7 +36,7 @@ export function ArticlePreview({ content, isHtmlContent, previewMode }: ArticleP
             <div 
               className="article-content"
               dangerouslySetInnerHTML={{ 
-                __html: content.replace(/\n/g, '<br />')
+                __html: processedContent
               }} 
               style={{
                 fontSize: '16px',
@@ -74,6 +83,10 @@ export function ArticlePreview({ content, isHtmlContent, previewMode }: ArticleP
               .article-content ul, .article-content ol {
                 margin: 1.5rem 0;
                 padding-left: 2rem;
+                list-style-type: disc;
+              }
+              .article-content ol {
+                list-style-type: decimal;
               }
               .article-content li {
                 margin-bottom: 0.5rem;
@@ -152,6 +165,9 @@ export function ArticlePreview({ content, isHtmlContent, previewMode }: ArticleP
                 margin: 2rem 0;
                 border: 0;
                 border-top: 2px solid #eaeaea;
+              }
+              .article-content meta, .article-content title, .article-content head {
+                display: none;
               }
             `}</style>
           </div>
