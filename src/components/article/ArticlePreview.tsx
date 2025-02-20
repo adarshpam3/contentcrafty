@@ -9,19 +9,25 @@ interface ArticlePreviewProps {
 }
 
 export function ArticlePreview({ content, isHtmlContent, previewMode }: ArticlePreviewProps) {
-  return (
-    <div className="p-4 border rounded-lg min-h-[500px]">
-      {isHtmlContent ? (
-        previewMode === 'html' ? (
+  if (isHtmlContent) {
+    // For HTML content, show either raw HTML or converted original format
+    return (
+      <div className="p-4 border rounded-lg min-h-[500px]">
+        {previewMode === 'html' ? (
           <div dangerouslySetInnerHTML={{ __html: content }} />
         ) : (
           <pre className="whitespace-pre-wrap font-mono text-sm">
             {convertHtmlToOriginal(content)}
           </pre>
-        )
-      ) : (
-        <ReactMarkdown>{content}</ReactMarkdown>
-      )}
+        )}
+      </div>
+    );
+  }
+
+  // For non-HTML content, show markdown preview
+  return (
+    <div className="p-4 border rounded-lg min-h-[500px]">
+      <ReactMarkdown>{content}</ReactMarkdown>
     </div>
   );
 }
