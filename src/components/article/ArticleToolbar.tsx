@@ -34,7 +34,7 @@ export function ArticleToolbar({
               onClick={() => setPreviewMode('html')}
               className={`${
                 previewMode === 'html' 
-                  ? 'bg-white shadow-sm text-[#06962c]' 
+                  ? 'bg-white shadow-sm text-[#06962c] font-medium' 
                   : 'hover:bg-white/50'
               }`}
             >
@@ -46,7 +46,7 @@ export function ArticleToolbar({
               onClick={() => setPreviewMode('original')}
               className={`${
                 previewMode === 'original' 
-                  ? 'bg-white shadow-sm text-[#06962c]' 
+                  ? 'bg-white shadow-sm text-[#06962c] font-medium' 
                   : 'hover:bg-white/50'
               }`}
             >
