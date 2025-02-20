@@ -38,11 +38,6 @@ export function ArticlePreview({ content, isHtmlContent, previewMode }: ArticleP
               dangerouslySetInnerHTML={{ 
                 __html: processedContent
               }} 
-              style={{
-                fontSize: '16px',
-                lineHeight: '1.6',
-                color: '#333'
-              }}
             />
             <style>{`
               .article-content {
@@ -173,7 +168,7 @@ export function ArticlePreview({ content, isHtmlContent, previewMode }: ArticleP
           </div>
         ) : (
           <div className="font-mono text-sm whitespace-pre-wrap bg-gray-50 p-4 rounded">
-            {convertHtmlToOriginal(content)}
+            {content}
           </div>
         )}
       </div>
