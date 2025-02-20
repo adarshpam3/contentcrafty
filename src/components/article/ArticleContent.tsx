@@ -22,7 +22,7 @@ export function ArticleContent({
   onSave,
   isHtmlContent = false 
 }: ArticleContentProps) {
-  const [previewMode, setPreviewMode] = useState<'html' | 'original'>('html');
+  const [previewMode, setPreviewMode] = useState<'html' | 'original'>('original');
   const wordCount = content.split(/\s+/).length;
   const charCount = content.length;
 

@@ -26,26 +26,24 @@ export function ArticleToolbar({
           <TabsTrigger value="edit">Edit</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
         </TabsList>
-        {isHtmlContent && (
-          <div className="flex items-center gap-2 ml-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPreviewMode('html')}
-              className={previewMode === 'html' ? 'bg-[#e6f4ea] text-[#06962c]' : ''}
-            >
-              HTML
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPreviewMode('original')}
-              className={previewMode === 'original' ? 'bg-[#e6f4ea] text-[#06962c]' : ''}
-            >
-              Original
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-2 ml-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPreviewMode('html')}
+            className={previewMode === 'html' ? 'bg-[#e6f4ea] text-[#06962c]' : ''}
+          >
+            HTML
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPreviewMode('original')}
+            className={previewMode === 'original' ? 'bg-[#e6f4ea] text-[#06962c]' : ''}
+          >
+            Original
+          </Button>
+        </div>
       </div>
       <div className="space-x-2">
         <Button 
