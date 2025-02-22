@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { useQuery } from "@tanstack/react-query";
@@ -19,7 +19,7 @@ export default function Subscription() {
   const success = searchParams.get('success');
   const canceled = searchParams.get('canceled');
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (success) {
       toast({
         title: "Success!",
