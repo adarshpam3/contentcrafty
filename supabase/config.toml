@@ -13,14 +13,11 @@ port = 54322
 enabled = true
 port = 54323
 
-[[functions]]
-name = "stripe-webhook"
+[functions.stripe-webhook]
 verify_jwt = false
 
-[[functions]]
-name = "create-checkout"
+[functions.create-checkout]
 verify_jwt = false
 
-[[functions]]
-name = "manage-subscription"
+[functions.manage-subscription]
 verify_jwt = false
