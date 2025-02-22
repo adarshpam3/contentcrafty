@@ -1,30 +1,92 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Loader2, Users } from "lucide-react";
-import { useSubscription } from "@/hooks/use-subscription";
-import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
-import { SUBSCRIPTION_PLANS } from "@/config/stripe";
+import { Check, Zap, Users, Star, Crown } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+const plans = [
+  {
+    name: "Starter",
+    price: "Free",
+    description: "Perfect for trying out our service",
+    icon: Star,
+    features: [
+      "3 articles per month",
+      "Basic AI writing",
+      "Manual topic creation",
+      "Standard support",
+    ],
+    buttonText: "Current Plan",
+    type: "free"
+  },
+  {
+    name: "Pro Writer",
+    price: "$29",
+    period: "month",
+    description: "Best for professional content creators",
+    icon: Zap,
+    features: [
+      "50 articles per month",
+      "Advanced AI writing",
+      "SERP Analysis",
+      "Priority support",
+      "Content optimization",
+      "Bulk generation"
+    ],
+    buttonText: "Upgrade to Pro",
+    type: "pro",
+    recommended: true
+  },
+  {
+    name: "Enterprise",
+    price: "$99",
+    period: "month",
+    description: "For teams and agencies",
+    icon: Crown,
+    features: [
+      "Unlimited articles",
+      "Advanced AI writing",
+      "SERP Analysis",
+      "24/7 Premium support",
+      "Content optimization",
+      "Bulk generation",
+      "Custom integrations",
+      "Team collaboration"
+    ],
+    buttonText: "Contact Sales",
+    type: "enterprise"
+  }
+];
 
 export default function Subscription() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { subscription, createCheckoutSession, manageSubscription } = useSubscription();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
-  const handleUpgrade = async (priceId: string | null) => {
-    if (!priceId) {
-      return;
-    }
+  const { data: subscription } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .maybeSingle();
 
-    setIsLoading(true);
-    try {
-      await createCheckoutSession(priceId);
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
-    } finally {
-      setIsLoading(false);
-    }
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleUpgrade = async (planType: string) => {
+    toast({
+      title: "Coming Soon",
+      description: "Payment integration will be available soon!",
+    });
+    setSelectedPlan(planType);
   };
 
   return (
@@ -37,36 +99,12 @@ export default function Subscription() {
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Select the perfect plan that matches your content creation needs. Upgrade or downgrade anytime.
             </p>
-            {subscription && (
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-sm text-gray-600">Current subscription status:</span>
-                <SubscriptionBadge status={subscription.status} />
-              </div>
-            )}
           </div>
 
-          {subscription?.cancel_at_period_end && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-              <p className="text-yellow-800">
-                Your subscription will end on{" "}
-                {new Date(subscription.current_period_end).toLocaleDateString()}
-                <Button
-                  variant="link"
-                  onClick={() => manageSubscription('resume')}
-                  className="ml-2 text-[#06962c]"
-                >
-                  Resume Subscription
-                </Button>
-              </p>
-            </div>
-          )}
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[SUBSCRIPTION_PLANS.FREE, SUBSCRIPTION_PLANS.PRO, SUBSCRIPTION_PLANS.ENTERPRISE].map((plan) => {
-              const Icon = plan.icon || Check;
+            {plans.map((plan) => {
+              const Icon = plan.icon;
               const isCurrentPlan = subscription?.plan_type === plan.type;
-              const canUpgrade = subscription?.plan_type === 'free' || 
-                               (subscription?.plan_type === 'pro' && plan.type === 'enterprise');
               
               return (
                 <Card 
@@ -104,9 +142,7 @@ export default function Subscription() {
                           <span className="text-gray-500">/{plan.period}</span>
                         )}
                       </div>
-                      {plan.description && (
-                        <p className="mt-2 text-gray-600">{plan.description}</p>
-                      )}
+                      <p className="mt-2 text-gray-600">{plan.description}</p>
                     </div>
 
                     <div className="space-y-4 mb-8">
@@ -132,22 +168,10 @@ export default function Subscription() {
                             ? 'bg-[#06962c] hover:bg-[#057a24] text-white'
                             : 'bg-gray-900 hover:bg-gray-800 text-white'
                       }`}
-                      onClick={() => {
-                        if (isCurrentPlan && subscription?.stripe_subscription_id) {
-                          manageSubscription('cancel');
-                        } else if (canUpgrade) {
-                          handleUpgrade(plan.priceId);
-                        }
-                      }}
-                      disabled={isLoading || (!canUpgrade && !isCurrentPlan)}
+                      onClick={() => handleUpgrade(plan.type)}
+                      disabled={isCurrentPlan}
                     >
-                      {isLoading ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : isCurrentPlan ? (
-                        subscription?.stripe_subscription_id ? "Cancel Plan" : "Current Plan"
-                      ) : (
-                        plan.buttonText
-                      )}
+                      {isCurrentPlan ? "Current Plan" : plan.buttonText}
                     </Button>
                   </div>
                 </Card>
@@ -159,7 +183,7 @@ export default function Subscription() {
             <div className="inline-flex items-center gap-2 px-4 py-3 bg-[#e6f4ea] rounded-lg">
               <Users className="h-5 w-5 text-[#06962c]" />
               <p className="text-[#06962c]">
-                Need help choosing the right plan? <Button variant="link" className="p-0 h-auto text-[#06962c] underline">Contact our sales team</Button>
+                Need help choosing the right plan? <a href="#" className="underline font-medium">Contact our sales team</a>
               </p>
             </div>
           </div>

@@ -38,12 +38,11 @@ export default function CreateFirstProject() {
         return;
       }
 
-      // Create the project in the database
       const { error: projectError } = await supabase
         .from("projects")
         .insert([{ 
           name: projectName,
-          user_id: session.user.id 
+          user_id: session.user.id
         }]);
 
       if (projectError) {

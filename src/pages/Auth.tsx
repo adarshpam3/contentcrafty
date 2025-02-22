@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -58,6 +57,7 @@ export default function Auth() {
           .select("id")
           .limit(1);
 
+        // Navigate based on whether user has projects
         if (!projects || projects.length === 0) {
           navigate("/create-first-project");
         } else {
@@ -130,7 +130,7 @@ export default function Auth() {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete={isLogin ? "current-password" : "new-password"}
+                autoComplete="current-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -147,10 +147,7 @@ export default function Auth() {
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               disabled={loading}
             >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
-              {loading ? "Processing..." : isLogin ? "Sign in" : "Sign up"}
+              {loading ? "Loading..." : isLogin ? "Sign in" : "Sign up"}
             </Button>
           </div>
 
