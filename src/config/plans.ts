@@ -56,4 +56,4 @@ export const plans = [
     type: "enterprise",
     priceId: null
   }
-] as const;
+];

@@ -1,16 +1,16 @@
 
 import Stripe from 'https://esm.sh/stripe@13.11.0';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
   apiVersion: '2023-10-16',
 });
 
 const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') || '';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 Deno.serve(async (req) => {
   try {
@@ -33,24 +33,24 @@ Deno.serve(async (req) => {
       return new Response(`Webhook Error: ${err.message}`, { status: 400 });
     }
 
-    const { supabaseClient } = await import("@supabase/supabase-js");
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.0');
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    const supabase = supabaseClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Handle subscription events
+    console.log(`Processing webhook event: ${event.type}`);
+
     switch (event.type) {
-      case 'customer.subscription.created':
-      case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription;
-        const customerId = subscription.customer as string;
-        
-        // Get the customer to find their email
-        const customer = await stripe.customers.retrieve(customerId);
-        if (!customer.email) break;
-        
-        // Get the price details
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const customerId = session.customer as string;
+        const subscriptionId = session.subscription as string;
+
+        // Get subscription details
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const priceId = subscription.items.data[0].price.id;
+
+        // Get price details from our database
         const { data: prices } = await supabase
           .from('stripe_prices')
           .select('*')
@@ -65,46 +65,47 @@ Deno.serve(async (req) => {
             price: subscription.items.data[0].price.unit_amount ? subscription.items.data[0].price.unit_amount / 100 : 0,
             plan_type: prices?.type || 'pro',
             current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            cancel_at_period_end: subscription.cancel_at_period_end,
-            stripe_subscription_id: subscription.id,
+            stripe_subscription_id: subscriptionId,
             stripe_customer_id: customerId,
           })
-          .eq('user_id', customer.metadata.user_id);
+          .eq('user_id', session.metadata?.user_id);
 
         if (error) {
           console.error('Error updating subscription:', error);
-          return new Response(JSON.stringify({ error: error.message }), { 
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
+          throw error;
         }
         break;
       }
-      
+
+      case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
         
         // Get the customer to find their email
         const customer = await stripe.customers.retrieve(customerId);
-        if (!customer.email) break;
-        
+        if (!customer || customer.deleted) break;
+
+        const userId = customer.metadata.user_id;
+        if (!userId) break;
+
         // Update subscription in database
         const { error } = await supabase
           .from('subscriptions')
           .update({
-            status: 'canceled',
-            cancel_at_period_end: false,
-            stripe_subscription_id: null,
+            status: subscription.status,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            ...(event.type === 'customer.subscription.deleted' ? {
+              stripe_subscription_id: null,
+              plan_type: 'free'
+            } : {})
           })
-          .eq('user_id', customer.metadata.user_id);
+          .eq('user_id', userId);
 
         if (error) {
           console.error('Error updating subscription:', error);
-          return new Response(JSON.stringify({ error: error.message }), { 
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
+          throw error;
         }
         break;
       }

@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PricingCard } from "@/components/subscription/PricingCard";
 import { PricingHeader } from "@/components/subscription/PricingHeader";
 import { ContactSupport } from "@/components/subscription/ContactSupport";
+import { SubscriptionDetails } from "@/components/subscription/SubscriptionDetails";
 import { plans } from "@/config/plans";
 
 export default function Subscription() {
@@ -113,6 +114,12 @@ export default function Subscription() {
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto space-y-12">
           <PricingHeader />
+
+          {subscription && (
+            <div className="max-w-xl mx-auto">
+              <SubscriptionDetails subscription={subscription} />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan) => {
