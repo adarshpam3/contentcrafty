@@ -1,5 +1,6 @@
 
-export const STRIPE_PUBLISHABLE_KEY = "YOUR_PUBLISHABLE_KEY"; // Replace with your Stripe publishable key
+// Do not include secret keys here - only publishable key
+export const STRIPE_PUBLISHABLE_KEY = "pk_test_xxxxxxxxxxxxx"; // Replace with your actual publishable key
 
 export const SUBSCRIPTION_PLANS = {
   FREE: {
@@ -39,3 +40,13 @@ export const SUBSCRIPTION_PLANS = {
     ],
   },
 } as const;
+
+// Types for subscription statuses
+export type SubscriptionStatus = 
+  | 'active'
+  | 'canceled'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'past_due'
+  | 'trialing'
+  | 'unpaid';
