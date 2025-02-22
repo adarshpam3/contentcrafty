@@ -45,7 +45,7 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password: password.trim(),
         });
@@ -53,18 +53,11 @@ export default function Auth() {
         if (error) throw error;
 
         // Check if user has any projects
-        const { data: projects, error: projectError } = await supabase
+        const { data: projects } = await supabase
           .from("projects")
           .select("id")
           .limit(1);
 
-        if (projectError) {
-          console.error("Error checking projects:", projectError);
-          navigate("/");
-          return;
-        }
-
-        // Navigate based on whether user has projects
         if (!projects || projects.length === 0) {
           navigate("/create-first-project");
         } else {
