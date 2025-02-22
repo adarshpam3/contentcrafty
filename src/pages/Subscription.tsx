@@ -22,7 +22,8 @@ const plans = [
       "Standard support",
     ],
     buttonText: "Current Plan",
-    type: "free"
+    type: "free",
+    priceId: null
   },
   {
     name: "Pro Writer",
@@ -40,7 +41,8 @@ const plans = [
     ],
     buttonText: "Upgrade to Pro",
     type: "pro",
-    recommended: true
+    recommended: true,
+    priceId: "price_pro" // Replace with your actual Stripe Price ID
   },
   {
     name: "Enterprise",
@@ -59,18 +61,25 @@ const plans = [
       "Team collaboration"
     ],
     buttonText: "Contact Sales",
-    type: "enterprise"
+    type: "enterprise",
+    priceId: "price_enterprise" // Replace with your actual Stripe Price ID
   }
 ];
 
 export default function Subscription() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  const { data: subscription } = useQuery({
+  const { data: subscription, isLoading: isLoadingSubscription } = useQuery({
     queryKey: ["subscription"],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/auth');
+        return null;
+      }
+
       const { data, error } = await supabase
         .from("subscriptions")
         .select("*")
@@ -81,12 +90,70 @@ export default function Subscription() {
     },
   });
 
-  const handleUpgrade = async (planType: string) => {
-    toast({
-      title: "Coming Soon",
-      description: "Payment integration will be available soon!",
-    });
-    setSelectedPlan(planType);
+  const handleUpgrade = async (planType: string, priceId: string | null) => {
+    if (!priceId) {
+      toast({
+        title: "Contact Sales",
+        description: "Please contact our sales team for enterprise plans.",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(planType);
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate('/auth');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId },
+      });
+
+      if (error) throw error;
+      
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process upgrade. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(null);
+    }
+  };
+
+  const handleManageSubscription = async (action: 'cancel' | 'resume') => {
+    try {
+      setIsLoading(action);
+      const { error } = await supabase.functions.invoke('manage-subscription', {
+        body: { action },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: action === 'cancel' 
+          ? "Your subscription will be cancelled at the end of the billing period" 
+          : "Your subscription has been resumed",
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to manage subscription. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(null);
+    }
   };
 
   return (
@@ -105,6 +172,7 @@ export default function Subscription() {
             {plans.map((plan) => {
               const Icon = plan.icon;
               const isCurrentPlan = subscription?.plan_type === plan.type;
+              const isCancelled = isCurrentPlan && subscription?.cancel_at_period_end;
               
               return (
                 <Card 
@@ -160,19 +228,43 @@ export default function Subscription() {
                       ))}
                     </div>
 
-                    <Button
-                      className={`w-full h-12 text-base font-medium ${
-                        isCurrentPlan
-                          ? 'bg-[#e6f4ea] text-[#06962c] hover:bg-[#d1e9d5]'
-                          : plan.recommended
+                    {isCurrentPlan ? (
+                      <div className="space-y-3">
+                        <Button
+                          className="w-full h-12 text-base font-medium bg-[#e6f4ea] text-[#06962c] hover:bg-[#d1e9d5]"
+                          disabled={true}
+                        >
+                          Current Plan
+                        </Button>
+                        {subscription?.status === 'active' && (
+                          <Button
+                            className="w-full h-12 text-base font-medium"
+                            variant="outline"
+                            onClick={() => handleManageSubscription(isCancelled ? 'resume' : 'cancel')}
+                            disabled={isLoading === 'cancel' || isLoading === 'resume'}
+                          >
+                            {isLoading === 'cancel' || isLoading === 'resume' 
+                              ? "Processing..." 
+                              : isCancelled 
+                                ? "Resume Subscription"
+                                : "Cancel Subscription"
+                            }
+                          </Button>
+                        )}
+                      </div>
+                    ) : (
+                      <Button
+                        className={`w-full h-12 text-base font-medium ${
+                          plan.recommended
                             ? 'bg-[#06962c] hover:bg-[#057a24] text-white'
                             : 'bg-gray-900 hover:bg-gray-800 text-white'
-                      }`}
-                      onClick={() => handleUpgrade(plan.type)}
-                      disabled={isCurrentPlan}
-                    >
-                      {isCurrentPlan ? "Current Plan" : plan.buttonText}
-                    </Button>
+                        }`}
+                        onClick={() => handleUpgrade(plan.type, plan.priceId)}
+                        disabled={isLoading === plan.type}
+                      >
+                        {isLoading === plan.type ? "Processing..." : plan.buttonText}
+                      </Button>
+                    )}
                   </div>
                 </Card>
               );
