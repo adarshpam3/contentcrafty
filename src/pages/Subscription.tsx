@@ -27,7 +27,7 @@ const plans = [
   },
   {
     name: "Pro Writer",
-    price: "$13",  // Updated to your actual price
+    price: "$13",
     period: "month",
     description: "Best for professional content creators",
     icon: Zap,
@@ -42,7 +42,7 @@ const plans = [
     buttonText: "Upgrade to Pro",
     type: "pro",
     recommended: true,
-    priceId: "price_1QvMPNRqYZd5RVTtRzzZHD2F" // Replace this with your actual Stripe Price ID
+    priceId: "price_1QvMPNRqYZd5RVTtRzzZHD2F"
   },
   {
     name: "Enterprise",
@@ -112,13 +112,20 @@ export default function Subscription() {
         body: { priceId },
       });
 
-      if (error) throw error;
-      
-      if (data.url) {
-        window.location.href = data.url;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
       }
+      
+      if (!data?.url) {
+        console.error('No checkout URL returned:', data);
+        throw new Error('Failed to create checkout session');
+      }
+
+      console.log('Redirecting to checkout:', data.url);
+      window.location.href = data.url;
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error in handleUpgrade:', error);
       toast({
         title: "Error",
         description: "Failed to process upgrade. Please try again.",
