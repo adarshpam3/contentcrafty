@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Zap, Users, Star, Crown, Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useSubscription } from "@/hooks/use-subscription";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import { SUBSCRIPTION_PLANS } from "@/config/stripe";
@@ -26,34 +26,6 @@ export default function Subscription() {
       setIsLoading(false);
     }
   };
-
-  const plans = [
-    {
-      ...SUBSCRIPTION_PLANS.FREE,
-      price: "Free",
-      buttonText: "Current Plan",
-      type: "free"
-    },
-    {
-      ...SUBSCRIPTION_PLANS.PRO,
-      price: "$29",
-      period: "month",
-      description: "Best for professional content creators",
-      icon: Zap,
-      buttonText: "Upgrade to Pro",
-      type: "pro",
-      recommended: true
-    },
-    {
-      ...SUBSCRIPTION_PLANS.ENTERPRISE,
-      price: "$99",
-      period: "month",
-      description: "For teams and agencies",
-      icon: Crown,
-      buttonText: "Contact Sales",
-      type: "enterprise"
-    }
-  ];
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-[#f8f9fa] to-white">
@@ -90,8 +62,8 @@ export default function Subscription() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {plans.map((plan) => {
-              const Icon = plan.icon || Star;
+            {[SUBSCRIPTION_PLANS.FREE, SUBSCRIPTION_PLANS.PRO, SUBSCRIPTION_PLANS.ENTERPRISE].map((plan) => {
+              const Icon = plan.icon || Check;
               const isCurrentPlan = subscription?.plan_type === plan.type;
               const canUpgrade = subscription?.plan_type === 'free' || 
                                (subscription?.plan_type === 'pro' && plan.type === 'enterprise');
@@ -132,7 +104,9 @@ export default function Subscription() {
                           <span className="text-gray-500">/{plan.period}</span>
                         )}
                       </div>
-                      <p className="mt-2 text-gray-600">{plan.description}</p>
+                      {plan.description && (
+                        <p className="mt-2 text-gray-600">{plan.description}</p>
+                      )}
                     </div>
 
                     <div className="space-y-4 mb-8">
