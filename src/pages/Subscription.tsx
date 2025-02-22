@@ -42,7 +42,7 @@ const plans = [
     buttonText: "Upgrade to Pro",
     type: "pro",
     recommended: true,
-    priceId: "price_1O4T5yF2jNmN6HfwpDBM1Z3L" // Replace this with your actual Stripe Price ID
+    priceId: "price_1QvMPNRqYZd5RVTtRzzZHD2F" // Replace this with your actual Stripe Price ID
   },
   {
     name: "Enterprise",
