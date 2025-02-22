@@ -437,6 +437,27 @@ export type Database = {
           },
         ]
       }
+      stripe_events: {
+        Row: {
+          created_at: string
+          data: Json
+          event_type: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          event_type: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          event_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
       stripe_prices: {
         Row: {
           active: boolean | null

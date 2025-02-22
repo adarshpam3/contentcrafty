@@ -1,1 +1,26 @@
+
 project_id = "cmrrsrdgmbahicdlrerk"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[[functions]]
+name = "stripe-webhook"
+verify_jwt = false
+
+[[functions]]
+name = "create-checkout"
+verify_jwt = false
+
+[[functions]]
+name = "manage-subscription"
+verify_jwt = false
