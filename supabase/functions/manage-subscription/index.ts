@@ -1,14 +1,14 @@
 
 import Stripe from 'https://esm.sh/stripe@13.11.0';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2023-10-16',
-});
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
+  apiVersion: '2023-10-16',
+});
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -18,25 +18,22 @@ Deno.serve(async (req) => {
   try {
     const { action } = await req.json();
     
-    // Get the user's JWT from the request header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
     }
     const jwt = authHeader.replace('Bearer ', '');
 
-    // Verify the JWT and get the user's data
-    const { supabaseClient } = await import("@supabase/supabase-js");
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.0');
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    const supabase = supabaseClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
     if (userError || !user) {
       throw new Error('Invalid user token');
     }
 
-    // Get the user's subscription
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('stripe_subscription_id')
@@ -57,14 +54,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      },
-    );
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error) {
+    console.error('Error managing subscription:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

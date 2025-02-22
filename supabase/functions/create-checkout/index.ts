@@ -1,16 +1,17 @@
 
 import Stripe from 'https://esm.sh/stripe@13.11.0';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2023-10-16',
-});
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
+  apiVersion: '2023-10-16',
+});
+
 Deno.serve(async (req) => {
+  // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -26,15 +27,17 @@ Deno.serve(async (req) => {
     const jwt = authHeader.replace('Bearer ', '');
 
     // Verify the JWT and get the user's data
-    const { supabaseClient } = await import("@supabase/supabase-js");
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.0');
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    const supabase = supabaseClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
     if (userError || !user) {
       throw new Error('Invalid user token');
     }
+
+    console.log('Creating checkout session for user:', user.id);
 
     // Get or create Stripe customer
     const { data: subscription } = await supabase
@@ -46,6 +49,7 @@ Deno.serve(async (req) => {
     let customerId = subscription?.stripe_customer_id;
 
     if (!customerId) {
+      console.log('Creating new Stripe customer');
       // Create a new customer
       const customer = await stripe.customers.create({
         email: user.email,
@@ -54,7 +58,15 @@ Deno.serve(async (req) => {
         },
       });
       customerId = customer.id;
+
+      // Update the subscription record with the new customer ID
+      await supabase
+        .from('subscriptions')
+        .update({ stripe_customer_id: customerId })
+        .eq('user_id', user.id);
     }
+
+    console.log('Creating checkout session with price:', priceId);
 
     // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
@@ -83,6 +95,7 @@ Deno.serve(async (req) => {
       },
     );
   } catch (error) {
+    console.error('Error creating checkout session:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
