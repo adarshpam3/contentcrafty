@@ -437,36 +437,90 @@ export type Database = {
           },
         ]
       }
+      stripe_prices: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          interval: string | null
+          interval_count: number | null
+          metadata: Json | null
+          product_id: string
+          type: string | null
+          unit_amount: number | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id: string
+          interval?: string | null
+          interval_count?: number | null
+          metadata?: Json | null
+          product_id: string
+          type?: string | null
+          unit_amount?: number | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          interval?: string | null
+          interval_count?: number | null
+          metadata?: Json | null
+          product_id?: string
+          type?: string | null
+          unit_amount?: number | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           articles_remaining: number
+          cancel_at_period_end: boolean | null
           created_at: string
+          current_period_end: string | null
           id: string
           plan_type: string
           price: number
-          status: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           tokens_remaining: number
           updated_at: string
           user_id: string | null
         }
         Insert: {
           articles_remaining?: number
+          cancel_at_period_end?: boolean | null
           created_at?: string
+          current_period_end?: string | null
           id?: string
           plan_type?: string
           price?: number
-          status?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           tokens_remaining?: number
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           articles_remaining?: number
+          cancel_at_period_end?: boolean | null
           created_at?: string
+          current_period_end?: string | null
           id?: string
           plan_type?: string
           price?: number
-          status?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           tokens_remaining?: number
           updated_at?: string
           user_id?: string | null
@@ -517,6 +571,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      subscription_status:
+        | "trialing"
+        | "active"
+        | "canceled"
+        | "incomplete"
+        | "incomplete_expired"
+        | "past_due"
+        | "unpaid"
+        | "paused"
     }
     CompositeTypes: {
       [_ in never]: never
