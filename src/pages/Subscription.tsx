@@ -1,160 +1,59 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check, Zap, Users, Star, Crown, Loader2 } from "lucide-react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-
-const plans = [
-  {
-    name: "Starter",
-    price: "Free",
-    description: "Perfect for trying out our service",
-    icon: Star,
-    features: [
-      "3 articles per month",
-      "Basic AI writing",
-      "Manual topic creation",
-      "Standard support",
-    ],
-    buttonText: "Current Plan",
-    type: "free",
-    priceId: null
-  },
-  {
-    name: "Pro Writer",
-    price: "$29",
-    period: "month",
-    description: "Best for professional content creators",
-    icon: Zap,
-    features: [
-      "50 articles per month",
-      "Advanced AI writing",
-      "SERP Analysis",
-      "Priority support",
-      "Content optimization",
-      "Bulk generation"
-    ],
-    buttonText: "Upgrade to Pro",
-    type: "pro",
-    recommended: true,
-    priceId: "price_xxxxx" // Replace with your Stripe price ID
-  },
-  {
-    name: "Enterprise",
-    price: "$99",
-    period: "month",
-    description: "For teams and agencies",
-    icon: Crown,
-    features: [
-      "Unlimited articles",
-      "Advanced AI writing",
-      "SERP Analysis",
-      "24/7 Premium support",
-      "Content optimization",
-      "Bulk generation",
-      "Custom integrations",
-      "Team collaboration"
-    ],
-    buttonText: "Contact Sales",
-    type: "enterprise",
-    priceId: "price_yyyy" // Replace with your Stripe price ID
-  }
-];
+import { useSubscription } from "@/hooks/use-subscription";
+import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
+import { SUBSCRIPTION_PLANS } from "@/config/stripe";
 
 export default function Subscription() {
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { subscription, createCheckoutSession, manageSubscription } = useSubscription();
 
-  const { data: subscription, refetch: refetchSubscription } = useQuery({
-    queryKey: ["subscription"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select("*, profiles(stripe_customer_id)")
-        .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
-        .single();
+  const handleUpgrade = async (priceId: string | null) => {
+    if (!priceId) {
+      return;
+    }
 
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const createCheckoutSession = async (priceId: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/functions/v1/create-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-        body: JSON.stringify({ priceId }),
-      });
-
-      const { url, error } = await response.json();
-      if (error) throw new Error(error);
-      window.location.href = url;
+      await createCheckoutSession(priceId);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create checkout session",
-        variant: "destructive",
-      });
+      console.error('Error creating checkout session:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const manageSubscriptionMutation = useMutation({
-    mutationFn: async (action: 'cancel' | 'resume') => {
-      const response = await fetch('/functions/v1/manage-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-        body: JSON.stringify({ action }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to manage subscription');
-      }
-
-      return response.json();
+  const plans = [
+    {
+      ...SUBSCRIPTION_PLANS.FREE,
+      price: "Free",
+      buttonText: "Current Plan",
+      type: "free"
     },
-    onSuccess: () => {
-      refetchSubscription();
-      toast({
-        title: "Success",
-        description: "Subscription updated successfully",
-      });
+    {
+      ...SUBSCRIPTION_PLANS.PRO,
+      price: "$29",
+      period: "month",
+      description: "Best for professional content creators",
+      icon: Zap,
+      buttonText: "Upgrade to Pro",
+      type: "pro",
+      recommended: true
     },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update subscription",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleUpgrade = async (plan: typeof plans[0]) => {
-    if (!plan.priceId) {
-      toast({
-        title: "Contact Sales",
-        description: "Please contact our sales team for enterprise plans",
-      });
-      return;
+    {
+      ...SUBSCRIPTION_PLANS.ENTERPRISE,
+      price: "$99",
+      period: "month",
+      description: "For teams and agencies",
+      icon: Crown,
+      buttonText: "Contact Sales",
+      type: "enterprise"
     }
-
-    await createCheckoutSession(plan.priceId);
-  };
+  ];
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-[#f8f9fa] to-white">
@@ -166,6 +65,12 @@ export default function Subscription() {
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Select the perfect plan that matches your content creation needs. Upgrade or downgrade anytime.
             </p>
+            {subscription && (
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-sm text-gray-600">Current subscription status:</span>
+                <SubscriptionBadge status={subscription.status} />
+              </div>
+            )}
           </div>
 
           {subscription?.cancel_at_period_end && (
@@ -175,7 +80,7 @@ export default function Subscription() {
                 {new Date(subscription.current_period_end).toLocaleDateString()}
                 <Button
                   variant="link"
-                  onClick={() => manageSubscriptionMutation.mutate('resume')}
+                  onClick={() => manageSubscription('resume')}
                   className="ml-2 text-[#06962c]"
                 >
                   Resume Subscription
@@ -186,7 +91,7 @@ export default function Subscription() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan) => {
-              const Icon = plan.icon;
+              const Icon = plan.icon || Star;
               const isCurrentPlan = subscription?.plan_type === plan.type;
               const canUpgrade = subscription?.plan_type === 'free' || 
                                (subscription?.plan_type === 'pro' && plan.type === 'enterprise');
@@ -255,9 +160,9 @@ export default function Subscription() {
                       }`}
                       onClick={() => {
                         if (isCurrentPlan && subscription?.stripe_subscription_id) {
-                          manageSubscriptionMutation.mutate('cancel');
+                          manageSubscription('cancel');
                         } else if (canUpgrade) {
-                          handleUpgrade(plan);
+                          handleUpgrade(plan.priceId);
                         }
                       }}
                       disabled={isLoading || (!canUpgrade && !isCurrentPlan)}
