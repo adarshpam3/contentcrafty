@@ -251,9 +251,7 @@ export default function Subscription() {
                           ? 'bg-[#e6f4ea] text-[#06962c] hover:bg-[#d1e9d5]'
                           : plan.recommended
                             ? 'bg-[#06962c] hover:bg-[#057a24] text-white'
-                            : 'bg
-
--gray-900 hover:bg-gray-800 text-white'
+                            : 'bg-gray-900 hover:bg-gray-800 text-white'
                       }`}
                       onClick={() => {
                         if (isCurrentPlan && subscription?.stripe_subscription_id) {
