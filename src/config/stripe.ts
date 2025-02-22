@@ -1,21 +1,52 @@
 
-// Do not include secret keys here - only publishable key
-export const STRIPE_PUBLISHABLE_KEY = "pk_test_xxxxxxxxxxxxx"; // Replace with your actual publishable key
+import { Star, Zap, Crown } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-export const SUBSCRIPTION_PLANS = {
+// Do not include secret keys here - only publishable key
+export const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_xxxxxxxxxxxxx";
+
+interface SubscriptionPlan {
+  name: string;
+  priceId: string | null;
+  features: readonly string[];
+  price: string;
+  period?: string;
+  description?: string;
+  icon?: typeof Star | typeof Zap | typeof Crown;
+  buttonText: string;
+  type: 'free' | 'pro' | 'enterprise';
+  recommended?: boolean;
+}
+
+export const SUBSCRIPTION_PLANS: {
+  FREE: SubscriptionPlan;
+  PRO: SubscriptionPlan;
+  ENTERPRISE: SubscriptionPlan;
+} = {
   FREE: {
     name: "Starter",
     priceId: null,
+    price: "Free",
+    type: "free",
+    buttonText: "Current Plan",
     features: [
       "3 articles per month",
       "Basic AI writing",
       "Manual topic creation",
       "Standard support",
     ],
+    icon: Star,
   },
   PRO: {
     name: "Pro Writer",
     priceId: "price_xxxxx", // Replace with your Stripe price ID
+    price: "$29",
+    period: "month",
+    type: "pro",
+    buttonText: "Upgrade to Pro",
+    description: "Best for professional content creators",
+    icon: Zap,
+    recommended: true,
     features: [
       "50 articles per month",
       "Advanced AI writing",
@@ -28,6 +59,12 @@ export const SUBSCRIPTION_PLANS = {
   ENTERPRISE: {
     name: "Enterprise",
     priceId: "price_yyyy", // Replace with your Stripe price ID
+    price: "$99",
+    period: "month",
+    type: "enterprise",
+    buttonText: "Contact Sales",
+    description: "For teams and agencies",
+    icon: Crown,
     features: [
       "Unlimited articles",
       "Advanced AI writing",
