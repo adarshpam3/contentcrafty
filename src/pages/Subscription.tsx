@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Users } from "lucide-react";
 import { useSubscription } from "@/hooks/use-subscription";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import { SUBSCRIPTION_PLANS } from "@/config/stripe";

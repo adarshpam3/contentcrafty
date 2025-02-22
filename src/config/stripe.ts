@@ -3,7 +3,7 @@ import { Star, Zap, Crown } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // Do not include secret keys here - only publishable key
-export const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_xxxxxxxxxxxxx";
+export const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "pk_test_xxxxxxxxxxxxx";
 
 interface SubscriptionPlan {
   name: string;
