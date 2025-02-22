@@ -18,7 +18,10 @@ export function useSubscription() {
         .eq("user_id", session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching subscription:", error);
+        return null;
+      }
       return data;
     },
   });
@@ -28,7 +31,7 @@ export function useSubscription() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const response = await fetch('/functions/v1/manage-subscription', {
+      const response = await fetch('/api/manage-subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +53,8 @@ export function useSubscription() {
         description: "Subscription updated successfully",
       });
     },
-    onError: () => {
+    onError: (error: Error) => {
+      console.error("Subscription management error:", error);
       toast({
         title: "Error",
         description: "Failed to update subscription",
@@ -60,11 +64,11 @@ export function useSubscription() {
   });
 
   const createCheckoutSession = async (priceId: string) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('Not authenticated');
-
     try {
-      const response = await fetch('/functions/v1/create-checkout', {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,9 +78,20 @@ export function useSubscription() {
       });
 
       const { url, error } = await response.json();
-      if (error) throw new Error(error);
+      
+      if (error || !url) {
+        console.error("Checkout error:", error);
+        toast({
+          title: "Error",
+          description: "Failed to create checkout session",
+          variant: "destructive",
+        });
+        throw new Error(error || "Failed to create checkout session");
+      }
+
       window.location.href = url;
     } catch (error) {
+      console.error("Checkout error:", error);
       toast({
         title: "Error",
         description: "Failed to create checkout session",
