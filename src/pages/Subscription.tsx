@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
@@ -78,14 +79,13 @@ export default function Subscription() {
         console.error('Supabase function error:', error);
         throw error;
       }
-      
+
       if (!data?.url) {
-        console.error('No checkout URL returned:', data);
-        throw new Error('Failed to create checkout session');
+        throw new Error('No checkout URL returned from server');
       }
 
       window.location.href = data.url;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in handleUpgrade:', error);
       toast({
         title: "Error",
@@ -112,7 +112,7 @@ export default function Subscription() {
           ? "Your subscription will be cancelled at the end of the billing period" 
           : "Your subscription has been resumed",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
       toast({
         title: "Error",
