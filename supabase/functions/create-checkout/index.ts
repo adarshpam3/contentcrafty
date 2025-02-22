@@ -70,6 +70,10 @@ Deno.serve(async (req) => {
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
+      customer_update: {
+        name: 'auto',
+        address: 'auto',
+      },
       line_items: [
         {
           price: priceId,
