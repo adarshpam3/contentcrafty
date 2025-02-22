@@ -18,39 +18,39 @@ Deno.serve(async (req) => {
 
   try {
     const { priceId } = await req.json();
+    console.log('Received price ID:', priceId);
     
-    // Get the user's JWT from the request header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      throw new Error('Missing authorization header');
     }
-    const jwt = authHeader.replace('Bearer ', '');
 
-    // Verify the JWT and get the user's data
+    const jwt = authHeader.replace('Bearer ', '');
     const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.0');
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Verify user
     const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
     if (userError || !user) {
+      console.error('User verification failed:', userError);
       throw new Error('Invalid user token');
     }
 
-    console.log('Creating checkout session for user:', user.id);
+    console.log('Creating checkout for user:', user.id);
 
-    // Get or create Stripe customer
-    const { data: subscription } = await supabase
+    // Get or create customer
+    const { data: subscriptionData } = await supabase
       .from('subscriptions')
       .select('stripe_customer_id')
       .eq('user_id', user.id)
       .single();
 
-    let customerId = subscription?.stripe_customer_id;
+    let customerId = subscriptionData?.stripe_customer_id;
 
     if (!customerId) {
       console.log('Creating new Stripe customer');
-      // Create a new customer
       const customer = await stripe.customers.create({
         email: user.email,
         metadata: {
@@ -59,16 +59,15 @@ Deno.serve(async (req) => {
       });
       customerId = customer.id;
 
-      // Update the subscription record with the new customer ID
       await supabase
         .from('subscriptions')
         .update({ stripe_customer_id: customerId })
         .eq('user_id', user.id);
     }
 
-    console.log('Creating checkout session with price:', priceId);
+    console.log('Creating checkout session');
 
-    // Create Stripe Checkout session
+    // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -90,6 +89,8 @@ Deno.serve(async (req) => {
       tax_id_collection: { enabled: true },
     });
 
+    console.log('Checkout session created:', session.id);
+
     return new Response(
       JSON.stringify({ url: session.url }),
       {
@@ -98,9 +99,12 @@ Deno.serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error creating checkout session:', error);
+    console.error('Checkout error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,

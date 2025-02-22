@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +13,25 @@ import { plans } from "@/config/plans";
 export default function Subscription() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState<string | null>(null);
+
+  const success = searchParams.get('success');
+  const canceled = searchParams.get('canceled');
+
+  React.useEffect(() => {
+    if (success) {
+      toast({
+        title: "Success!",
+        description: "Your subscription has been activated.",
+      });
+    } else if (canceled) {
+      toast({
+        title: "Checkout canceled",
+        description: "You can try again whenever you're ready.",
+      });
+    }
+  }, [success, canceled, toast]);
 
   const { data: subscription, isLoading: isLoadingSubscription } = useQuery({
     queryKey: ["subscription"],
@@ -67,13 +84,12 @@ export default function Subscription() {
         throw new Error('Failed to create checkout session');
       }
 
-      console.log('Redirecting to checkout:', data.url);
       window.location.href = data.url;
     } catch (error) {
       console.error('Error in handleUpgrade:', error);
       toast({
         title: "Error",
-        description: "Failed to process upgrade. Please try again.",
+        description: error.message || "Failed to process upgrade. Please try again.",
         variant: "destructive",
       });
     } finally {
