@@ -1,14 +1,16 @@
 
-import { serve } from "https://deno.fresh.dev/std@v9.6.1/http/server.ts";
-import Stripe from 'https://esm.sh/stripe@13.6.0?target=deno';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
+  apiVersion: '2023-10-16',
+});
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,24 +18,25 @@ serve(async (req) => {
   try {
     const { action } = await req.json();
     
+    // Get the user's JWT from the request header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
     }
+    const jwt = authHeader.replace('Bearer ', '');
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
+    // Verify the JWT and get the user's data
+    const { supabaseClient } = await import("@supabase/supabase-js");
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const supabase = supabaseClient(supabaseUrl, supabaseKey);
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-
-    if (authError || !user) {
-      throw new Error('Invalid token');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
+    if (userError || !user) {
+      throw new Error('Invalid user token');
     }
 
+    // Get the user's subscription
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('stripe_subscription_id')
@@ -41,33 +44,33 @@ serve(async (req) => {
       .single();
 
     if (!subscription?.stripe_subscription_id) {
-      throw new Error('No subscription found');
+      throw new Error('No active subscription found');
     }
 
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-      apiVersion: '2023-10-16',
-    });
-
-    let result;
     if (action === 'cancel') {
-      result = await stripe.subscriptions.update(subscription.stripe_subscription_id, {
+      await stripe.subscriptions.update(subscription.stripe_subscription_id, {
         cancel_at_period_end: true,
       });
     } else if (action === 'resume') {
-      result = await stripe.subscriptions.update(subscription.stripe_subscription_id, {
+      await stripe.subscriptions.update(subscription.stripe_subscription_id, {
         cancel_at_period_end: false,
       });
     }
 
-    return new Response(JSON.stringify({ success: true, subscription: result }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({ success: true }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      },
+    );
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      },
+    );
   }
 });
