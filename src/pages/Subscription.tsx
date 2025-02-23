@@ -67,6 +67,7 @@ export default function Subscription() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
+        setIsLoading(null); // Reset loading state
         navigate('/auth');
         return;
       }
@@ -77,23 +78,30 @@ export default function Subscription() {
 
       if (error) {
         console.error('Supabase function error:', error);
+        setIsLoading(null); // Reset loading state
         throw error;
       }
 
       if (!data?.url) {
+        setIsLoading(null); // Reset loading state
         throw new Error('No checkout URL returned from server');
       }
 
-      window.location.href = data.url;
+      // Only redirect if we have a valid URL
+      if (typeof data.url === 'string' && data.url.startsWith('http')) {
+        window.location.href = data.url;
+      } else {
+        setIsLoading(null); // Reset loading state
+        throw new Error('Invalid checkout URL received');
+      }
     } catch (error: any) {
+      setIsLoading(null); // Reset loading state
       console.error('Error in handleUpgrade:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to process upgrade. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(null);
     }
   };
 
@@ -104,7 +112,10 @@ export default function Subscription() {
         body: { action },
       });
 
-      if (error) throw error;
+      if (error) {
+        setIsLoading(null); // Reset loading state
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -113,6 +124,7 @@ export default function Subscription() {
           : "Your subscription has been resumed",
       });
     } catch (error: any) {
+      setIsLoading(null); // Reset loading state
       console.error('Error:', error);
       toast({
         title: "Error",
