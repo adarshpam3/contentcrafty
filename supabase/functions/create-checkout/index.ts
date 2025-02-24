@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
       .from('subscriptions')
       .select('stripe_customer_id')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     let customerId = subscriptionData?.stripe_customer_id;
 
