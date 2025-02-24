@@ -40,6 +40,13 @@ Deno.serve(async (req) => {
 
     console.log(`Processing webhook event: ${event.type}`);
 
+    // Store the event in our database
+    await supabase.from('stripe_events').insert({
+      id: event.id,
+      event_type: event.type,
+      data: event.data.object
+    });
+
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
@@ -67,6 +74,7 @@ Deno.serve(async (req) => {
             current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
             stripe_subscription_id: subscriptionId,
             stripe_customer_id: customerId,
+            cancel_at_period_end: subscription.cancel_at_period_end
           })
           .eq('user_id', session.metadata?.user_id);
 
