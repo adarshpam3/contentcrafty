@@ -34,7 +34,7 @@ export default function Subscription() {
     }
   }, [success, canceled, toast]);
 
-  const { data: subscription, isLoading: isLoadingSubscription } = useQuery({
+  const { data: subscription, isLoading: isLoadingSubscription, error: subscriptionError } = useQuery({
     queryKey: ["subscription"],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -46,11 +46,16 @@ export default function Subscription() {
       const { data, error } = await supabase
         .from("subscriptions")
         .select("*")
+        .eq('user_id', session.user.id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Subscription fetch error:', error);
+        throw error;
+      }
       return data;
     },
+    retry: 1
   });
 
   const handleUpgrade = async (planType: string, priceId: string | null) => {
@@ -67,35 +72,31 @@ export default function Subscription() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        setIsLoading(null); // Reset loading state
+        setIsLoading(null);
         navigate('/auth');
         return;
       }
 
+      console.log('Creating checkout session for plan:', planType);
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId },
       });
 
       if (error) {
         console.error('Supabase function error:', error);
-        setIsLoading(null); // Reset loading state
+        setIsLoading(null);
         throw error;
       }
 
       if (!data?.url) {
-        setIsLoading(null); // Reset loading state
+        setIsLoading(null);
         throw new Error('No checkout URL returned from server');
       }
 
-      // Only redirect if we have a valid URL
-      if (typeof data.url === 'string' && data.url.startsWith('http')) {
-        window.location.href = data.url;
-      } else {
-        setIsLoading(null); // Reset loading state
-        throw new Error('Invalid checkout URL received');
-      }
+      console.log('Redirecting to checkout URL:', data.url);
+      window.location.href = data.url;
     } catch (error: any) {
-      setIsLoading(null); // Reset loading state
+      setIsLoading(null);
       console.error('Error in handleUpgrade:', error);
       toast({
         title: "Error",
@@ -113,7 +114,7 @@ export default function Subscription() {
       });
 
       if (error) {
-        setIsLoading(null); // Reset loading state
+        setIsLoading(null);
         throw error;
       }
 
@@ -124,7 +125,7 @@ export default function Subscription() {
           : "Your subscription has been resumed",
       });
     } catch (error: any) {
-      setIsLoading(null); // Reset loading state
+      setIsLoading(null);
       console.error('Error:', error);
       toast({
         title: "Error",
@@ -135,6 +136,39 @@ export default function Subscription() {
       setIsLoading(null);
     }
   };
+
+  if (subscriptionError) {
+    console.error('Subscription error:', subscriptionError);
+    return (
+      <div className="flex min-h-screen bg-gradient-to-b from-[#f8f9fa] to-white">
+        <Sidebar />
+        <main className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900">Error Loading Subscription</h2>
+              <p className="mt-2 text-gray-600">Unable to load subscription details. Please try refreshing the page.</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (isLoadingSubscription) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-b from-[#f8f9fa] to-white">
+        <Sidebar />
+        <main className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900">Loading...</h2>
+              <p className="mt-2 text-gray-600">Please wait while we fetch your subscription details.</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-[#f8f9fa] to-white">
