@@ -69,9 +69,12 @@ export default function Subscription() {
 
     try {
       setIsLoading(planType);
+      console.log('Starting upgrade process for plan:', planType, 'with price ID:', priceId);
+      
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
+        console.log('No active session, redirecting to auth');
         setIsLoading(null);
         navigate('/auth');
         return;
@@ -89,12 +92,26 @@ export default function Subscription() {
       }
 
       if (!data?.url) {
+        console.error('No checkout URL returned');
         setIsLoading(null);
         throw new Error('No checkout URL returned from server');
       }
 
-      console.log('Redirecting to checkout URL:', data.url);
+      // Validate the URL
+      try {
+        new URL(data.url);
+      } catch {
+        console.error('Invalid checkout URL received:', data.url);
+        setIsLoading(null);
+        throw new Error('Invalid checkout URL received');
+      }
+
+      console.log('Valid checkout URL received, redirecting to:', data.url);
+      
+      // The URL in the success_url parameter (configured in create-checkout function) 
+      // will bring the user back to /subscription?success=true
       window.location.href = data.url;
+      
     } catch (error: any) {
       setIsLoading(null);
       console.error('Error in handleUpgrade:', error);
