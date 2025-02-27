@@ -1,226 +1,192 @@
 
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Check, Zap, Users, Star, Crown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { PricingCard } from "@/components/subscription/PricingCard";
-import { PricingHeader } from "@/components/subscription/PricingHeader";
-import { ContactSupport } from "@/components/subscription/ContactSupport";
-import { SubscriptionDetails } from "@/components/subscription/SubscriptionDetails";
-import { plans } from "@/config/plans";
+
+const plans = [
+  {
+    name: "Starter",
+    price: "Free",
+    description: "Perfect for trying out our service",
+    icon: Star,
+    features: [
+      "3 articles per month",
+      "Basic AI writing",
+      "Manual topic creation",
+      "Standard support",
+    ],
+    buttonText: "Current Plan",
+    type: "free"
+  },
+  {
+    name: "Pro Writer",
+    price: "$29",
+    period: "month",
+    description: "Best for professional content creators",
+    icon: Zap,
+    features: [
+      "50 articles per month",
+      "Advanced AI writing",
+      "SERP Analysis",
+      "Priority support",
+      "Content optimization",
+      "Bulk generation"
+    ],
+    buttonText: "Upgrade to Pro",
+    type: "pro",
+    recommended: true
+  },
+  {
+    name: "Enterprise",
+    price: "$99",
+    period: "month",
+    description: "For teams and agencies",
+    icon: Crown,
+    features: [
+      "Unlimited articles",
+      "Advanced AI writing",
+      "SERP Analysis",
+      "24/7 Premium support",
+      "Content optimization",
+      "Bulk generation",
+      "Custom integrations",
+      "Team collaboration"
+    ],
+    buttonText: "Contact Sales",
+    type: "enterprise"
+  }
+];
 
 export default function Subscription() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [searchParams] = useSearchParams();
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
-  const success = searchParams.get('success');
-  const canceled = searchParams.get('canceled');
-
-  useEffect(() => {
-    if (success) {
-      toast({
-        title: "Success!",
-        description: "Your subscription has been activated.",
-      });
-    } else if (canceled) {
-      toast({
-        title: "Checkout canceled",
-        description: "You can try again whenever you're ready.",
-      });
-    }
-  }, [success, canceled, toast]);
-
-  const { data: subscription, isLoading: isLoadingSubscription, error: subscriptionError } = useQuery({
+  const { data: subscription } = useQuery({
     queryKey: ["subscription"],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/auth');
-        return null;
-      }
-
       const { data, error } = await supabase
         .from("subscriptions")
         .select("*")
-        .eq('user_id', session.user.id)
         .maybeSingle();
 
-      if (error) {
-        console.error('Subscription fetch error:', error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
-    retry: 1
   });
 
-  const handleUpgrade = async (planType: string, priceId: string | null) => {
-    if (!priceId) {
-      toast({
-        title: "Contact Sales",
-        description: "Please contact our sales team for enterprise plans.",
-      });
-      return;
-    }
-
-    try {
-      setIsLoading(planType);
-      console.log('Starting upgrade process for plan:', planType, 'with price ID:', priceId);
-      
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        console.log('No active session, redirecting to auth');
-        setIsLoading(null);
-        navigate('/auth');
-        return;
-      }
-
-      console.log('Creating checkout session for plan:', planType);
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId },
-      });
-
-      if (error) {
-        console.error('Supabase function error:', error);
-        setIsLoading(null);
-        throw error;
-      }
-
-      if (!data?.url) {
-        console.error('No checkout URL returned');
-        setIsLoading(null);
-        throw new Error('No checkout URL returned from server');
-      }
-
-      // Validate the URL
-      try {
-        new URL(data.url);
-      } catch {
-        console.error('Invalid checkout URL received:', data.url);
-        setIsLoading(null);
-        throw new Error('Invalid checkout URL received');
-      }
-
-      console.log('Valid checkout URL received, redirecting to:', data.url);
-      
-      // The URL in the success_url parameter (configured in create-checkout function) 
-      // will bring the user back to /subscription?success=true
-      window.location.href = data.url;
-      
-    } catch (error: any) {
-      setIsLoading(null);
-      console.error('Error in handleUpgrade:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to process upgrade. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleUpgrade = async (planType: string) => {
+    toast({
+      title: "Coming Soon",
+      description: "Payment integration will be available soon!",
+    });
+    setSelectedPlan(planType);
   };
-
-  const handleManageSubscription = async (action: 'cancel' | 'resume') => {
-    try {
-      setIsLoading(action);
-      const { error } = await supabase.functions.invoke('manage-subscription', {
-        body: { action },
-      });
-
-      if (error) {
-        setIsLoading(null);
-        throw error;
-      }
-
-      toast({
-        title: "Success",
-        description: action === 'cancel' 
-          ? "Your subscription will be cancelled at the end of the billing period" 
-          : "Your subscription has been resumed",
-      });
-    } catch (error: any) {
-      setIsLoading(null);
-      console.error('Error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to manage subscription. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(null);
-    }
-  };
-
-  if (subscriptionError) {
-    console.error('Subscription error:', subscriptionError);
-    return (
-      <div className="flex min-h-screen bg-gradient-to-b from-[#f8f9fa] to-white">
-        <Sidebar />
-        <main className="flex-1 p-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900">Error Loading Subscription</h2>
-              <p className="mt-2 text-gray-600">Unable to load subscription details. Please try refreshing the page.</p>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  if (isLoadingSubscription) {
-    return (
-      <div className="flex min-h-screen bg-gradient-to-b from-[#f8f9fa] to-white">
-        <Sidebar />
-        <main className="flex-1 p-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900">Loading...</h2>
-              <p className="mt-2 text-gray-600">Please wait while we fetch your subscription details.</p>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-[#f8f9fa] to-white">
       <Sidebar />
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto space-y-12">
-          <PricingHeader />
-
-          {subscription && (
-            <div className="max-w-xl mx-auto">
-              <SubscriptionDetails subscription={subscription} />
-            </div>
-          )}
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl font-bold text-gray-900">Choose Your Plan</h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Select the perfect plan that matches your content creation needs. Upgrade or downgrade anytime.
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan) => {
+              const Icon = plan.icon;
               const isCurrentPlan = subscription?.plan_type === plan.type;
-              const isCancelled = isCurrentPlan && subscription?.cancel_at_period_end;
               
               return (
-                <PricingCard
+                <Card 
                   key={plan.type}
-                  {...plan}
-                  isCurrentPlan={isCurrentPlan}
-                  isCancelled={isCancelled}
-                  isLoading={isLoading === plan.type}
-                  subscriptionStatus={subscription?.status}
-                  onUpgrade={handleUpgrade}
-                  onManageSubscription={handleManageSubscription}
-                />
+                  className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${
+                    plan.recommended 
+                      ? 'border-2 border-[#06962c] shadow-md' 
+                      : 'border border-gray-200'
+                  }`}
+                >
+                  {plan.recommended && (
+                    <div className="absolute top-5 right-5">
+                      <span className="bg-[#06962c] text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Recommended
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="p-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className={`p-2 rounded-lg ${
+                        plan.recommended 
+                          ? 'bg-[#e6f4ea] text-[#06962c]' 
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900">{plan.name}</h2>
+                    </div>
+
+                    <div className="mb-6">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
+                        {plan.period && (
+                          <span className="text-gray-500">/{plan.period}</span>
+                        )}
+                      </div>
+                      <p className="mt-2 text-gray-600">{plan.description}</p>
+                    </div>
+
+                    <div className="space-y-4 mb-8">
+                      {plan.features.map((feature, index) => (
+                        <div key={index} className="flex items-start gap-3">
+                          <div className="mt-1">
+                            <Check className={`h-4 w-4 ${
+                              plan.recommended 
+                                ? 'text-[#06962c]' 
+                                : 'text-gray-600'
+                            }`} />
+                          </div>
+                          <span className="text-gray-600">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Button
+                      className={`w-full h-12 text-base font-medium ${
+                        isCurrentPlan
+                          ? 'bg-[#e6f4ea] text-[#06962c] hover:bg-[#d1e9d5]'
+                          : plan.recommended
+                            ? 'bg-[#06962c] hover:bg-[#057a24] text-white'
+                            : 'bg-gray-900 hover:bg-gray-800 text-white'
+                      }`}
+                      onClick={() => handleUpgrade(plan.type)}
+                      disabled={isCurrentPlan}
+                    >
+                      {isCurrentPlan ? "Current Plan" : plan.buttonText}
+                    </Button>
+                  </div>
+                </Card>
               );
             })}
           </div>
 
-          <ContactSupport />
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-3 bg-[#e6f4ea] rounded-lg">
+              <Users className="h-5 w-5 text-[#06962c]" />
+              <p className="text-[#06962c]">
+                Need help choosing the right plan? <a href="#" className="underline font-medium">Contact our sales team</a>
+              </p>
+            </div>
+          </div>
         </div>
       </main>
     </div>
