@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,7 +22,8 @@ const plans = [
       "Standard support",
     ],
     buttonText: "Current Plan",
-    type: "free"
+    type: "free",
+    priceId: null
   },
   {
     name: "Pro Writer",
@@ -40,7 +41,8 @@ const plans = [
     ],
     buttonText: "Upgrade to Pro",
     type: "pro",
-    recommended: true
+    recommended: true,
+    priceId: "price_1QvMPNRqYZd5RVTtRzzZHD2F" // Replace with your actual Stripe Price ID
   },
   {
     name: "Enterprise",
@@ -59,16 +61,33 @@ const plans = [
       "Team collaboration"
     ],
     buttonText: "Contact Sales",
-    type: "enterprise"
+    type: "enterprise",
+    priceId: null
   }
 ];
 
 export default function Subscription() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const [isLoading, setIsLoading] = useState<string | null>(null);
+  
+  // Check for success or canceled payments
+  useEffect(() => {
+    if (searchParams.get("success")) {
+      toast({
+        title: "Success!",
+        description: "Your subscription has been updated. Welcome to Pro!",
+      });
+    } else if (searchParams.get("canceled")) {
+      toast({
+        title: "Canceled",
+        description: "Your payment was canceled. Feel free to try again when you're ready.",
+      });
+    }
+  }, [searchParams, toast]);
 
-  const { data: subscription } = useQuery({
+  const { data: subscription, isLoading: isSubscriptionLoading } = useQuery({
     queryKey: ["subscription"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -81,12 +100,45 @@ export default function Subscription() {
     },
   });
 
-  const handleUpgrade = async (planType: string) => {
-    toast({
-      title: "Coming Soon",
-      description: "Payment integration will be available soon!",
-    });
-    setSelectedPlan(planType);
+  const handleUpgrade = async (planType: string, priceId: string | null) => {
+    if (!priceId) {
+      toast({
+        title: "Contact Sales",
+        description: "Please contact our sales team for enterprise plans.",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(planType);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setIsLoading(null);
+        navigate('/auth');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      setIsLoading(null);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to process upgrade. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -168,10 +220,10 @@ export default function Subscription() {
                             ? 'bg-[#06962c] hover:bg-[#057a24] text-white'
                             : 'bg-gray-900 hover:bg-gray-800 text-white'
                       }`}
-                      onClick={() => handleUpgrade(plan.type)}
-                      disabled={isCurrentPlan}
+                      onClick={() => handleUpgrade(plan.type, plan.priceId)}
+                      disabled={isCurrentPlan || isLoading === plan.type}
                     >
-                      {isCurrentPlan ? "Current Plan" : plan.buttonText}
+                      {isLoading === plan.type ? "Processing..." : isCurrentPlan ? "Current Plan" : plan.buttonText}
                     </Button>
                   </div>
                 </Card>
@@ -187,6 +239,36 @@ export default function Subscription() {
               </p>
             </div>
           </div>
+          
+          {subscription && subscription.plan_type === 'pro' && (
+            <div className="mt-8 p-6 border border-gray-200 rounded-lg shadow-sm bg-white">
+              <h2 className="text-xl font-bold mb-4">Pro Subscription Details</h2>
+              <div className="space-y-2">
+                <p><span className="font-medium">Status:</span> {subscription.status || 'Active'}</p>
+                {subscription.current_period_end && (
+                  <p>
+                    <span className="font-medium">Next billing date:</span> {new Date(subscription.current_period_end).toLocaleDateString()}
+                  </p>
+                )}
+                <p><span className="font-medium">Articles remaining:</span> {subscription.articles_remaining}/50</p>
+              </div>
+              
+              {subscription.stripe_subscription_id && (
+                <div className="mt-4">
+                  <Button 
+                    variant="outline" 
+                    className="text-[#06962c] border-[#06962c] hover:bg-[#e6f4ea]"
+                    onClick={() => {
+                      // URL needs to be created in the manage-subscription edge function
+                      window.location.href = "https://billing.stripe.com";
+                    }}
+                  >
+                    Manage Subscription
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
     </div>
