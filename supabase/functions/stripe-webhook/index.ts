@@ -2,44 +2,29 @@
 import Stripe from 'https://esm.sh/stripe@13.11.0';
 
 Deno.serve(async (req) => {
+  const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
+    apiVersion: '2023-10-16',
+  });
+
   try {
     const signature = req.headers.get('stripe-signature');
-    if (!signature) {
-      return new Response(JSON.stringify({ error: 'Missing stripe-signature header' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
     
-    if (!stripeKey || !stripeWebhookSecret) {
-      return new Response(JSON.stringify({ error: 'Stripe configuration is missing' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (!signature) {
+      return new Response('Webhook signature missing', { status: 400 });
     }
-
-    const stripe = new Stripe(stripeKey, {
-      apiVersion: '2023-10-16',
-    });
 
     const body = await req.text();
-    let event;
-
-    try {
-      event = stripe.webhooks.constructEvent(
-        body,
-        signature,
-        stripeWebhookSecret
-      );
-    } catch (err) {
-      return new Response(JSON.stringify({ error: `Webhook signature verification failed: ${err.message}` }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    
+    if (!webhookSecret) {
+      return new Response('Webhook secret not configured', { status: 500 });
     }
+
+    const event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      webhookSecret
+    );
 
     const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.0');
     
@@ -52,106 +37,98 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Handle the event
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+        const subscriptionId = session.subscription;
         const customerId = session.customer;
         
-        // Get user ID from customer
-        const { data: userData } = await supabase
-          .from('subscriptions')
-          .select('user_id')
-          .eq('stripe_customer_id', customerId)
-          .maybeSingle();
-          
-        if (userData) {
-          // Update subscription
-          const { error } = await supabase
-            .from('subscriptions')
-            .update({
-              stripe_subscription_id: subscription.id,
-              plan_type: 'pro',
-              status: subscription.status,
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              articles_remaining: 50
-            })
-            .eq('user_id', userData.user_id);
-            
-          if (error) {
-            console.error('Error updating subscription:', error);
-          }
+        if (typeof subscriptionId !== 'string' || typeof customerId !== 'string') {
+          throw new Error('Invalid subscription or customer ID');
         }
+
+        // Get subscription details
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const userId = subscription.metadata.user_id;
+
+        if (!userId) {
+          throw new Error('User ID not found in subscription metadata');
+        }
+
+        // Update the user's subscription in the database
+        await supabase
+          .from('subscriptions')
+          .update({
+            stripe_subscription_id: subscriptionId,
+            stripe_customer_id: customerId,
+            plan_type: 'pro',
+            status: subscription.status,
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            articles_remaining: 50 // Reset to 50 articles for the Pro plan
+          })
+          .eq('user_id', userId);
+
         break;
       }
       
       case 'customer.subscription.updated': {
         const subscription = event.data.object;
-        const customerId = subscription.customer;
+        const userId = subscription.metadata.user_id;
         
-        // Get user ID from customer
-        const { data: userData } = await supabase
-          .from('subscriptions')
-          .select('user_id')
-          .eq('stripe_customer_id', customerId)
-          .maybeSingle();
-          
-        if (userData) {
-          // Update subscription
-          const { error } = await supabase
-            .from('subscriptions')
-            .update({
-              status: subscription.status,
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            })
-            .eq('user_id', userData.user_id);
-            
-          if (error) {
-            console.error('Error updating subscription:', error);
-          }
+        if (!userId) {
+          throw new Error('User ID not found in subscription metadata');
         }
+
+        // Update subscription status
+        await supabase
+          .from('subscriptions')
+          .update({
+            status: subscription.status,
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            // Only reset articles if this is a renewal (new period)
+            ...(subscription.status === 'active' && { articles_remaining: 50 })
+          })
+          .eq('user_id', userId);
+          
         break;
       }
       
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
-        const customerId = subscription.customer;
+        const userId = subscription.metadata.user_id;
         
-        // Get user ID from customer
-        const { data: userData } = await supabase
-          .from('subscriptions')
-          .select('user_id')
-          .eq('stripe_customer_id', customerId)
-          .maybeSingle();
-          
-        if (userData) {
-          // Update subscription
-          const { error } = await supabase
-            .from('subscriptions')
-            .update({
-              stripe_subscription_id: null,
-              plan_type: 'free',
-              status: 'inactive',
-              articles_remaining: 3
-            })
-            .eq('user_id', userData.user_id);
-            
-          if (error) {
-            console.error('Error updating subscription:', error);
-          }
+        if (!userId) {
+          throw new Error('User ID not found in subscription metadata');
         }
+
+        // Downgrade to free plan
+        await supabase
+          .from('subscriptions')
+          .update({
+            plan_type: 'free',
+            status: 'canceled',
+            articles_remaining: 3, // Reset to free plan limit
+            stripe_subscription_id: null
+          })
+          .eq('user_id', userId);
+          
         break;
       }
     }
 
     return new Response(JSON.stringify({ received: true }), {
-      status: 200,
       headers: { 'Content-Type': 'application/json' },
+      status: 200,
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    console.error('Webhook error:', error.message);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 });

@@ -42,7 +42,7 @@ const plans = [
     buttonText: "Upgrade to Pro",
     type: "pro",
     recommended: true,
-    priceId: "price_1QvMPNRqYZd5RVTtRzzZHD2F" // Replace with your actual Stripe Price ID
+    priceId: "price_1QvMPNRqYZd5RVTtRzzZHD2F" // Your actual Stripe Price ID
   },
   {
     name: "Enterprise",
@@ -136,6 +136,39 @@ export default function Subscription() {
       toast({
         title: "Error",
         description: error.message || "Failed to process upgrade. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const handleManageSubscription = async () => {
+    try {
+      setIsLoading('manage');
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setIsLoading(null);
+        navigate('/auth');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-manage-portal', {
+        body: {},
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      setIsLoading(null);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to open subscription portal. Please try again.",
         variant: "destructive",
       });
     }
@@ -258,12 +291,10 @@ export default function Subscription() {
                   <Button 
                     variant="outline" 
                     className="text-[#06962c] border-[#06962c] hover:bg-[#e6f4ea]"
-                    onClick={() => {
-                      // URL needs to be created in the manage-subscription edge function
-                      window.location.href = "https://billing.stripe.com";
-                    }}
+                    onClick={handleManageSubscription}
+                    disabled={isLoading === 'manage'}
                   >
-                    Manage Subscription
+                    {isLoading === 'manage' ? "Loading..." : "Manage Subscription"}
                   </Button>
                 </div>
               )}

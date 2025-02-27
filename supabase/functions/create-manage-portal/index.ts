@@ -18,12 +18,7 @@ Deno.serve(async (req) => {
       throw new Error('Missing authorization header');
     }
 
-    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeKey) {
-      throw new Error('Stripe secret key is not configured');
-    }
-    
-    const stripe = new Stripe(stripeKey, {
+    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
       apiVersion: '2023-10-16',
     });
 
@@ -45,20 +40,22 @@ Deno.serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
-    // Get customer ID
+    // Get subscription data
     const { data: subscriptionData, error: subscriptionError } = await supabase
       .from('subscriptions')
-      .select('stripe_customer_id')
+      .select('stripe_customer_id, stripe_subscription_id')
       .eq('user_id', user.id)
       .maybeSingle();
 
     if (subscriptionError || !subscriptionData?.stripe_customer_id) {
-      throw new Error('Customer not found');
+      throw new Error('Subscription not found');
     }
+
+    const { stripe_customer_id } = subscriptionData;
 
     // Create billing portal session
     const session = await stripe.billingPortal.sessions.create({
-      customer: subscriptionData.stripe_customer_id,
+      customer: stripe_customer_id,
       return_url: `${req.headers.get('origin')}/subscription`,
     });
 
