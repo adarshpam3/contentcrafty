@@ -8,7 +8,7 @@ interface SubscriptionDetailsProps {
     articles_remaining?: number;
     stripe_subscription_id?: string;
   };
-  isLoading: boolean;
+  isLoading: string | null;
   onManageSubscription: () => void;
 }
 

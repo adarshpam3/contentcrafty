@@ -33,6 +33,15 @@ export function useSubscription() {
       return;
     }
 
+    // Check if the user already has the same active subscription
+    if (subscription?.plan_type === planType && subscription?.status === 'active') {
+      toast({
+        title: "Subscription Active",
+        description: `You already have an active ${planType} subscription.`,
+      });
+      return;
+    }
+
     try {
       setIsLoading(planType);
       
