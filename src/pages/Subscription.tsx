@@ -52,7 +52,7 @@ export default function Subscription() {
                 key={plan.type}
                 plan={plan}
                 isCurrentPlan={subscription?.plan_type === plan.type}
-                isLoading={isLoading === plan.type}
+                isLoading={isLoading}
                 onUpgrade={handleUpgrade}
               />
             ))}
