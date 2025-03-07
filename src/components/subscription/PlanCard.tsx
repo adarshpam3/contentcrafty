@@ -21,7 +21,7 @@ export interface SubscriptionPlan {
 interface PlanCardProps {
   plan: SubscriptionPlan;
   isCurrentPlan: boolean;
-  isLoading: boolean;
+  isLoading: string | null;
   onUpgrade: (planType: PlanType, priceId: string | null) => void;
 }
 
